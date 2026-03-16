@@ -1,7 +1,7 @@
 from app import db
 
 
-class Quesion(db.Model):
+class Question(db.Model):
 
     __tablename__ = "questions"
 

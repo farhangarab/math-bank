@@ -19,9 +19,14 @@ def create_app():
         User,
         ClassMember,
         Assignment,
-        Quesion,
+        Question,
         Attempt,
         AttemptAnswer,
     )
+
+    # register routes
+    from .routes.auth import auth_bp
+
+    app.register_blueprint(auth_bp, url_prefix="/api/auth")
 
     return app
