@@ -5,6 +5,7 @@ from .config import Config
 
 db = SQLAlchemy()
 
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
@@ -13,6 +14,14 @@ def create_app():
 
     db.init_app(app)
 
-    from app.models import User
+    from app.models import (
+        Class,
+        User,
+        ClassMember,
+        Assignment,
+        Quesion,
+        Attempt,
+        AttemptAnswer,
+    )
 
     return app
