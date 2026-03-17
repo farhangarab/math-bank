@@ -2,8 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from .config import Config
-
-db = SQLAlchemy()
+from app.extensions import db, bcrypt
 
 
 def create_app():
@@ -13,6 +12,8 @@ def create_app():
     CORS(app)
 
     db.init_app(app)
+
+    bcrypt.init_app(app)
 
     from app.models import (
         Class,
