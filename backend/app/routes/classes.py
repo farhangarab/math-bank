@@ -10,6 +10,7 @@ from app.utils.code_generator import generate_class_code
 classes_bp = Blueprint("classes", __name__)
 
 
+# create class
 @classes_bp.route("/create", methods=["POST"])
 def create_class():
 
@@ -43,6 +44,7 @@ def create_class():
     return jsonify({"message": "Class created", "class_code": class_code}), 201
 
 
+# get classes with teacher id
 @classes_bp.route("/my", methods=["GET"])
 def get_my_classes():
 
