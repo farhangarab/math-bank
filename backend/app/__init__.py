@@ -5,6 +5,7 @@ from .config import Config
 from app.extensions import db, bcrypt
 from .routes.auth import auth_bp
 from .routes.classes import classes_bp
+from .routes.student import student_bp
 
 
 def create_app():
@@ -30,5 +31,6 @@ def create_app():
     # register routes
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(classes_bp, url_prefix="/classes")
+    app.register_blueprint(student_bp, url_prefix="/student")
 
     return app
