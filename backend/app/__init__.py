@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from .config import Config
 from app.extensions import db, bcrypt
+from .routes.auth import auth_bp
+from .routes.classes import classes_bp
 
 
 def create_app():
@@ -26,8 +28,7 @@ def create_app():
     )
 
     # register routes
-    from .routes.auth import auth_bp
-
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
+    app.register_blueprint(classes_bp, url_prefix="/classes")
 
     return app
