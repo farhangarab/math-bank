@@ -1,8 +1,23 @@
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import WelcomePage from "./pages/WelcomePage";
+import LoginPage from "./pages/loginPage";
+// import StudentRegPage from "./pages/studentRegisterPage";
+import TeacherRegPage from "./pages/teacherRegisterPage";
+import { ROUTES } from "./router/routes";
+
 function App() {
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-100">
-      <h1 className="text-4xl font-bold text-blue-600">MathBank</h1>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path={ROUTES.HOME} element={<WelcomePage />} />
+        <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+        <Route
+          path={ROUTES.REGISTER_STUDENT}
+          // element={<StudentRegisterPage />}
+        />
+        <Route path={ROUTES.REGISTER_TEACHER} element={<TeacherRegPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
