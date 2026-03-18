@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Header from "../components/Header";
+import Header from "../components/header";
+import Input from "../components/input";
 import { loginUser } from "../api/auth";
 import { ROUTES } from "../router/routes";
 import Button from "../components/button";
-import Input from "../components/input";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");

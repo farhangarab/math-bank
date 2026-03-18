@@ -1,9 +1,9 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-// import StudentRegPage from "./pages/studentRegisterPage";
-import { ROUTES } from "./router/routes";
-import WelcomePage from "./pages/welcomePage";
+import WelcomePage from "./pages/WelcomePage";
 import LoginPage from "./pages/loginPage";
+// import StudentRegPage from "./pages/studentRegisterPage";
 import TeacherRegPage from "./pages/teacherRegisterPage";
+import { ROUTES } from "./router/routes";
 
 function App() {
   return (
