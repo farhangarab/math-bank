@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
-import Header from "../components/header";
 import { ROUTES } from "../router/routes";
+import Header from "../components/Header";
 import Button from "../components/button";
 
 export default function WelcomePage() {
@@ -14,7 +14,7 @@ export default function WelcomePage() {
         rightText="Login"
         rightAction={() => navigate(ROUTES.LOGIN)}
       />
-
+      console.log();
       {/* body of the page */}
       <main className="flex-grow flex items-center justify-center">
         <div className="w-full max-w-3xl text-center px-6">
