@@ -86,3 +86,61 @@ export async function joinClass(userId: number, classCode: string) {
 
   return data;
 }
+
+
+export async function getStudentClasses(userId: number) {
+  const res = await fetch(
+    `${API_BASE}/student/classes?user_id=${userId}`
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to load classes");
+  }
+
+  return data;
+}
+
+
+export async function getTeacherClasses(userId: number) {
+  const res = await fetch(
+    `${API_BASE}/classes/teacher-classes?teacher_id=${userId}`
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error);
+  }
+
+  return data;
+}
+
+
+export async function createClass(
+  userId: number,
+  className: string
+) {
+  const res = await fetch(
+    `${API_BASE}/classes/create`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        teacher_id: userId,
+        class_name: className,
+      }),
+    }
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error);
+  }
+
+  return data;
+}

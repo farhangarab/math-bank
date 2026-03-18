@@ -62,7 +62,7 @@ def join_class():
 
 
 # Get student classes
-@student_bp.route("/my-classes", methods=["GET"])
+@student_bp.route("/classes", methods=["GET"])
 def get_my_classes():
 
     user_id = request.args.get("user_id")

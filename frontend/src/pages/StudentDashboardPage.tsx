@@ -3,9 +3,31 @@ import Button from "../components/Button";
 import Header from "../components/Header";
 import { ROUTES } from "../router/routes";
 import ClassCard from "../components/ClassCard";
+import { useEffect, useState } from "react";
+import { getStudentClasses } from "../api/auth";
 
 function StudentDashboardPage() {
   const navigate = useNavigate();
+
+  const [classes, setClasses] = useState([]);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const loadClasses = async () => {
+      try {
+        const user = JSON.parse(localStorage.getItem("user")!);
+
+        const data = await getStudentClasses(user.id);
+
+        setClasses(data);
+      } catch (err: any) {
+        setError(err.message);
+      }
+    };
+
+    loadClasses();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -29,8 +51,13 @@ function StudentDashboardPage() {
           <h2 className="text-xl font-bold mb-4 text-[#354254]">My Classes</h2>
 
           {/* Example list */}
-          <ClassCard name="Math 101" />
-          <ClassCard name="Physics" />
+          <div className="flex flex-col gap-4 mt-6">
+            {classes.map((c: any) => (
+              <ClassCard key={c.id} name={c.class_name} code={c.class_code} />
+            ))}
+
+            {error && <p className="text-red-500">{error}</p>}
+          </div>
         </div>
       </div>
     </div>
