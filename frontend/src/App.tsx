@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import WelcomePage from "./pages/temp22";
-import LoginPage from "./pages/temp11";
+import WelcomePage from "./pages/WelcomePage";
+import LoginPage from "./pages/LoginPage";
 // import StudentRegPage from "./pages/studentRegisterPage";
 import { ROUTES } from "./router/routes";
 
