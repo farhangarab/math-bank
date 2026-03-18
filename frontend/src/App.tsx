@@ -1,18 +1,21 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import WelcomePage from "./pages/WelcomePage";
 import LoginPage from "./pages/loginPage";
-import StudentRegPage from "./pages/studentRegisterPage";
+// import StudentRegPage from "./pages/studentRegisterPage";
 import TeacherRegPage from "./pages/teacherRegisterPage";
+import { ROUTES } from "./router/routes";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<WelcomePage />}></Route>
-        <Route path="/login" element={<LoginPage />}></Route>
-
-        <Route path="/register/student" element={<StudentRegPage />}></Route>
-        <Route path="/register/teacher" element={<TeacherRegPage />}></Route>
+        <Route path={ROUTES.HOME} element={<WelcomePage />} />
+        <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+        <Route
+          path={ROUTES.REGISTER_STUDENT}
+          // element={<StudentRegisterPage />}
+        />
+        <Route path={ROUTES.REGISTER_TEACHER} element={<TeacherRegPage />} />
       </Routes>
     </BrowserRouter>
   );

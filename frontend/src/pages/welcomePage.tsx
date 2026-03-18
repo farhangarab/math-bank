@@ -1,27 +1,19 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import Header from "../components/header";
+import { ROUTES } from "../router/routes";
+import Button from "../components/button";
 
 export default function WelcomePage() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen flex flex-col bg-white font-sans text-black">
       {/* header */}
-      <header className="w-full flex items-center px-6 py-4 bg-[#354254] text-white">
-        {/* don't be stupid: DO NOT DELETE THIS LINE */}
-        <div className="flex-1"></div>
-
-        {/* header text */}
-        <div className="flex-1 text-center text-xl font-bold tracking-widest">
-          MATHBANK
-        </div>
-
-        {/* top login button */}
-        <div className="flex-1 flex justify-end">
-          <Link to="/login">
-            <button className="border-2 border-white text-white font-semibold px-6 py-2 rounded-md hover:bg-white hover:text-[#354254] transition-colors duration-200">
-              Login
-            </button>
-          </Link>
-        </div>
-      </header>
+      <Header
+        title="MATHBANK"
+        rightText="Login"
+        rightAction={() => navigate(ROUTES.LOGIN)}
+      />
 
       {/* body of the page */}
       <main className="flex-grow flex items-center justify-center">
@@ -39,24 +31,26 @@ export default function WelcomePage() {
               Select your account type to register:
             </p>
 
-            <Link
-              to="/register/student"
-              className="block w-full max-w-[400px] bg-[#354254] text-white text-center text-xl font-semibold py-4 rounded-md shadow-[0_5px_0_#202834] active:shadow-[0_0px_0_#202834] active:translate-y-[5px] transition-all duration-75"
+            <Button
+              variant="primary"
+              full
+              onClick={() => navigate(ROUTES.REGISTER_STUDENT)}
             >
               For Students
-            </Link>
+            </Button>
 
-            <Link
-              to="/register/teacher"
-              className="block w-full max-w-[400px] bg-[#354254] text-white text-center text-xl font-semibold py-4 rounded-md shadow-[0_5px_0_#202834] active:shadow-[0_0px_0_#202834] active:translate-y-[5px] transition-all duration-75"
+            <Button
+              variant="primary"
+              full
+              onClick={() => navigate(ROUTES.REGISTER_TEACHER)}
             >
               For Teachers
-            </Link>
+            </Button>
           </div>
 
           <p className="text-gray-900 text-lg">
             Already have an account?{" "}
-            <Link to="/login" className="font-semibold hover:underline">
+            <Link to={ROUTES.LOGIN} className="font-semibold hover:underline">
               Login.
             </Link>
           </p>
