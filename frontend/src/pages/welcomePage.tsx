@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
-import Header from "../components/temp2";
+import Header from "../components/Header";
 import { ROUTES } from "../router/routes";
-import Button from "../components/temp";
+import Button from "../components/Button";
 
 export default function WelcomePage() {
   const navigate = useNavigate();

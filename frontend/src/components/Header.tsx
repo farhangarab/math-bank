@@ -1,4 +1,4 @@
-import Button from "./temp";
+import Button from "./Button";
 
 type HeaderProps = {
   title?: string;
