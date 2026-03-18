@@ -28,3 +28,38 @@ export async function loginUser(
 
   return data;
 }
+
+
+
+export async function registerUser(
+  username: string,
+  full_name: string,
+  email: string,
+  password: string,
+  role: string,
+  teacher_code?: string
+) {
+  const response = await fetch(`${API_BASE}/auth/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+
+    body: JSON.stringify({
+      username,
+      full_name,
+      email,
+      password,
+      role,
+      teacher_code,
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Register failed");
+  }
+
+  return data;
+}
