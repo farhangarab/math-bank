@@ -18,9 +18,13 @@ export default function LoginPage() {
     try {
       const data = await loginUser(username, password);
 
-      console.log("LOGIN OK", data);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
-      navigate(ROUTES.DASHBOARD);
+      if (data.user.role === "STUDENT") {
+        navigate(ROUTES.STUDENT_DASHBOARD);
+      } else {
+        navigate(ROUTES.TEACHER_DASHBOARD);
+      }
     } catch (error: any) {
       setError(error.message);
     }

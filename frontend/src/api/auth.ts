@@ -63,3 +63,26 @@ export async function registerUser(
 
   return data;
 }
+
+
+
+export async function joinClass(userId: number, classCode: string) {
+  const res = await fetch(`${API_BASE}/student/join-class`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      user_id: userId,
+      class_code: classCode,
+    }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Join failed");
+  }
+
+  return data;
+}

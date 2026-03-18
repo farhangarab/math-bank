@@ -18,7 +18,7 @@ function Header({
   rightAction,
 }: HeaderProps) {
   return (
-    <header className="w-full flex items-center px-6 py-4 bg-[#354254] text-white">
+    <header className="h-16 flex items-center justify-between px-6 bg-[#354254] text-white">
       {/* left */}
       <div className="flex-1 flex justify-start">
         {leftText && (
