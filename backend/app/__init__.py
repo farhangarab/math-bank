@@ -30,7 +30,7 @@ def create_app():
 
     # register routes
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
-    app.register_blueprint(classes_bp, url_prefix="/classes")
-    app.register_blueprint(student_bp, url_prefix="/student")
+    app.register_blueprint(classes_bp, url_prefix="/api/classes")
+    app.register_blueprint(student_bp, url_prefix="/api/student")
 
     return app

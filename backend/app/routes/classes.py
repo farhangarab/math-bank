@@ -45,7 +45,7 @@ def create_class():
 
 
 # get classes with teacher id
-@classes_bp.route("/my", methods=["GET"])
+@classes_bp.route("/teacher-classes", methods=["GET"])
 def get_my_classes():
 
     teacher_id = request.args.get("teacher_id")

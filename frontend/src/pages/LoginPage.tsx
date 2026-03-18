@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
+import Input from "../components/Input";
 import { loginUser } from "../api/auth";
 import { ROUTES } from "../router/routes";
-import Button from "../components/button";
-import Input from "../components/input";
+import Button from "../components/Button";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -18,9 +18,13 @@ export default function LoginPage() {
     try {
       const data = await loginUser(username, password);
 
-      console.log("LOGIN OK", data);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
-      navigate(ROUTES.DASHBOARD);
+      if (data.user.role === "STUDENT") {
+        navigate(ROUTES.STUDENT_DASHBOARD);
+      } else {
+        navigate(ROUTES.TEACHER_DASHBOARD);
+      }
     } catch (error: any) {
       setError(error.message);
     }

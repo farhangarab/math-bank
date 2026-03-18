@@ -35,6 +35,18 @@ def register():
         if teacher_code != TEACHER_CODE:
             return jsonify({"error": "Invalid teacher code"}), 400
 
+    # valid email
+    email_pattern = r"^[^@]+@[^@]+\.[^@]+$"
+
+    import re
+
+    if not re.match(email_pattern, email):
+        return jsonify({"error": "Invalid email"}), 400
+
+    # password length
+    if len(password) < 8:
+        return jsonify({"error": "Password too short"}), 400
+
     # check unique username & email
     if User.query.filter_by(username=username).first():
         return jsonify({"error": "Username exists"}), 400
@@ -43,14 +55,14 @@ def register():
         return jsonify({"error": "Email exists"}), 400
 
     # hash the password
-    hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+    hashed = bcrypt.generate_password_hash(password).decode("utf-8")
 
     # create the user
     user = User(
         username=username,
         full_name=full_name,
         email=email,
-        password_hash=hashed.decode(),
+        password_hash=hashed,
         role=UserRole(role),
     )
 

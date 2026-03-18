@@ -1,9 +1,13 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-// import StudentRegPage from "./pages/studentRegisterPage";
+import WelcomePage from "./pages/WelcomePage";
+import LoginPage from "./pages/LoginPage";
 import { ROUTES } from "./router/routes";
-import WelcomePage from "./pages/welcomePage";
-import LoginPage from "./pages/loginPage";
-import TeacherRegPage from "./pages/teacherRegisterPage";
+import StudentRegisterPage from "./pages/StudentRegisterPage";
+import TeacherRegisterPage from "./pages/TeacherRegisterPage";
+import StudentDashboardPage from "./pages/StudentDashboardPage";
+import TeacherDashboardPage from "./pages/TeacherDashboardPage";
+import CreateClassPage from "./pages/CreateClassPage";
+import JoinClassPage from "./pages/JoinClassPage";
 
 function App() {
   return (
@@ -13,9 +17,26 @@ function App() {
         <Route path={ROUTES.LOGIN} element={<LoginPage />} />
         <Route
           path={ROUTES.REGISTER_STUDENT}
-          // element={<StudentRegisterPage />}
+          element={<StudentRegisterPage />}
         />
-        <Route path={ROUTES.REGISTER_TEACHER} element={<TeacherRegPage />} />
+
+        <Route
+          path={ROUTES.REGISTER_TEACHER}
+          element={<TeacherRegisterPage />}
+        />
+
+        <Route
+          path={ROUTES.STUDENT_DASHBOARD}
+          element={<StudentDashboardPage />}
+        />
+
+        <Route
+          path={ROUTES.TEACHER_DASHBOARD}
+          element={<TeacherDashboardPage />}
+        />
+
+        <Route path={ROUTES.CREATE_CLASS} element={<CreateClassPage />} />
+        <Route path={ROUTES.JOIN_CLASS} element={<JoinClassPage />} />
       </Routes>
     </BrowserRouter>
   );

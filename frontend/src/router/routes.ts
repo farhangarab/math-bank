@@ -5,5 +5,9 @@ export const ROUTES = {
   REGISTER_STUDENT: "/register/student",
   REGISTER_TEACHER: "/register/teacher",
 
-  DASHBOARD: "/dashboard",
+  STUDENT_DASHBOARD: "/dashboard/student",
+  TEACHER_DASHBOARD: "/dashboard/teacher",
+
+  CREATE_CLASS: "/teacher/create-class",
+  JOIN_CLASS: "/student/join-class",
 };
