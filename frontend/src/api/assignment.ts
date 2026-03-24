@@ -42,3 +42,17 @@ export async function createAssignment(
   return data;
 }
 
+//Get assignment by id
+export async function getAssignmentById(id: number) {
+  const res = await fetch(
+    `${API}/one?id=${id}`
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed");
+  }
+
+  return data;
+}

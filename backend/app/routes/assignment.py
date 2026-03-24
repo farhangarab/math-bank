@@ -66,3 +66,27 @@ def create_assignment():
     db.session.commit()
 
     return jsonify({"message": "Assignment created"})
+
+
+# Get assignment by id
+@assignments_bp.route("/one", methods=["GET"])
+def get_assignment_by_id():
+
+    assignment_id = request.args.get("id")
+
+    if not assignment_id:
+        return jsonify({"error": "id required"}), 400
+
+    assignment = Assignment.query.get(assignment_id)
+
+    if not assignment:
+        return jsonify({"error": "assignment not found"}), 404
+
+    return jsonify(
+        {
+            "id": assignment.id,
+            "title": assignment.title,
+            "due_date": assignment.due_date,
+            "class_id": assignment.class_id,
+        }
+    )

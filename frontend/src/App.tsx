@@ -10,6 +10,7 @@ import CreateClassPage from "./pages/CreateClassPage";
 import JoinClassPage from "./pages/JoinClassPage";
 import ClassDetailsPage from "./pages/ClassDetailsPage";
 import CreateAssignmentPage from "./pages/CreateAssignmentPage";
+import AssignmentEditorPage from "./pages/AssignmentEditorPage";
 
 function App() {
   return (
@@ -44,6 +45,10 @@ function App() {
         <Route
           path={ROUTES.CREATE_ASSIGNMENT}
           element={<CreateAssignmentPage />}
+        />
+        <Route
+          path={ROUTES.EDIT_ASSIGNMENT}
+          element={<AssignmentEditorPage />}
         />
       </Routes>
     </BrowserRouter>
