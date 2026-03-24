@@ -1,11 +1,11 @@
-const API_BASE = "http://127.0.0.1:5000/api";
+const API = "http://127.0.0.1:5000/api";
 
 export async function loginUser(
   username: string,
   password: string
 ) {
   const res = await fetch(
-    `${API_BASE}/auth/login`,
+    `${API}/auth/login`,
     {
       method: "POST",
       headers: {
@@ -39,7 +39,7 @@ export async function registerUser(
   role: string,
   teacher_code?: string
 ) {
-  const response = await fetch(`${API_BASE}/auth/register`, {
+  const response = await fetch(`${API}/auth/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -67,7 +67,7 @@ export async function registerUser(
 
 
 export async function joinClass(userId: number, classCode: string) {
-  const res = await fetch(`${API_BASE}/student/join-class`, {
+  const res = await fetch(`${API}/student/join-class`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -90,7 +90,7 @@ export async function joinClass(userId: number, classCode: string) {
 
 export async function getStudentClasses(userId: number) {
   const res = await fetch(
-    `${API_BASE}/student/classes?user_id=${userId}`
+    `${API}/student/classes?user_id=${userId}`
   );
 
   const data = await res.json();
@@ -105,7 +105,7 @@ export async function getStudentClasses(userId: number) {
 
 export async function getTeacherClasses(userId: number) {
   const res = await fetch(
-    `${API_BASE}/classes/teacher-classes?teacher_id=${userId}`
+    `${API}/classes/teacher-classes?teacher_id=${userId}`
   );
 
   const data = await res.json();
@@ -123,7 +123,7 @@ export async function createClass(
   className: string
 ) {
   const res = await fetch(
-    `${API_BASE}/classes/create`,
+    `${API}/classes/create`,
     {
       method: "POST",
       headers: {
