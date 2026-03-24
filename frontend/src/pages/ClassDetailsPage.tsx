@@ -28,6 +28,18 @@ function ClassDetailsPage() {
     navigate(`/class/${id}/create-assignment`);
   };
 
+  const handleEditAssignment = (assignmentId: number) => {
+    navigate(`/assignment/${assignmentId}/edit`);
+  };
+
+  const handleOpenAssignment = (assignmentId: number) => {
+    if (user.role === "STUDENT") {
+      navigate(`/assignment/${assignmentId}`);
+    } else {
+      navigate(`/assignment/${assignmentId}/submissions`);
+    }
+  };
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -76,7 +88,12 @@ function ClassDetailsPage() {
           <h2 className="text-xl font-bold mb-4 text-[#354254]">Assignments</h2>
 
           <div className="flex flex-col gap-4">
-            <AssignmentTable assignments={assignments} role={user.role} />
+            <AssignmentTable
+              assignments={assignments}
+              role={user.role}
+              onEdit={handleEditAssignment}
+              onOpen={handleOpenAssignment}
+            />
 
             {assignments.length === 0 && (
               <p className="text-gray-500">No assignments yet</p>

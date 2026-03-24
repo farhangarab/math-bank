@@ -21,6 +21,10 @@ export default function CreateAssignmentPage() {
   // current datetime for min
   const now = new Date().toISOString().slice(0, 16);
 
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   async function handleCreate() {
     setError("");
     setSuccess("");
@@ -50,7 +54,7 @@ export default function CreateAssignmentPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header />
+      <Header title="MATHBANK" leftText="Back" leftAction={handleBack} />
 
       <div className="max-w-2xl mx-auto mt-10">
         <h1 className="text-2xl font-bold text-[#354254] mb-6">

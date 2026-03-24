@@ -8,7 +8,8 @@ type Assignment = {
 type Props = {
   assignments: Assignment[];
   role: "STUDENT" | "TEACHER";
-  onOpen?: (id: number) => void;
+  onOpen?: (id: number) => void; // submissions or start
+  onEdit?: (id: number) => void; // edit assignment
 };
 
 // ✅ format date like: Feb 8 by 11:59pm
@@ -34,7 +35,7 @@ function formatDueDate(dateStr?: string) {
   return `${month} ${day} by ${hours}:${minutes}${ampm}`;
 }
 
-function AssignmentTable({ assignments, role, onOpen }: Props) {
+function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
   return (
     <div className="w-full">
       {/* HEADER */}
@@ -42,7 +43,7 @@ function AssignmentTable({ assignments, role, onOpen }: Props) {
         className="grid border-b border-[#354254] pb-2 font-semibold text-[#354254]"
         style={{
           gridTemplateColumns:
-            role === "STUDENT" ? "2fr 2fr 1fr 1fr" : "2fr 2fr 1fr",
+            role === "STUDENT" ? "2fr 2fr 1fr 1fr" : "2fr 2fr 1fr 1fr",
         }}
       >
         <div>Name</div>
@@ -58,7 +59,12 @@ function AssignmentTable({ assignments, role, onOpen }: Props) {
           </>
         )}
 
-        {role === "TEACHER" && <div></div>}
+        {role === "TEACHER" && (
+          <>
+            <div></div>
+            <div></div>
+          </>
+        )}
       </div>
 
       {/* ROWS */}
@@ -68,13 +74,13 @@ function AssignmentTable({ assignments, role, onOpen }: Props) {
           className="grid border-b border-gray-300 py-3 items-center"
           style={{
             gridTemplateColumns:
-              role === "STUDENT" ? "2fr 2fr 1fr 1fr" : "2fr 2fr 1fr",
+              role === "STUDENT" ? "2fr 2fr 1fr 1fr" : "2fr 2fr 1fr 1fr",
           }}
         >
           {/* NAME */}
           <div className="text-[#354254]">{a.title}</div>
 
-          {/* DUE DATE */}
+          {/* DUE */}
           <div>{formatDueDate(a.due_date)}</div>
 
           {/* STUDENT */}
@@ -105,21 +111,40 @@ function AssignmentTable({ assignments, role, onOpen }: Props) {
 
           {/* TEACHER */}
           {role === "TEACHER" && (
-            <div className="flex justify-end">
-              <button
-                onClick={() => onOpen?.(a.id)}
-                className="
-                  bg-[#354254]
-                  text-white
-                  px-3
-                  py-2
-                  rounded
-                  hover:bg-[#2b3645]
-                "
-              >
-                View Submissions
-              </button>
-            </div>
+            <>
+              <div className="flex justify-end">
+                <button
+                  onClick={() => onEdit?.(a.id)}
+                  className="
+                    border
+                    border-[#354254]
+                    text-[#354254]
+                    px-3
+                    py-1
+                    rounded
+                    hover:bg-gray-100
+                  "
+                >
+                  Edit
+                </button>
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  onClick={() => onOpen?.(a.id)}
+                  className="
+                    bg-[#354254]
+                    text-white
+                    px-3
+                    py-1
+                    rounded
+                    hover:bg-[#2b3645]
+                  "
+                >
+                  Submissions
+                </button>
+              </div>
+            </>
           )}
         </div>
       ))}
