@@ -8,6 +8,7 @@ import StudentDashboardPage from "./pages/StudentDashboardPage";
 import TeacherDashboardPage from "./pages/TeacherDashboardPage";
 import CreateClassPage from "./pages/CreateClassPage";
 import JoinClassPage from "./pages/JoinClassPage";
+import ClassDetailsPage from "./pages/ClassDetailsPage";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
 
         <Route path={ROUTES.CREATE_CLASS} element={<CreateClassPage />} />
         <Route path={ROUTES.JOIN_CLASS} element={<JoinClassPage />} />
+        <Route path={ROUTES.CLASS_DETAILS} element={<ClassDetailsPage />} />
       </Routes>
     </BrowserRouter>
   );

@@ -71,3 +71,27 @@ def get_my_classes():
         )
 
     return jsonify(result), 200
+
+
+# Get class by Id
+@classes_bp.route("/one", methods=["GET"])
+def get_class():
+
+    class_id = request.args.get("class_id")
+
+    if not class_id:
+        return jsonify({"error": "class_id required"}), 400
+
+    c = Class.query.get(class_id)
+
+    if not c:
+        return jsonify({"error": "class not found"}), 404
+
+    return jsonify(
+        {
+            "id": c.id,
+            "class_name": c.class_name,
+            "class_code": c.class_code,
+            "teacher_id": c.teacher_id,
+        }
+    )

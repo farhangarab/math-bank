@@ -9,6 +9,9 @@ import { getStudentClasses } from "../api/auth";
 function StudentDashboardPage() {
   const navigate = useNavigate();
 
+  const handleView = (id: number) => {
+    navigate(`/class/${id}`);
+  };
   const [classes, setClasses] = useState([]);
   const [error, setError] = useState("");
 
@@ -50,10 +53,15 @@ function StudentDashboardPage() {
         <div className="w-[700px] border border-[#354254] rounded p-6">
           <h2 className="text-xl font-bold mb-4 text-[#354254]">My Classes</h2>
 
-          {/* Example list */}
+          {/* Classes list */}
           <div className="flex flex-col gap-4 mt-6">
             {classes.map((c: any) => (
-              <ClassCard key={c.id} name={c.class_name} code={c.class_code} />
+              <ClassCard
+                key={c.class_id}
+                id={c.class_id}
+                name={c.class_name}
+                onView={handleView}
+              />
             ))}
 
             {error && <p className="text-red-500">{error}</p>}
