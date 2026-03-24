@@ -42,16 +42,19 @@ def create_assignment():
     class_id = data.get("class_id")
     due_date_str = data.get("due_date")
 
-    if not title or not class_id:
-        return jsonify({"error": "title and class_id required"}), 400
+    if not title:
+        return jsonify({"error": "title is required"}), 400
+
+    if not class_id:
+        return jsonify({"error": "class_id is required"}), 400
 
     due_date = None
 
     if due_date_str:
         try:
-            due_date = datetime.strptime(due_date_str, "%Y-%m-%d")
+            due_date = datetime.strptime(due_date_str, "%Y-%m-%dT%H:%M")
         except ValueError:
-            return jsonify({"error": "date must be YYYY-MM-DD"}), 400
+            return jsonify({"error": "date must be YYYY-MM-DDTHH:MM"}), 400
 
     assignment = Assignment(
         title=title,

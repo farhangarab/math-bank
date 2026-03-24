@@ -24,6 +24,10 @@ function ClassDetailsPage() {
     }
   };
 
+  const handleCreateAssignment = () => {
+    navigate(`/class/${id}/create-assignment`);
+  };
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -60,7 +64,9 @@ function ClassDetailsPage() {
 
             {user.role === "TEACHER" && (
               <div className="mt-4 mb-6">
-                <Button>Create Assignment</Button>
+                <Button onClick={handleCreateAssignment}>
+                  Create Assignment
+                </Button>
               </div>
             )}
           </>

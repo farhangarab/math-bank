@@ -9,6 +9,7 @@ import TeacherDashboardPage from "./pages/TeacherDashboardPage";
 import CreateClassPage from "./pages/CreateClassPage";
 import JoinClassPage from "./pages/JoinClassPage";
 import ClassDetailsPage from "./pages/ClassDetailsPage";
+import CreateAssignmentPage from "./pages/CreateAssignmentPage";
 
 function App() {
   return (
@@ -30,7 +31,6 @@ function App() {
           path={ROUTES.STUDENT_DASHBOARD}
           element={<StudentDashboardPage />}
         />
-
         <Route
           path={ROUTES.TEACHER_DASHBOARD}
           element={<TeacherDashboardPage />}
@@ -38,7 +38,13 @@ function App() {
 
         <Route path={ROUTES.CREATE_CLASS} element={<CreateClassPage />} />
         <Route path={ROUTES.JOIN_CLASS} element={<JoinClassPage />} />
+
         <Route path={ROUTES.CLASS_DETAILS} element={<ClassDetailsPage />} />
+
+        <Route
+          path={ROUTES.CREATE_ASSIGNMENT}
+          element={<CreateAssignmentPage />}
+        />
       </Routes>
     </BrowserRouter>
   );
