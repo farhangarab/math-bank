@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { getAssignments } from "../api/assignment";
 import { getClassById } from "../api/class";
 import AssignmentTable from "../components/AssignmentTable";
+import { startAttempt } from "../api/attempt";
 
 function ClassDetailsPage() {
   const { id } = useParams();
@@ -37,6 +38,18 @@ function ClassDetailsPage() {
       navigate(`/assignment/${assignmentId}`);
     } else {
       navigate(`/assignment/${assignmentId}/submissions`);
+    }
+  };
+
+  const handleStart = async (assignmentId: number) => {
+    try {
+      const res = await startAttempt(user.id, assignmentId);
+
+      const attemptId = res.attempt_id;
+
+      navigate(`/attempt/${attemptId}`);
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -92,7 +105,9 @@ function ClassDetailsPage() {
               assignments={assignments}
               role={user.role}
               onEdit={handleEditAssignment}
-              onOpen={handleOpenAssignment}
+              onOpen={
+                user.role === "STUDENT" ? handleStart : handleOpenAssignment
+              }
             />
 
             {assignments.length === 0 && (

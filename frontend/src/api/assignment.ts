@@ -56,3 +56,16 @@ export async function getAssignmentById(id: number) {
 
   return data;
 }
+
+//Get submission for each student
+export async function getAssignmentAttempts(assignmentId: number) {
+  const res = await fetch(`${API}/assignments/${assignmentId}/attempts`);
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to load submissions");
+  }
+
+  return data;
+}

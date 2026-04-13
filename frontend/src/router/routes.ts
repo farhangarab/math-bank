@@ -15,5 +15,9 @@ export const ROUTES = {
 
   CREATE_ASSIGNMENT: "/class/:id/create-assignment",
 
-  EDIT_ASSIGNMENT: "/assignment/:id/edit" 
+  EDIT_ASSIGNMENT: "/assignment/:id/edit",
+
+  STUDENT_ASSIGNMENT_PAGE: "/attempt/:attemptId",
+
+  TEACHER_SUBMISSIONS_PAGE: "/assignment/:id/submissions"
 };

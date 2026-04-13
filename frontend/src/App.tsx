@@ -11,6 +11,8 @@ import JoinClassPage from "./pages/JoinClassPage";
 import ClassDetailsPage from "./pages/ClassDetailsPage";
 import CreateAssignmentPage from "./pages/CreateAssignmentPage";
 import AssignmentEditorPage from "./pages/AssignmentEditorPage";
+import StudentAssignmentPage from "./pages/StudentAssignmentPage";
+import TeacherSubmissionsPage from "./pages/TeacherSubmissionsPage";
 
 function App() {
   return (
@@ -49,6 +51,15 @@ function App() {
         <Route
           path={ROUTES.EDIT_ASSIGNMENT}
           element={<AssignmentEditorPage />}
+        />
+
+        <Route
+          path={ROUTES.STUDENT_ASSIGNMENT_PAGE}
+          element={<StudentAssignmentPage />}
+        />
+        <Route
+          path={ROUTES.TEACHER_SUBMISSIONS_PAGE}
+          element={<TeacherSubmissionsPage />}
         />
       </Routes>
     </BrowserRouter>

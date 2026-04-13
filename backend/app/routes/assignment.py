@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.models.assignment import Assignment
+from app.models.attempt import Attempt
 from datetime import datetime
 from app import db
 
@@ -90,3 +91,25 @@ def get_assignment_by_id():
             "class_id": assignment.class_id,
         }
     )
+
+
+# Get submission for each student
+@assignments_bp.route("/<int:assignment_id>/attempts", methods=["GET"])
+def get_assignment_attempts(assignment_id):
+    attempts = Attempt.query.filter_by(assignment_id=assignment_id).all()
+
+    result = []
+
+    for attempt in attempts:
+        student = attempt.class_member.student
+
+        result.append(
+            {
+                "attempt_id": attempt.id,
+                "student_name": student.full_name,
+                "score": attempt.total_score,
+                "status": attempt.status,
+            }
+        )
+
+    return jsonify(result), 200
