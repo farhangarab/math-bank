@@ -7,6 +7,7 @@ from .routes.auth import auth_bp
 from .routes.classes import classes_bp
 from .routes.student import student_bp
 from .routes.assignment import assignments_bp
+from .routes.questions import questions_bp
 
 
 def create_app():
@@ -34,5 +35,6 @@ def create_app():
     app.register_blueprint(classes_bp, url_prefix="/api/classes")
     app.register_blueprint(student_bp, url_prefix="/api/student")
     app.register_blueprint(assignments_bp, url_prefix="/api/assignments")
+    app.register_blueprint(questions_bp, url_prefix="/api/questions")
 
     return app
