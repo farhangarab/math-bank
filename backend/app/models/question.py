@@ -1,4 +1,5 @@
 from app import db
+from .enums import GradingType
 
 
 class Question(db.Model):
@@ -16,6 +17,10 @@ class Question(db.Model):
     order_index = db.Column(db.Integer, nullable=False)
 
     created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    grading_type = db.Column(db.Enum(GradingType), nullable=False)
+
+    require_simplified = db.Column(db.Boolean, nullable=False)
 
     assignment_id = db.Column(
         db.Integer, db.ForeignKey("assignments.id"), nullable=False
