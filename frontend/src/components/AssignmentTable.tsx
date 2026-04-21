@@ -37,6 +37,9 @@ function formatDueDate(dateStr?: string) {
 }
 
 function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
+  const studentColumns = "2fr 2fr 1.2fr 1fr 120px";
+  const teacherColumns = "2fr 2fr 120px 120px";
+
   return (
     <div className="w-full">
       {/* HEADER */}
@@ -44,7 +47,7 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
         className="grid border-b border-[#354254] pb-2 font-semibold text-[#354254]"
         style={{
           gridTemplateColumns:
-            role === "STUDENT" ? "2fr 2fr 1.2fr 1fr 1fr" : "2fr 2fr 1fr 1fr",
+            role === "STUDENT" ? studentColumns : teacherColumns,
         }}
       >
         <div>Name</div>
@@ -61,8 +64,8 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
 
         {role === "TEACHER" && (
           <>
-            <div></div>
-            <div></div>
+            <div>Edit</div>
+            <div>Action</div>
           </>
         )}
       </div>
@@ -74,7 +77,7 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
           className="grid border-b border-gray-300 py-3 items-center"
           style={{
             gridTemplateColumns:
-              role === "STUDENT" ? "2fr 2fr 1.2fr 1fr 1fr" : "2fr 2fr 1fr 1fr",
+              role === "STUDENT" ? studentColumns : teacherColumns,
           }}
         >
           {/* NAME */}
@@ -89,13 +92,13 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
               <div>{a.status ?? "NOT_STARTED"}</div>
               <div>{a.score ?? "-"}</div>
 
-              <div className="flex justify-end">
+              <div className="flex justify-start">
                 <button
                   onClick={() => onOpen?.(a)}
                   className="
                     bg-[#354254]
                     text-white
-                    px-4
+                    w-[110px]
                     py-1
                     rounded
                     hover:bg-[#2b3645]
@@ -110,14 +113,14 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
           {/* TEACHER */}
           {role === "TEACHER" && (
             <>
-              <div className="flex justify-end">
+              <div className="flex justify-start">
                 <button
                   onClick={() => onEdit?.(a.id)}
                   className="
                     border
                     border-[#354254]
                     text-[#354254]
-                    px-3
+                    w-[110px]
                     py-1
                     rounded
                     hover:bg-gray-100
@@ -127,13 +130,13 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
                 </button>
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex justify-start">
                 <button
                   onClick={() => onOpen?.(a)}
                   className="
                     bg-[#354254]
                     text-white
-                    px-3
+                    w-[110px]
                     py-1
                     rounded
                     hover:bg-[#2b3645]
