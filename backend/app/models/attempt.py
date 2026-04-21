@@ -9,9 +9,7 @@ class Attempt(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     status = db.Column(
-        Enum(
-            "NOT_STARTED", "IN_PROGRESS", "SUBMITTED", "GRADED", name="attempt_status"
-        ),
+        Enum("NOT_STARTED", "IN_PROGRESS", "SUBMITTED", name="attempt_status"),
         default="NOT_STARTED",
         nullable=False,
     )

@@ -1,16 +1,17 @@
-type Assignment = {
-  id: number;
-  title: string;
-  due_date?: string;
-  score?: number;
-};
+import type { Assignment } from "../types/assignment";
 
 type Props = {
   assignments: Assignment[];
   role: "STUDENT" | "TEACHER";
-  onOpen?: (id: number) => void; // submissions or start
-  onEdit?: (id: number) => void; // edit assignment
+  onOpen?: (assignment: Assignment) => void;
+  onEdit?: (id: number) => void;
 };
+
+function getStudentActionLabel(status?: string) {
+  if (status === "IN_PROGRESS") return "Continue";
+  if (status === "SUBMITTED") return "Review";
+  return "Start";
+}
 
 // ✅ format date like: Feb 8 by 11:59pm
 function formatDueDate(dateStr?: string) {
@@ -43,7 +44,7 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
         className="grid border-b border-[#354254] pb-2 font-semibold text-[#354254]"
         style={{
           gridTemplateColumns:
-            role === "STUDENT" ? "2fr 2fr 1fr 1fr" : "2fr 2fr 1fr 1fr",
+            role === "STUDENT" ? "2fr 2fr 1.2fr 1fr 1fr" : "2fr 2fr 1fr 1fr",
         }}
       >
         <div>Name</div>
@@ -52,10 +53,9 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
 
         {role === "STUDENT" && (
           <>
-            {/* <div>Submitted</div> */}
-            {/* <div>Status</div> */}
+            <div>Status</div>
             <div>Score</div>
-            <div></div>
+            <div>Action</div>
           </>
         )}
 
@@ -74,7 +74,7 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
           className="grid border-b border-gray-300 py-3 items-center"
           style={{
             gridTemplateColumns:
-              role === "STUDENT" ? "2fr 2fr 1fr 1fr" : "2fr 2fr 1fr 1fr",
+              role === "STUDENT" ? "2fr 2fr 1.2fr 1fr 1fr" : "2fr 2fr 1fr 1fr",
           }}
         >
           {/* NAME */}
@@ -86,14 +86,12 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
           {/* STUDENT */}
           {role === "STUDENT" && (
             <>
-              {/* <div>Feb 4</div> */}
-              {/* <div>✓</div> */}
-
+              <div>{a.status ?? "NOT_STARTED"}</div>
               <div>{a.score ?? "-"}</div>
 
               <div className="flex justify-end">
                 <button
-                  onClick={() => onOpen?.(a.id)}
+                  onClick={() => onOpen?.(a)}
                   className="
                     bg-[#354254]
                     text-white
@@ -103,7 +101,7 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
                     hover:bg-[#2b3645]
                   "
                 >
-                  Start
+                  {getStudentActionLabel(a.status)}
                 </button>
               </div>
             </>
@@ -131,7 +129,7 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
 
               <div className="flex justify-end">
                 <button
-                  onClick={() => onOpen?.(a.id)}
+                  onClick={() => onOpen?.(a)}
                   className="
                     bg-[#354254]
                     text-white

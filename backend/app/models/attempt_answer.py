@@ -5,6 +5,10 @@ class AttemptAnswer(db.Model):
 
     __tablename__ = "attempt_answers"
 
+    __table_args__ = (
+        db.UniqueConstraint("attempt_id", "question_id", name="uq_attempt_question"),
+    )
+
     id = db.Column(db.Integer, primary_key=True)
 
     answer_text = db.Column(db.Text, nullable=True)

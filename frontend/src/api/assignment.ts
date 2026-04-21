@@ -1,18 +1,30 @@
+import type { Assignment } from "../types/assignment";
+
 const API = "http://127.0.0.1:5000/api/assignments";
 
 
 // Get assignments by class
-export async function getAssignments(classId: number) {
-  const res = await fetch(`${API}?class_id=${classId}`);
+export async function getAssignments(
+  classId: number,
+  studentId?: number
+): Promise<Assignment[]> {
+  let url = `${API}/?class_id=${classId}`;
+
+  if (studentId) {
+    url += `&student_id=${studentId}`;
+  }
   
+  const res = await fetch(url);
   const data = await res.json();
-  
+
   if (!res.ok) {
     throw new Error(data.error || "Failed to load assignments");
   }
 
   return data;
 }
+
+
 
 
 // Create assignment
@@ -59,8 +71,10 @@ export async function getAssignmentById(id: number) {
 
 //Get submission for each student
 export async function getAssignmentAttempts(assignmentId: number) {
-  const res = await fetch(`${API}/assignments/${assignmentId}/attempts`);
-
+  console.log("this is the assign",assignmentId);
+  
+  const res = await fetch(`${API}/${assignmentId}/attempts`);
+  
   const data = await res.json();
 
   if (!res.ok) {

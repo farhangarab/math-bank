@@ -7,12 +7,13 @@ import { getAssignments } from "../api/assignment";
 import { getClassById } from "../api/class";
 import AssignmentTable from "../components/AssignmentTable";
 import { startAttempt } from "../api/attempt";
+import type { Assignment } from "../types/assignment";
 
 function ClassDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [classInfo, setClassInfo] = useState<any>(null);
-  const [assignments, setAssignments] = useState([]);
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [error, setError] = useState("");
 
   const user = JSON.parse(localStorage.getItem("user")!);
@@ -33,21 +34,19 @@ function ClassDetailsPage() {
     navigate(`/assignment/${assignmentId}/edit`);
   };
 
-  const handleOpenAssignment = (assignmentId: number) => {
-    if (user.role === "STUDENT") {
-      navigate(`/assignment/${assignmentId}`);
-    } else {
-      navigate(`/assignment/${assignmentId}/submissions`);
-    }
+  const handleOpenAssignment = (assignment: Assignment) => {
+    navigate(`/assignment/${assignment.id}/submissions`);
   };
 
-  const handleStart = async (assignmentId: number) => {
+  const handleStart = async (assignment: Assignment) => {
     try {
-      const res = await startAttempt(user.id, assignmentId);
+      if (assignment.attempt_id) {
+        navigate(`/attempt/${assignment.attempt_id}`);
+        return;
+      }
 
-      const attemptId = res.attempt_id;
-
-      navigate(`/attempt/${attemptId}`);
+      const res = await startAttempt(user.id, assignment.id);
+      navigate(`/attempt/${res.attempt_id}`);
     } catch (err) {
       console.error(err);
     }
@@ -59,8 +58,12 @@ function ClassDetailsPage() {
         const classData = await getClassById(Number(id));
         setClassInfo(classData);
 
-        const ass = await getAssignments(Number(id));
-        setAssignments(ass);
+        const assign =
+          user.role === "STUDENT"
+            ? await getAssignments(Number(id), user.id)
+            : await getAssignments(Number(id));
+
+        setAssignments(assign);
       } catch (err: any) {
         setError(err.message);
       }
@@ -74,7 +77,6 @@ function ClassDetailsPage() {
       <Header title="MATHBANK" leftText="Back" leftAction={handleBack} />
 
       <div className="flex flex-col items-center mt-10">
-        {/* title section */}
         {classInfo && (
           <>
             <h1 className="text-3xl font-bold text-[#354254]">
@@ -113,6 +115,8 @@ function ClassDetailsPage() {
             {assignments.length === 0 && (
               <p className="text-gray-500">No assignments yet</p>
             )}
+
+            {error && <p className="text-red-600">{error}</p>}
           </div>
         </div>
       </div>

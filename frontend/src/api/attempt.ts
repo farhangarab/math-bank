@@ -59,3 +59,28 @@ export async function submitAttempt(
 
   return data;
 }
+
+//Save the progress
+export async function saveAttempt(
+  attemptId: number,
+  answers: { question_id: number; answer_text: string }[]
+) {
+  const res = await fetch(`${API}/attempts/save`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      attempt_id: attemptId,
+      answers,
+    }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to save");
+  }
+
+  return data;
+}
