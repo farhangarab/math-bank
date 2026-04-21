@@ -5,15 +5,69 @@ from app.models.class_member import ClassMember
 from app.models.question import Question
 from app.models.attempt_answer import AttemptAnswer
 from app.models.assignment import Assignment
-from app.models.enums import AttemptStatus
-from sympy import sympify, simplify
+from app.models.enums import AttemptStatus, GradingType
+from sympy import simplify, sympify
+from sympy.parsing.sympy_parser import parse_expr
 
 
 attempt_bp = Blueprint("attempts", __name__)
+NUMERIC_TOLERANCE = 1e-9
 
 
 def serialize_attempt_status(status):
     return status.value if hasattr(status, "value") else status
+
+
+def _normalize_exact_answer(answer_text):
+    return "".join((answer_text or "").split())
+
+
+def _are_symbolically_equivalent(student_expr, correct_expr):
+    try:
+        return simplify(student_expr - correct_expr) == 0
+    except Exception:
+        return student_expr.equals(correct_expr) is True
+
+
+def _is_simplified_expression(answer_text):
+    parsed_expr = parse_expr((answer_text or "").strip(), evaluate=False)
+    simplified_expr = simplify(parsed_expr)
+    return str(parsed_expr) == str(simplified_expr)
+
+
+def _is_numeric_match(student_expr, correct_expr):
+    if student_expr.free_symbols or correct_expr.free_symbols:
+        return False
+
+    student_value = student_expr.evalf()
+    correct_value = correct_expr.evalf()
+
+    return abs(float(student_value - correct_value)) <= NUMERIC_TOLERANCE
+
+
+def _grade_answer(student_answer, question):
+    grading_type = question.grading_type
+    if not isinstance(grading_type, GradingType):
+        grading_type = GradingType(grading_type)
+
+    if grading_type == GradingType.EXACT:
+        return _normalize_exact_answer(student_answer) == _normalize_exact_answer(
+            question.correct_answer
+        )
+
+    student_expr = sympify(student_answer)
+    correct_expr = sympify(question.correct_answer)
+
+    if grading_type == GradingType.NUMERIC:
+        return _is_numeric_match(student_expr, correct_expr)
+
+    if not _are_symbolically_equivalent(student_expr, correct_expr):
+        return False
+
+    if question.require_simplified:
+        return _is_simplified_expression(student_answer)
+
+    return True
 
 
 # start the assignment
@@ -112,17 +166,13 @@ def submit_attempt():
         if not question:
             continue
 
-        correct_answer = question.correct_answer
         points = question.points
 
         is_correct = False
         score = 0
 
         try:
-            student_expr = sympify(student_answer)
-            correct_expr = sympify(correct_answer)
-
-            if simplify(student_expr - correct_expr) == 0:
+            if _grade_answer(student_answer, question):
                 is_correct = True
                 score = points
 
@@ -193,14 +243,19 @@ def get_attempt(attempt_id):
     )
 
     question_list = []
+    can_reveal_answers = (
+        serialize_attempt_status(attempt.status) == AttemptStatus.SUBMITTED.value
+    )
 
     for question in questions:
         question_data = {
             "id": question.id,
             "question_text": question.question_text,
             "points": question.points,
-            "correct_answer": question.correct_answer,
         }
+
+        if can_reveal_answers:
+            question_data["correct_answer"] = question.correct_answer
 
         question_list.append(question_data)
 
