@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 from app.models.assignment import Assignment
 from app.models.attempt import Attempt
+from app.models.class_member import ClassMember
+from app.models.enums import AttemptStatus
 from datetime import datetime
 from app import db
 
@@ -8,10 +10,15 @@ from app import db
 assignments_bp = Blueprint("assignments", __name__)
 
 
+def serialize_attempt_status(status):
+    return status.value if hasattr(status, "value") else status
+
+
 # Get all assignment
 @assignments_bp.route("/", methods=["GET"])
 def get_assignments():
     class_id = request.args.get("class_id")
+    student_id = request.args.get("student_id")
 
     if not class_id:
         return jsonify({"error": "class id required"}), 400
@@ -20,17 +27,46 @@ def get_assignments():
 
     result = []
 
-    for a in assignments:
-        result.append(
-            {
-                "id": a.id,
-                "title": a.title,
-                "class_id": a.class_id,
-                "due_date": a.due_date,
-            }
-        )
+    class_member = None
+    if student_id:
+        class_member = ClassMember.query.filter_by(
+            student_id=student_id, class_id=class_id
+        ).first()
 
-    return jsonify(result)
+    for a in assignments:
+        item = {
+            "id": a.id,
+            "title": a.title,
+            "class_id": a.class_id,
+            "due_date": a.due_date,
+        }
+
+        if class_member:
+            attempt = (
+                Attempt.query.filter_by(
+                    assignment_id=a.id, class_member_id=class_member.id
+                )
+                .order_by(Attempt.id.desc())
+                .first()
+            )
+
+            if attempt:
+                item["attempt_id"] = attempt.id
+                item["status"] = serialize_attempt_status(attempt.status)
+                item["score"] = (
+                    attempt.total_score
+                    if serialize_attempt_status(attempt.status)
+                    == AttemptStatus.SUBMITTED.value
+                    else None
+                )
+            else:
+                item["attempt_id"] = None
+                item["status"] = AttemptStatus.NOT_STARTED.value
+                item["score"] = None
+
+        result.append(item)
+
+    return jsonify(result), 200
 
 
 # create an assignment
@@ -108,7 +144,7 @@ def get_assignment_attempts(assignment_id):
                 "attempt_id": attempt.id,
                 "student_name": student.full_name,
                 "score": attempt.total_score,
-                "status": attempt.status,
+                "status": serialize_attempt_status(attempt.status),
             }
         )
 
