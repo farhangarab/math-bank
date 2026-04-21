@@ -3,6 +3,8 @@ from app.models.assignment import Assignment
 from app.models.attempt import Attempt
 from app.models.class_member import ClassMember
 from app.models.enums import AttemptStatus
+from app.models.question import Question
+from app.models.user import User
 from datetime import datetime
 from app import db
 
@@ -132,19 +134,64 @@ def get_assignment_by_id():
 # Get submission for each student
 @assignments_bp.route("/<int:assignment_id>/attempts", methods=["GET"])
 def get_assignment_attempts(assignment_id):
-    attempts = Attempt.query.filter_by(assignment_id=assignment_id).all()
+    assignment = Assignment.query.get(assignment_id)
+
+    if not assignment:
+        return jsonify({"error": "assignment not found"}), 404
+
+    max_score = (
+        db.session.query(db.func.coalesce(db.func.sum(Question.points), 0))
+        .filter_by(assignment_id=assignment_id)
+        .scalar()
+    )
+    max_score = float(max_score or 0)
+
+    members = (
+        ClassMember.query.filter_by(class_id=assignment.class_id)
+        .join(User, ClassMember.student_id == User.id)
+        .order_by(db.func.lower(User.full_name))
+        .all()
+    )
 
     result = []
 
-    for attempt in attempts:
-        student = attempt.class_member.student
+    for member in members:
+        student = member.student
+        attempt = (
+            Attempt.query.filter_by(
+                assignment_id=assignment_id,
+                class_member_id=member.id,
+            )
+            .order_by(Attempt.id.desc())
+            .first()
+        )
+
+        status = (
+            serialize_attempt_status(attempt.status)
+            if attempt
+            else AttemptStatus.NOT_STARTED.value
+        )
+        total_score = (
+            attempt.total_score
+            if attempt and status == AttemptStatus.SUBMITTED.value
+            else None
+        )
+        if total_score is not None:
+            total_score = float(total_score)
+
+        attemptId = None
+
+        if attempt:
+            attemptId = attempt.id
 
         result.append(
             {
-                "attempt_id": attempt.id,
+                "attempt_id": attemptId,
+                "student_id": student.id,
                 "student_name": student.full_name,
-                "score": attempt.total_score,
-                "status": serialize_attempt_status(attempt.status),
+                "score": total_score,
+                "max_score": max_score,
+                "status": status,
             }
         )
 

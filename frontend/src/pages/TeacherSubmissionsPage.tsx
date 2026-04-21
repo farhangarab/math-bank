@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import { getAssignmentAttempts } from "../api/assignment";
 
 type Attempt = {
-  attempt_id: number;
+  attempt_id: number | null;
+  student_id: number;
   student_name: string;
-  score: number;
-  status: string;
+  score: number | string | null;
+  max_score: number | string;
+  status: "NOT_STARTED" | "IN_PROGRESS" | "SUBMITTED";
 };
 
 function TeacherSubmissionsPage() {
@@ -23,6 +25,46 @@ function TeacherSubmissionsPage() {
 
   const handleView = (attemptId: number) => {
     navigate(`/attempt/${attemptId}?mode=review`);
+  };
+
+  const getStatusLabel = (status: Attempt["status"]) => {
+    switch (status) {
+      case "SUBMITTED":
+        return "Submitted";
+      case "IN_PROGRESS":
+        return "In Progress";
+      case "NOT_STARTED":
+        return "Not Started";
+      default:
+        return status;
+    }
+  };
+
+  const getActionLabel = (attempt: Attempt) => {
+    if (!attempt.attempt_id) return null;
+    return attempt.status === "SUBMITTED" ? "Review" : "View";
+  };
+
+  const formatScore = (attempt: Attempt) => {
+    if (attempt.status !== "SUBMITTED" || attempt.score === null) {
+      return "-";
+    }
+
+    const scoreValue = Number(attempt.score);
+    const maxScoreValue = Number(attempt.max_score);
+
+    if (!Number.isFinite(scoreValue) || !Number.isFinite(maxScoreValue)) {
+      return "-";
+    }
+
+    const displayScore = Number.isInteger(scoreValue)
+      ? scoreValue.toString()
+      : scoreValue.toFixed(2);
+    const displayMaxScore = Number.isInteger(maxScoreValue)
+      ? maxScoreValue.toString()
+      : maxScoreValue.toFixed(2);
+
+    return `${displayScore}/${displayMaxScore}`;
   };
 
   useEffect(() => {
@@ -48,38 +90,44 @@ function TeacherSubmissionsPage() {
 
           {/* TABLE HEADER */}
           <div className="grid grid-cols-4 border-b border-[#354254] pb-2 font-semibold text-[#354254]">
-            <div>Name</div>
-            <div>Score</div>
+            <div>Student</div>
             <div>Status</div>
+            <div>Score</div>
             <div></div>
           </div>
 
           {/* ROWS */}
           {attempts.map((a) => (
             <div
-              key={a.attempt_id}
+              key={a.attempt_id ?? `student-${a.student_id}`}
               className="grid grid-cols-4 border-b border-gray-300 py-3 items-center"
             >
               <div>{a.student_name}</div>
 
-              <div>{a.score}</div>
+              <div>{getStatusLabel(a.status)}</div>
 
-              <div>{a.status}</div>
+              <div>{formatScore(a)}</div>
 
               <div className="flex justify-end">
-                <button
-                  onClick={() => handleView(a.attempt_id)}
-                  className="bg-[#354254] text-white px-3 py-1 rounded"
-                >
-                  View
-                </button>
+                {a.attempt_id ? (
+                  <button
+                    onClick={() => handleView(a.attempt_id!)}
+                    className="bg-[#354254] text-white px-3 py-1 rounded"
+                  >
+                    {getActionLabel(a)}
+                  </button>
+                ) : (
+                  <span className="text-gray-400">-</span>
+                )}
               </div>
             </div>
           ))}
 
           {attempts.length === 0 && (
-            <p className="text-gray-500 mt-4">No submissions yet</p>
+            <p className="text-gray-500 mt-4">No students found for this class.</p>
           )}
+
+          {error && <p className="text-red-600 mt-4">{error}</p>}
         </div>
       </div>
     </div>

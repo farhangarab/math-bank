@@ -71,10 +71,7 @@ export async function getAssignmentById(id: number) {
 
 //Get submission for each student
 export async function getAssignmentAttempts(assignmentId: number) {
-  console.log("this is the assign",assignmentId);
-  
   const res = await fetch(`${API}/${assignmentId}/attempts`);
-  
   const data = await res.json();
 
   if (!res.ok) {
