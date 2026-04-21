@@ -6,8 +6,8 @@ from app.models.question import Question
 from app.models.attempt_answer import AttemptAnswer
 from app.models.assignment import Assignment
 from app.models.enums import AttemptStatus, GradingType
-from sympy import simplify, sympify
-from sympy.parsing.sympy_parser import parse_expr
+from sympy import simplify
+from app.utils.math_parser import normalize_math_text, parse_math_expression
 
 
 attempt_bp = Blueprint("attempts", __name__)
@@ -19,7 +19,7 @@ def serialize_attempt_status(status):
 
 
 def _normalize_exact_answer(answer_text):
-    return "".join((answer_text or "").split())
+    return normalize_math_text(answer_text)
 
 
 def _are_symbolically_equivalent(student_expr, correct_expr):
@@ -30,7 +30,7 @@ def _are_symbolically_equivalent(student_expr, correct_expr):
 
 
 def _is_simplified_expression(answer_text):
-    parsed_expr = parse_expr((answer_text or "").strip(), evaluate=False)
+    parsed_expr = parse_math_expression(answer_text, evaluate=False)
     simplified_expr = simplify(parsed_expr)
     return str(parsed_expr) == str(simplified_expr)
 
@@ -50,13 +50,16 @@ def _grade_answer(student_answer, question):
     if not isinstance(grading_type, GradingType):
         grading_type = GradingType(grading_type)
 
+    if not _normalize_exact_answer(student_answer):
+        return False
+
     if grading_type == GradingType.EXACT:
         return _normalize_exact_answer(student_answer) == _normalize_exact_answer(
             question.correct_answer
         )
 
-    student_expr = sympify(student_answer)
-    correct_expr = sympify(question.correct_answer)
+    student_expr = parse_math_expression(student_answer)
+    correct_expr = parse_math_expression(question.correct_answer)
 
     if grading_type == GradingType.NUMERIC:
         return _is_numeric_match(student_expr, correct_expr)
@@ -252,6 +255,8 @@ def get_attempt(attempt_id):
             "id": question.id,
             "question_text": question.question_text,
             "points": question.points,
+            "grading_type": question.grading_type.value,
+            "require_simplified": question.require_simplified,
         }
 
         if can_reveal_answers:

@@ -9,8 +9,36 @@ type Question = {
   id: number;
   question_text: string;
   points: number;
+  grading_type: string;
+  require_simplified: boolean;
   correct_answer?: string;
 };
+
+function getGradingTypeLabel(gradingType: string) {
+  if (gradingType === "exact") return "Exact";
+  if (gradingType === "symbolic") return "Symbolic";
+  if (gradingType === "numeric") return "Numeric";
+  return gradingType;
+}
+
+function getStudentGuidance(
+  gradingType: string,
+  requireSimplified: boolean,
+) {
+  if (gradingType === "exact") {
+    return "Match the teacher's answer form exactly. Spaces do not matter.";
+  }
+
+  if (gradingType === "numeric") {
+    return "Enter a numeric value only, such as 8, 2/3, or 0.25.";
+  }
+
+  if (requireSimplified) {
+    return "Equivalent algebra is accepted, but your final answer must be simplified.";
+  }
+
+  return "Equivalent algebra is accepted. Your answer does not have to match the same written form.";
+}
 
 const StudentAssignmentPage = () => {
   const { attemptId } = useParams();
@@ -139,6 +167,12 @@ const StudentAssignmentPage = () => {
     (r: any) => r.question_id === currentQuestion?.id,
   );
   const showReviewDetails = Boolean(result) && isReadOnly;
+  const gradingGuidance = currentQuestion
+    ? getStudentGuidance(
+        currentQuestion.grading_type,
+        currentQuestion.require_simplified,
+      )
+    : "";
 
   return (
     <div className="min-h-screen bg-white">
@@ -158,6 +192,20 @@ const StudentAssignmentPage = () => {
             </h2>
 
             <p className="mb-4">{currentQuestion.question_text}</p>
+
+            <div className="mb-4 rounded border border-[#d8dee8] bg-[#f7f9fc] p-3 text-sm text-[#354254]">
+              <div className="font-semibold mb-2">How this question is graded</div>
+              <div className="flex flex-wrap gap-4 mb-2">
+                <span>Type: {getGradingTypeLabel(currentQuestion.grading_type)}</span>
+                <span>
+                  Simplified required:{" "}
+                  {currentQuestion.require_simplified ? "Yes" : "No"}
+                </span>
+                <span>Points: {currentQuestion.points}</span>
+              </div>
+              <div>{gradingGuidance}</div>
+            </div>
+
             {/* input */}
             <input
               type="text"

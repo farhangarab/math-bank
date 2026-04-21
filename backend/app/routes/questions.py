@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.models.question import Question, GradingType
 from app import db
+from app.utils.math_parser import parse_math_expression
 
 
 questions_bp = Blueprint("questions", __name__)
@@ -71,6 +72,29 @@ def create_question():
             jsonify({"error": "invalid grading_type (exact, symbolic, numeric)"}),
             400,
         )
+
+    if grading_type_enum == GradingType.NUMERIC:
+        try:
+            parsed_answer = parse_math_expression(correct_answer)
+        except Exception:
+            return (
+                jsonify(
+                    {
+                        "error": "numeric grading requires a valid numeric answer"
+                    }
+                ),
+                400,
+            )
+
+        if parsed_answer.free_symbols:
+            return (
+                jsonify(
+                    {
+                        "error": "numeric grading cannot be used when the correct answer contains variables"
+                    }
+                ),
+                400,
+            )
 
     q = Question(
         question_text=question_text,
