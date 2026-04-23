@@ -11,6 +11,26 @@ import { getQuestions, createQuestion } from "../api/question";
 import MathPreview from "../components/MathPreview";
 import QuestionList from "../components/QuestionList";
 
+function answerLooksNumeric(answerText: string) {
+  return !/[a-zA-Z]/.test(answerText);
+}
+
+function getTeacherGuidance(gradingType: string, requireSimplified: boolean) {
+  if (gradingType === "exact") {
+    return "Use Exact when you want students to match the written form of the answer. Spaces are ignored.";
+  }
+
+  if (gradingType === "numeric") {
+    return "Use Numeric only for number-only answers like 8, 2/3, or 0.25.";
+  }
+
+  if (requireSimplified) {
+    return "Use Symbolic + Require simplified when equivalent algebra is okay, but students must simplify their final form.";
+  }
+
+  return "Use Symbolic when equivalent algebraic answers should be accepted even if they look different.";
+}
+
 function AssignmentEditorPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -25,6 +45,7 @@ function AssignmentEditorPage() {
 
   const [gradingType, setGradingType] = useState("symbolic");
   const [requireSimplified, setRequireSimplified] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [activeInput, setActiveInput] = useState<
     HTMLInputElement | HTMLTextAreaElement | null
@@ -53,21 +74,36 @@ function AssignmentEditorPage() {
     if (!text.trim() || !answer.trim()) return;
     const orderIndex = questions.length + 1;
 
-    await createQuestion(
-      Number(id),
-      text,
-      answer,
-      orderIndex,
-      Number(points),
-      gradingType,
-      requireSimplified,
-    );
+    try {
+      setErrorMessage("");
 
-    setText("");
-    setAnswer("");
-    setPoints("1");
-    loadAll();
+      await createQuestion(
+        Number(id),
+        text,
+        answer,
+        orderIndex,
+        Number(points),
+        gradingType,
+        requireSimplified,
+      );
+
+      setText("");
+      setAnswer("");
+      setPoints("1");
+      loadAll();
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+        return;
+      }
+
+      setErrorMessage("Failed to save question");
+    }
   }
+
+  const numericWarning =
+    gradingType === "numeric" && answer.trim() && !answerLooksNumeric(answer);
+  const teacherGuidance = getTeacherGuidance(gradingType, requireSimplified);
 
   return (
     <div className="min-h-screen bg-white">
@@ -132,6 +168,7 @@ function AssignmentEditorPage() {
               <select
                 value={gradingType}
                 onChange={(e) => {
+                  setErrorMessage("");
                   setGradingType(e.target.value);
                   if (e.target.value !== "symbolic")
                     setRequireSimplified(false);
@@ -154,6 +191,23 @@ function AssignmentEditorPage() {
               </label>
             </div>
 
+            <div className="mb-4 rounded border border-[#d8dee8] bg-[#f7f9fc] px-3 py-2 text-sm text-[#354254]">
+              <div className="font-semibold mb-1">
+                What students will be told
+              </div>
+              <div>Type: {gradingType}</div>
+              <div>Simplified required: {requireSimplified ? "Yes" : "No"}</div>
+              <div className="mt-2">{teacherGuidance}</div>
+            </div>
+
+            {numericWarning && (
+              <div className="mb-6 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                Numeric grading is for answers like 3.5, 2/3, or 8. If the
+                answer contains variables like x, use symbolic or exact grading
+                instead.
+              </div>
+            )}
+
             {/* ANSWER */}
             <div className="mb-6">
               <label className="block text-[#354254] font-medium mb-2">
@@ -168,7 +222,10 @@ function AssignmentEditorPage() {
                 type="text"
                 placeholder="Correct answer (e.g., 4*x)"
                 value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
+                onChange={(e) => {
+                  setAnswer(e.target.value);
+                  setErrorMessage("");
+                }}
                 className="border border-[#354254] rounded p-3 w-full focus:outline-none"
               />
               {answer && (
@@ -189,7 +246,11 @@ function AssignmentEditorPage() {
               onChange={(e) => setPoints(e.target.value)}
               className="border border-[#354254] rounded p-3 w-full mb-6 focus:outline-none"
             />
-
+            {errorMessage && (
+              <div className="mb-4 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {errorMessage}
+              </div>
+            )}
             <Button onClick={handleAddQuestion}>Save Question</Button>
           </div>
 

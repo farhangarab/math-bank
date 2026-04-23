@@ -36,7 +36,7 @@ function QuestionList({ questions }: Props) {
             <span className="font-bold text-[#354254]">Answer:</span>
 
             <div className="border border-[#354254] px-2 py-1 text-sm bg-gray-50">
-              <MathPreview expression={q.correct_answer} />
+              <MathPreview expression={q.correct_answer} noBorder />
             </div>
           </div>
 
