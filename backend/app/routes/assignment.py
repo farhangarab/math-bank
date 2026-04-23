@@ -181,7 +181,7 @@ def get_assignment_attempts(assignment_id):
 
         attemptId = None
 
-        if attempt:
+        if attempt and status == AttemptStatus.SUBMITTED.value:
             attemptId = attempt.id
 
         result.append(

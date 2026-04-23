@@ -13,6 +13,8 @@ type Attempt = {
 };
 
 function TeacherSubmissionsPage() {
+  const tableColumns = "2fr 1.2fr 1fr 120px";
+
   const { id } = useParams(); // assignment id
   const navigate = useNavigate();
 
@@ -25,6 +27,10 @@ function TeacherSubmissionsPage() {
 
   const handleView = (attemptId: number) => {
     navigate(`/attempt/${attemptId}?mode=review`);
+  };
+
+  const canReviewAttempt = (attempt: Attempt) => {
+    return attempt.status === "SUBMITTED" && attempt.attempt_id !== null;
   };
 
   const getStatusLabel = (status: Attempt["status"]) => {
@@ -41,8 +47,8 @@ function TeacherSubmissionsPage() {
   };
 
   const getActionLabel = (attempt: Attempt) => {
-    if (!attempt.attempt_id) return null;
-    return attempt.status === "SUBMITTED" ? "Review" : "View";
+    if (!canReviewAttempt(attempt)) return null;
+    return "Review";
   };
 
   const formatScore = (attempt: Attempt) => {
@@ -89,18 +95,22 @@ function TeacherSubmissionsPage() {
           <h1 className="text-xl font-bold text-[#354254] mb-4">Submissions</h1>
 
           {/* TABLE HEADER */}
-          <div className="grid grid-cols-4 border-b border-[#354254] pb-2 font-semibold text-[#354254]">
+          <div
+            className="grid border-b border-[#354254] pb-2 font-semibold text-[#354254]"
+            style={{ gridTemplateColumns: tableColumns }}
+          >
             <div>Student</div>
             <div>Status</div>
             <div>Score</div>
-            <div></div>
+            <div>Action</div>
           </div>
 
           {/* ROWS */}
           {attempts.map((a) => (
             <div
               key={a.attempt_id ?? `student-${a.student_id}`}
-              className="grid grid-cols-4 border-b border-gray-300 py-3 items-center"
+              className="grid border-b border-gray-300 py-3 items-center"
+              style={{ gridTemplateColumns: tableColumns }}
             >
               <div>{a.student_name}</div>
 
@@ -108,16 +118,18 @@ function TeacherSubmissionsPage() {
 
               <div>{formatScore(a)}</div>
 
-              <div className="flex justify-end">
-                {a.attempt_id ? (
+              <div className="flex justify-start">
+                {canReviewAttempt(a) ? (
                   <button
                     onClick={() => handleView(a.attempt_id!)}
-                    className="bg-[#354254] text-white px-3 py-1 rounded"
+                    className="bg-[#354254] text-white w-[110px] py-1 rounded"
                   >
                     {getActionLabel(a)}
                   </button>
                 ) : (
-                  <span className="text-gray-400">-</span>
+                  <span className="text-gray-400 w-[110px]">
+                    {a.status === "IN_PROGRESS" ? "Waiting" : "-"}
+                  </span>
                 )}
               </div>
             </div>
