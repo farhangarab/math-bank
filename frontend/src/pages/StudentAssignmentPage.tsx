@@ -4,6 +4,7 @@ import { getAttempt, saveAttempt, submitAttempt } from "../api/attempt";
 import Header from "../components/Header";
 import Button from "../components/Button";
 import ConfirmModal from "../components/ConfirmModal";
+import { useAuth } from "../context/AuthContext";
 
 type Question = {
   id: number;
@@ -21,10 +22,7 @@ function getGradingTypeLabel(gradingType: string) {
   return gradingType;
 }
 
-function getStudentGuidance(
-  gradingType: string,
-  requireSimplified: boolean,
-) {
+function getStudentGuidance(gradingType: string, requireSimplified: boolean) {
   if (gradingType === "exact") {
     return "Match the teacher's answer form exactly. Spaces do not matter.";
   }
@@ -44,7 +42,7 @@ const StudentAssignmentPage = () => {
   const { attemptId } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const { user } = useAuth();
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -194,9 +192,13 @@ const StudentAssignmentPage = () => {
             <p className="mb-4">{currentQuestion.question_text}</p>
 
             <div className="mb-4 rounded border border-[#d8dee8] bg-[#f7f9fc] p-3 text-sm text-[#354254]">
-              <div className="font-semibold mb-2">How this question is graded</div>
+              <div className="font-semibold mb-2">
+                How this question is graded
+              </div>
               <div className="flex flex-wrap gap-4 mb-2">
-                <span>Type: {getGradingTypeLabel(currentQuestion.grading_type)}</span>
+                <span>
+                  Type: {getGradingTypeLabel(currentQuestion.grading_type)}
+                </span>
                 <span>
                   Simplified required:{" "}
                   {currentQuestion.require_simplified ? "Yes" : "No"}

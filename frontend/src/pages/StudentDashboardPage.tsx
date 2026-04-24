@@ -5,9 +5,11 @@ import { ROUTES } from "../router/routes";
 import ClassCard from "../components/ClassCard";
 import { useEffect, useState } from "react";
 import { getStudentClasses } from "../api/auth";
+import { useAuth } from "../context/AuthContext";
 
 function StudentDashboardPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleView = (id: number) => {
     navigate(`/class/${id}`);
@@ -18,9 +20,7 @@ function StudentDashboardPage() {
   useEffect(() => {
     const loadClasses = async () => {
       try {
-        const user = JSON.parse(localStorage.getItem("user")!);
-
-        const data = await getStudentClasses(user.id);
+        const data = await getStudentClasses();
 
         setClasses(data);
       } catch (err: any) {
@@ -28,8 +28,10 @@ function StudentDashboardPage() {
       }
     };
 
-    loadClasses();
-  }, []);
+    if (user) {
+      loadClasses();
+    }
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -40,7 +42,7 @@ function StudentDashboardPage() {
         {/* Title */}
         <h1 className="text-3xl font-bold text-[#354254]">Student Dashboard</h1>
 
-        <p className="mt-2 mb-6">Welcome student</p>
+        <p className="mt-2 mb-6">Welcome {user?.full_name ?? "student"}</p>
 
         {/* Join class button */}
         <div className="mb-8">

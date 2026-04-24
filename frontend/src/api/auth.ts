@@ -1,26 +1,21 @@
-const API = "http://127.0.0.1:5000/api";
+import type { AuthUser } from "../types/auth";
+import { apiFetch } from "./client";
 
 export async function loginUser(
-  username: string,
-  password: string
+  identifier: string,
+  password: string,
+  remember: boolean
 ) {
-  const res = await fetch(
-    `${API}/auth/login`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username,
-        password,
-      }),
-    }
-  );
+  const res = await apiFetch("/auth/login", {
+    method: "POST",
+    body: JSON.stringify({
+      username: identifier,
+      password,
+      remember,
+    }),
+  });
 
   const data = await res.json();
-
-  console.log("LOGIN RESPONSE:", data); 
 
   if (!res.ok) {
     throw new Error(data.error || "Login failed");
@@ -39,12 +34,8 @@ export async function registerUser(
   role: string,
   teacher_code?: string
 ) {
-  const response = await fetch(`${API}/auth/register`, {
+  const response = await apiFetch("/auth/register", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-
     body: JSON.stringify({
       username,
       full_name,
@@ -64,16 +55,35 @@ export async function registerUser(
   return data;
 }
 
-
-
-export async function joinClass(userId: number, classCode: string) {
-  const res = await fetch(`${API}/student/join-class`, {
+export async function logoutUser() {
+  const res = await apiFetch("/auth/logout", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Logout failed");
+  }
+
+  return data;
+}
+
+export async function getCurrentUser(): Promise<AuthUser> {
+  const res = await apiFetch("/auth/me");
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to load current user");
+  }
+
+  return data.user;
+}
+
+export async function joinClass(classCode: string) {
+  const res = await apiFetch("/student/join-class", {
+    method: "POST",
     body: JSON.stringify({
-      user_id: userId,
       class_code: classCode,
     }),
   });
@@ -87,11 +97,8 @@ export async function joinClass(userId: number, classCode: string) {
   return data;
 }
 
-
-export async function getStudentClasses(userId: number) {
-  const res = await fetch(
-    `${API}/student/classes?user_id=${userId}`
-  );
+export async function getStudentClasses() {
+  const res = await apiFetch("/student/classes");
 
   const data = await res.json();
 
@@ -102,11 +109,8 @@ export async function getStudentClasses(userId: number) {
   return data;
 }
 
-
-export async function getTeacherClasses(userId: number) {
-  const res = await fetch(
-    `${API}/classes/teacher-classes?teacher_id=${userId}`
-  );
+export async function getTeacherClasses() {
+  const res = await apiFetch("/classes/teacher-classes");
 
   const data = await res.json();
 
@@ -117,24 +121,13 @@ export async function getTeacherClasses(userId: number) {
   return data;
 }
 
-
-export async function createClass(
-  userId: number,
-  className: string
-) {
-  const res = await fetch(
-    `${API}/classes/create`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        teacher_id: userId,
-        class_name: className,
-      }),
-    }
-  );
+export async function createClass(className: string) {
+  const res = await apiFetch("/classes/create", {
+    method: "POST",
+    body: JSON.stringify({
+      class_name: className,
+    }),
+  });
 
   const data = await res.json();
 

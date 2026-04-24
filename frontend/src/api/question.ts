@@ -1,11 +1,9 @@
-const API = "http://127.0.0.1:5000/api/questions";
+import { apiFetch } from "./client";
 
 
-// get all questions by assignment
+// get all questions by assignment id
 export async function getQuestions(assignmentId: number) {
-  const res = await fetch(
-    `${API}?assignment_id=${assignmentId}`
-  );
+  const res = await apiFetch(`/questions/?assignment_id=${assignmentId}`);
 
   const data = await res.json();
 
@@ -27,12 +25,8 @@ export async function createQuestion(
   gradingType: string,         
   requireSimplified: boolean  
 ) {
-  const res = await fetch(`${API}/create`, {
+  const res = await apiFetch("/questions/create", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-
     body: JSON.stringify({
       assignment_id: assignmentId,
       question_text: questionText,
@@ -50,5 +44,5 @@ export async function createQuestion(
     throw new Error(data.error || "Create failed");
   }
 
-  return data;
+  return data.question;
 }

@@ -1,13 +1,15 @@
 from flask import Blueprint, request, jsonify
+from flask_login import current_user, login_required
 from app import db
 from app.models.attempt import Attempt
 from app.models.class_member import ClassMember
 from app.models.question import Question
 from app.models.attempt_answer import AttemptAnswer
 from app.models.assignment import Assignment
-from app.models.enums import AttemptStatus, GradingType
+from app.models.enums import AttemptStatus, GradingType, UserRole
 from sympy import simplify
 from app.utils.math_parser import normalize_math_text, parse_math_expression
+from app.auth_utils import role_required
 
 
 attempt_bp = Blueprint("attempts", __name__)
@@ -75,13 +77,14 @@ def _grade_answer(student_answer, question):
 
 # start the assignment
 @attempt_bp.route("/start", methods=["POST"])
+@login_required
+@role_required(UserRole.STUDENT)
 def start_attempt():
     data = request.get_json()
 
     assignment_id = data.get("assignment_id")
-    student_id = data.get("student_id")
 
-    if not assignment_id or not student_id:
+    if not assignment_id:
         return jsonify({"error": "Missing data"}), 400
 
     assignment = Assignment.query.get(assignment_id)
@@ -89,7 +92,7 @@ def start_attempt():
         return jsonify({"error": "Assignment not found"}), 404
 
     class_member = ClassMember.query.filter_by(
-        student_id=student_id, class_id=assignment.class_id
+        student_id=current_user.id, class_id=assignment.class_id
     ).first()
 
     if not class_member:
@@ -127,18 +130,20 @@ def start_attempt():
 
     return (
         jsonify(
-                {
-                    "message": "Attempt started",
-                    "attempt_id": attempt.id,
-                    "status": serialize_attempt_status(attempt.status),
-                }
-            ),
+            {
+                "message": "Attempt started",
+                "attempt_id": attempt.id,
+                "status": serialize_attempt_status(attempt.status),
+            }
+        ),
         201,
     )
 
 
 #  submit the assignment
 @attempt_bp.route("/submit", methods=["POST"])
+@login_required
+@role_required(UserRole.STUDENT)
 def submit_attempt():
     data = request.get_json()
 
@@ -152,6 +157,9 @@ def submit_attempt():
 
     if not attempt:
         return jsonify({"error": "Attempt not found"}), 404
+
+    if attempt.class_member.student_id != current_user.id:
+        return jsonify({"error": "Forbidden"}), 403
 
     # already submitted
     if attempt.status == AttemptStatus.SUBMITTED.value:
@@ -232,12 +240,20 @@ def submit_attempt():
 
 # Get questions in assignment based with attempt id
 @attempt_bp.route("/<int:attempt_id>", methods=["GET"])
+@login_required
 def get_attempt(attempt_id):
 
     attempt = Attempt.query.get(attempt_id)
 
     if attempt is None:
         return jsonify({"error": "Attempt not found"}), 404
+
+    class_obj = attempt.assignment.class_obj
+    is_owner = attempt.class_member.student_id == current_user.id
+    is_teacher = class_obj.teacher_id == current_user.id
+
+    if not is_owner and not is_teacher:
+        return jsonify({"error": "Forbidden"}), 403
 
     questions = (
         Question.query.filter_by(assignment_id=attempt.assignment_id)
@@ -292,6 +308,8 @@ def get_attempt(attempt_id):
 
 # save the progress
 @attempt_bp.route("/save", methods=["POST"])
+@login_required
+@role_required(UserRole.STUDENT)
 def save_attempt():
     data = request.get_json()
 
@@ -300,6 +318,9 @@ def save_attempt():
 
     if not attempt:
         return jsonify({"error": "Attempt not found"}), 404
+
+    if attempt.class_member.student_id != current_user.id:
+        return jsonify({"error": "Forbidden"}), 403
 
     if attempt.status == AttemptStatus.SUBMITTED.value:
         return jsonify({"error": "Assignment already submitted"}), 400

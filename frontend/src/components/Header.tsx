@@ -1,4 +1,7 @@
 import Button from "./Button";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../router/routes";
 
 type HeaderProps = {
   title?: string;
@@ -17,6 +20,23 @@ function Header({
   rightText,
   rightAction,
 }: HeaderProps) {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleRightAction = async () => {
+    if (rightAction) {
+      rightAction();
+      return;
+    }
+
+    if (user) {
+      await logout();
+      navigate(ROUTES.LOGIN);
+    }
+  };
+
+  const actionText = rightText ?? (user ? "Logout" : undefined);
+
   return (
     <header className="h-16 flex items-center justify-between px-6 bg-[#354254] text-white">
       {/* left */}
@@ -35,9 +55,9 @@ function Header({
 
       {/* right */}
       <div className="flex-1 flex justify-end">
-        {rightText && (
-          <Button variant="outline" onClick={rightAction}>
-            {rightText}
+        {actionText && (
+          <Button variant="outline" onClick={handleRightAction}>
+            {actionText}
           </Button>
         )}
       </div>

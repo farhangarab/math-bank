@@ -77,7 +77,7 @@ function AssignmentEditorPage() {
     try {
       setErrorMessage("");
 
-      await createQuestion(
+      const newQuestion = await createQuestion(
         Number(id),
         text,
         answer,
@@ -90,7 +90,7 @@ function AssignmentEditorPage() {
       setText("");
       setAnswer("");
       setPoints("1");
-      loadAll();
+      setQuestions((currentQuestions) => [...currentQuestions, newQuestion]);
     } catch (error) {
       if (error instanceof Error) {
         setErrorMessage(error.message);

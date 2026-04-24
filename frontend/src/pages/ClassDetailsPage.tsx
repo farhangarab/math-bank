@@ -8,6 +8,7 @@ import { getClassById } from "../api/class";
 import AssignmentTable from "../components/AssignmentTable";
 import { startAttempt } from "../api/attempt";
 import type { Assignment } from "../types/assignment";
+import { useAuth } from "../context/AuthContext";
 
 function ClassDetailsPage() {
   const { id } = useParams();
@@ -15,11 +16,10 @@ function ClassDetailsPage() {
   const [classInfo, setClassInfo] = useState<any>(null);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [error, setError] = useState("");
-
-  const user = JSON.parse(localStorage.getItem("user")!);
+  const { user } = useAuth();
 
   const handleBack = () => {
-    if (user.role === "STUDENT") {
+    if (user?.role === "STUDENT") {
       navigate(ROUTES.STUDENT_DASHBOARD);
     } else {
       navigate(ROUTES.TEACHER_DASHBOARD);
@@ -45,7 +45,7 @@ function ClassDetailsPage() {
         return;
       }
 
-      const res = await startAttempt(user.id, assignment.id);
+      const res = await startAttempt(assignment.id);
       navigate(`/attempt/${res.attempt_id}`);
     } catch (err) {
       console.error(err);
@@ -58,10 +58,7 @@ function ClassDetailsPage() {
         const classData = await getClassById(Number(id));
         setClassInfo(classData);
 
-        const assign =
-          user.role === "STUDENT"
-            ? await getAssignments(Number(id), user.id)
-            : await getAssignments(Number(id));
+        const assign = await getAssignments(Number(id));
 
         setAssignments(assign);
       } catch (err: any) {
@@ -69,8 +66,8 @@ function ClassDetailsPage() {
       }
     };
 
-    if (id) load();
-  }, [id]);
+    if (id && user) load();
+  }, [id, user]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -83,13 +80,13 @@ function ClassDetailsPage() {
               {classInfo.class_name}
             </h1>
 
-            {user.role === "TEACHER" && (
+            {user?.role === "TEACHER" && (
               <p className="mt-2 text-gray-600">
                 Class code: {classInfo.class_code}
               </p>
             )}
 
-            {user.role === "TEACHER" && (
+            {user?.role === "TEACHER" && (
               <div className="mt-4 mb-6">
                 <Button onClick={handleCreateAssignment}>
                   Create Assignment
@@ -105,10 +102,10 @@ function ClassDetailsPage() {
           <div className="flex flex-col gap-4">
             <AssignmentTable
               assignments={assignments}
-              role={user.role}
+              role={user?.role ?? "STUDENT"}
               onEdit={handleEditAssignment}
               onOpen={
-                user.role === "STUDENT" ? handleStart : handleOpenAssignment
+                user?.role === "STUDENT" ? handleStart : handleOpenAssignment
               }
             />
 

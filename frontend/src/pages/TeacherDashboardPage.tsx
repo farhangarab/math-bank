@@ -5,9 +5,11 @@ import { ROUTES } from "../router/routes";
 import ClassCard from "../components/ClassCard";
 import { useEffect, useState } from "react";
 import { getTeacherClasses } from "../api/auth";
+import { useAuth } from "../context/AuthContext";
 
 function TeacherDashboardPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleView = (id: number) => {
     navigate(`/class/${id}`);
@@ -19,9 +21,7 @@ function TeacherDashboardPage() {
   useEffect(() => {
     const loadClasses = async () => {
       try {
-        const user = JSON.parse(localStorage.getItem("user")!);
-
-        const data = await getTeacherClasses(user.id);
+        const data = await getTeacherClasses();
 
         setClasses(data);
       } catch (err: any) {
@@ -29,8 +29,10 @@ function TeacherDashboardPage() {
       }
     };
 
-    loadClasses();
-  }, []);
+    if (user) {
+      loadClasses();
+    }
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -41,7 +43,7 @@ function TeacherDashboardPage() {
         {/* Title */}
         <h1 className="text-3xl font-bold text-[#354254]">Teacher Dashboard</h1>
 
-        <p className="mt-2 mb-6">Welcome teacher</p>
+        <p className="mt-2 mb-6">Welcome {user?.full_name ?? "teacher"}</p>
 
         {/* Create class button */}
         <div className="mb-8" onClick={() => navigate(ROUTES.CREATE_CLASS)}>
