@@ -18,9 +18,7 @@ function JoinClassPage() {
       setError("");
       setSuccess("");
 
-      const user = JSON.parse(localStorage.getItem("user")!);
-
-      await joinClass(user.id, classCode);
+      await joinClass(classCode);
 
       setSuccess("Joined successfully");
 

@@ -1,12 +1,15 @@
 from flask import Blueprint, request, jsonify
+from flask_login import current_user, login_required
 from app.models.assignment import Assignment
 from app.models.attempt import Attempt
 from app.models.class_member import ClassMember
-from app.models.enums import AttemptStatus
+from app.models.class_model import Class
+from app.models.enums import AttemptStatus, UserRole
 from app.models.question import Question
 from app.models.user import User
 from datetime import datetime
 from app import db
+from app.auth_utils import role_required
 
 
 assignments_bp = Blueprint("assignments", __name__)
@@ -18,22 +21,33 @@ def serialize_attempt_status(status):
 
 # Get all assignment
 @assignments_bp.route("/", methods=["GET"])
+@login_required
 def get_assignments():
     class_id = request.args.get("class_id")
-    student_id = request.args.get("student_id")
 
     if not class_id:
         return jsonify({"error": "class id required"}), 400
+
+    class_obj = db.session.get(Class, class_id)
+    if not class_obj:
+        return jsonify({"error": "class not found"}), 404
 
     assignments = Assignment.query.filter_by(class_id=class_id).all()
 
     result = []
 
     class_member = None
-    if student_id:
+    if current_user.role == UserRole.STUDENT:
         class_member = ClassMember.query.filter_by(
-            student_id=student_id, class_id=class_id
+            student_id=current_user.id, class_id=class_id
         ).first()
+        if not class_member:
+            return jsonify({"error": "Forbidden"}), 403
+    elif (
+        current_user.role == UserRole.TEACHER
+        and class_obj.teacher_id != current_user.id
+    ):
+        return jsonify({"error": "Forbidden"}), 403
 
     for a in assignments:
         item = {
@@ -73,6 +87,8 @@ def get_assignments():
 
 # create an assignment
 @assignments_bp.route("/create", methods=["POST"])
+@login_required
+@role_required(UserRole.TEACHER)
 def create_assignment():
 
     data = request.json
@@ -86,6 +102,13 @@ def create_assignment():
 
     if not class_id:
         return jsonify({"error": "class_id is required"}), 400
+
+    class_obj = db.session.get(Class, class_id)
+    if not class_obj:
+        return jsonify({"error": "class not found"}), 404
+
+    if class_obj.teacher_id != current_user.id:
+        return jsonify({"error": "Forbidden"}), 403
 
     due_date = None
 
@@ -109,6 +132,7 @@ def create_assignment():
 
 # Get assignment by id
 @assignments_bp.route("/one", methods=["GET"])
+@login_required
 def get_assignment_by_id():
 
     assignment_id = request.args.get("id")
@@ -120,6 +144,18 @@ def get_assignment_by_id():
 
     if not assignment:
         return jsonify({"error": "assignment not found"}), 404
+
+    class_obj = assignment.class_obj
+    is_teacher = class_obj.teacher_id == current_user.id
+    is_student = (
+        ClassMember.query.filter_by(
+            class_id=class_obj.id, student_id=current_user.id
+        ).first()
+        is not None
+    )
+
+    if not is_teacher and not is_student:
+        return jsonify({"error": "Forbidden"}), 403
 
     return jsonify(
         {
@@ -133,11 +169,16 @@ def get_assignment_by_id():
 
 # Get submission for each student
 @assignments_bp.route("/<int:assignment_id>/attempts", methods=["GET"])
+@login_required
+@role_required(UserRole.TEACHER)
 def get_assignment_attempts(assignment_id):
     assignment = Assignment.query.get(assignment_id)
 
     if not assignment:
         return jsonify({"error": "assignment not found"}), 404
+
+    if assignment.class_obj.teacher_id != current_user.id:
+        return jsonify({"error": "Forbidden"}), 403
 
     max_score = (
         db.session.query(db.func.coalesce(db.func.sum(Question.points), 0))

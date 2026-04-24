@@ -1,8 +1,9 @@
+from flask_login import UserMixin
 from app import db
 from app.models.enums import UserRole
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
 
     __tablename__ = "users"
 

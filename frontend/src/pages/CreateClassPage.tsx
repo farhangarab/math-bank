@@ -18,9 +18,7 @@ function CreateClassPage() {
       setError("");
       setSuccess("");
 
-      const user = JSON.parse(localStorage.getItem("user")!);
-
-      await createClass(user.id, className);
+      await createClass(className);
 
       setSuccess("Class created successfully");
 

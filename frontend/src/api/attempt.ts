@@ -1,14 +1,10 @@
-const API = "http://127.0.0.1:5000/api";
+import { apiFetch } from "./client";
 
 // start the assignment
-export async function startAttempt(userId: number ,assignmentId: number) {
-  const res = await fetch(`${API}/attempts/start`, {
+export async function startAttempt(assignmentId: number) {
+  const res = await apiFetch("/attempts/start", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify({
-      student_id: userId,
       assignment_id: assignmentId,
     }),
   });
@@ -25,7 +21,7 @@ export async function startAttempt(userId: number ,assignmentId: number) {
 
 // get the questions in assignment with attempt id
 export async function getAttempt(attemptId: number) {
-  const res = await fetch(`${API}/attempts/${attemptId}`);
+  const res = await apiFetch(`/attempts/${attemptId}`);
   const data = await res.json();
 
   if (!res.ok) {
@@ -40,11 +36,8 @@ export async function submitAttempt(
   attemptId: number,
   answers: { question_id: number; answer_text: string }[]
 ) {
-  const res = await fetch(`${API}/attempts/submit`, {
+  const res = await apiFetch("/attempts/submit", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify({
       attempt_id: attemptId,
       answers,
@@ -65,11 +58,8 @@ export async function saveAttempt(
   attemptId: number,
   answers: { question_id: number; answer_text: string }[]
 ) {
-  const res = await fetch(`${API}/attempts/save`, {
+  const res = await apiFetch("/attempts/save", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify({
       attempt_id: attemptId,
       answers,

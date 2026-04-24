@@ -13,6 +13,7 @@ import CreateAssignmentPage from "./pages/CreateAssignmentPage";
 import AssignmentEditorPage from "./pages/AssignmentEditorPage";
 import StudentAssignmentPage from "./pages/StudentAssignmentPage";
 import TeacherSubmissionsPage from "./pages/TeacherSubmissionsPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -30,37 +31,41 @@ function App() {
           element={<TeacherRegisterPage />}
         />
 
-        <Route
-          path={ROUTES.STUDENT_DASHBOARD}
-          element={<StudentDashboardPage />}
-        />
-        <Route
-          path={ROUTES.TEACHER_DASHBOARD}
-          element={<TeacherDashboardPage />}
-        />
+        <Route element={<ProtectedRoute roles={["STUDENT"]} />}>
+          <Route
+            path={ROUTES.STUDENT_DASHBOARD}
+            element={<StudentDashboardPage />}
+          />
+          <Route path={ROUTES.JOIN_CLASS} element={<JoinClassPage />} />
+        </Route>
 
-        <Route path={ROUTES.CREATE_CLASS} element={<CreateClassPage />} />
-        <Route path={ROUTES.JOIN_CLASS} element={<JoinClassPage />} />
+        <Route element={<ProtectedRoute roles={["TEACHER"]} />}>
+          <Route
+            path={ROUTES.TEACHER_DASHBOARD}
+            element={<TeacherDashboardPage />}
+          />
+          <Route path={ROUTES.CREATE_CLASS} element={<CreateClassPage />} />
+          <Route
+            path={ROUTES.CREATE_ASSIGNMENT}
+            element={<CreateAssignmentPage />}
+          />
+          <Route
+            path={ROUTES.EDIT_ASSIGNMENT}
+            element={<AssignmentEditorPage />}
+          />
+          <Route
+            path={ROUTES.TEACHER_SUBMISSIONS_PAGE}
+            element={<TeacherSubmissionsPage />}
+          />
+        </Route>
 
-        <Route path={ROUTES.CLASS_DETAILS} element={<ClassDetailsPage />} />
-
-        <Route
-          path={ROUTES.CREATE_ASSIGNMENT}
-          element={<CreateAssignmentPage />}
-        />
-        <Route
-          path={ROUTES.EDIT_ASSIGNMENT}
-          element={<AssignmentEditorPage />}
-        />
-
-        <Route
-          path={ROUTES.STUDENT_ASSIGNMENT_PAGE}
-          element={<StudentAssignmentPage />}
-        />
-        <Route
-          path={ROUTES.TEACHER_SUBMISSIONS_PAGE}
-          element={<TeacherSubmissionsPage />}
-        />
+        <Route element={<ProtectedRoute />}>
+          <Route path={ROUTES.CLASS_DETAILS} element={<ClassDetailsPage />} />
+          <Route
+            path={ROUTES.STUDENT_ASSIGNMENT_PAGE}
+            element={<StudentAssignmentPage />}
+          />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

@@ -1,19 +1,45 @@
 from flask import Blueprint, request, jsonify
+from flask_login import current_user, login_required
 from app.models.question import Question, GradingType
+from app.models.assignment import Assignment
 from app import db
 from app.utils.math_parser import parse_math_expression
+from app.models.enums import UserRole
+from app.auth_utils import role_required
 
 
 questions_bp = Blueprint("questions", __name__)
 
 
+def serialize_question(question):
+    return {
+        "id": question.id,
+        "question_text": question.question_text,
+        "correct_answer": question.correct_answer,
+        "points": question.points,
+        "order_index": question.order_index,
+        "assignment_id": question.assignment_id,
+        "grading_type": question.grading_type.value,
+        "require_simplified": question.require_simplified,
+    }
+
+
 # Get all questions by assignment
 @questions_bp.route("/", methods=["GET"])
+@login_required
+@role_required(UserRole.TEACHER)
 def get_questions():
     assignment_id = request.args.get("assignment_id")
 
     if not assignment_id:
         return jsonify({"error": "assignment_id required"}), 400
+
+    assignment = db.session.get(Assignment, assignment_id)
+    if not assignment:
+        return jsonify({"error": "assignment not found"}), 404
+
+    if assignment.class_obj.teacher_id != current_user.id:
+        return jsonify({"error": "Forbidden"}), 403
 
     questions = (
         Question.query.filter_by(assignment_id=assignment_id)
@@ -21,26 +47,13 @@ def get_questions():
         .all()
     )
 
-    result = []
-
-    for q in questions:
-        result.append(
-            {
-                "id": q.id,
-                "question_text": q.question_text,
-                "correct_answer": q.correct_answer,
-                "points": q.points,
-                "order_index": q.order_index,
-                "assignment_id": q.assignment_id,
-                "grading_type": q.grading_type.value,
-                "require_simplified": q.require_simplified,
-            }
-        )
-    return jsonify(result)
+    return jsonify([serialize_question(q) for q in questions])
 
 
 # Create Questions
 @questions_bp.route("/create", methods=["POST"])
+@login_required
+@role_required(UserRole.TEACHER)
 def create_question():
 
     data = request.json
@@ -65,6 +78,13 @@ def create_question():
     if order_index is None:
         return jsonify({"error": "order_index required"}), 400
 
+    assignment = db.session.get(Assignment, assignment_id)
+    if not assignment:
+        return jsonify({"error": "assignment not found"}), 404
+
+    if assignment.class_obj.teacher_id != current_user.id:
+        return jsonify({"error": "Forbidden"}), 403
+
     try:
         grading_type_enum = GradingType(grading_type)
     except ValueError:
@@ -78,11 +98,7 @@ def create_question():
             parsed_answer = parse_math_expression(correct_answer)
         except Exception:
             return (
-                jsonify(
-                    {
-                        "error": "numeric grading requires a valid numeric answer"
-                    }
-                ),
+                jsonify({"error": "numeric grading requires a valid numeric answer"}),
                 400,
             )
 
@@ -109,4 +125,4 @@ def create_question():
     db.session.add(q)
     db.session.commit()
 
-    return jsonify({"message": "question created"})
+    return jsonify({"message": "question created", "question": serialize_question(q)})

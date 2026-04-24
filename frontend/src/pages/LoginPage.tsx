@@ -2,25 +2,26 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Input from "../components/Input";
-import { loginUser } from "../api/auth";
 import { ROUTES } from "../router/routes";
 import Button from "../components/Button";
+import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
-  const [username, setUsername] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      const data = await loginUser(username, password);
+      setError("");
+      const user = await login(identifier, password, remember);
 
-      localStorage.setItem("user", JSON.stringify(data.user));
-
-      if (data.user.role === "STUDENT") {
+      if (user.role === "STUDENT") {
         navigate(ROUTES.STUDENT_DASHBOARD);
       } else {
         navigate(ROUTES.TEACHER_DASHBOARD);
@@ -54,9 +55,9 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full">
             <Input
               type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Username or email"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
             />
 
             <Input
@@ -66,14 +67,18 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
             />
 
+            <label className="flex items-center gap-2 text-left text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+              />
+              Remember Me
+            </label>
+
             <div className="mt-8"></div>
 
-            <Button
-              type="submit"
-              variant="primary"
-              full
-              onClick={() => navigate(ROUTES.LOGIN)}
-            >
+            <Button type="submit" variant="primary" full>
               Log In
             </Button>
           </form>

@@ -1,11 +1,12 @@
 from flask import Blueprint, request, jsonify
+from flask_login import current_user, login_required
 
 from app import db
 
-from app.models.user import User
 from app.models.class_model import Class
 from app.models.class_member import ClassMember
 from app.models.enums import UserRole
+from app.auth_utils import role_required
 
 
 student_bp = Blueprint("student_bp", __name__)
@@ -13,22 +14,13 @@ student_bp = Blueprint("student_bp", __name__)
 
 # Student join the class
 @student_bp.route("/join-class", methods=["POST"])
+@login_required
+@role_required(UserRole.STUDENT)
 def join_class():
 
     data = request.json
 
-    user_id = data.get("user_id")
     class_code = data.get("class_code")
-
-    # check the user exist
-    user = User.query.get(user_id)
-
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-
-    # check the role
-    if user.role != UserRole.STUDENT:
-        return jsonify({"error": "Only students can join classes"}), 403
 
     # find the class
     class_obj = Class.query.filter_by(class_code=class_code).first()
@@ -38,13 +30,13 @@ def join_class():
 
     # avoid duplicate join
     existing = ClassMember.query.filter_by(
-        class_id=class_obj.id, student_id=user.id
+        class_id=class_obj.id, student_id=current_user.id
     ).first()
 
     if existing:
         return jsonify({"error": "Already joined"}), 400
 
-    member = ClassMember(class_id=class_obj.id, student_id=user.id)
+    member = ClassMember(class_id=class_obj.id, student_id=current_user.id)
 
     db.session.add(member)
     db.session.commit()
@@ -63,22 +55,10 @@ def join_class():
 
 # Get student classes
 @student_bp.route("/classes", methods=["GET"])
+@login_required
+@role_required(UserRole.STUDENT)
 def get_my_classes():
-
-    user_id = request.args.get("user_id")
-
-    # Get the user
-    user = User.query.get(user_id)
-
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-
-    # Check the role
-    if user.role != UserRole.STUDENT:
-        return jsonify({"error": "Only students allowed"}), 403
-
-    # Get the membership
-    memberships = ClassMember.query.filter_by(student_id=user.id).all()
+    memberships = ClassMember.query.filter_by(student_id=current_user.id).all()
 
     # Create the classes
     result = []

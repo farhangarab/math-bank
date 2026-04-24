@@ -1,20 +1,9 @@
 import type { Assignment } from "../types/assignment";
-
-const API = "http://127.0.0.1:5000/api/assignments";
-
+import { apiFetch } from "./client";
 
 // Get assignments by class
-export async function getAssignments(
-  classId: number,
-  studentId?: number
-): Promise<Assignment[]> {
-  let url = `${API}/?class_id=${classId}`;
-
-  if (studentId) {
-    url += `&student_id=${studentId}`;
-  }
-  
-  const res = await fetch(url);
+export async function getAssignments(classId: number): Promise<Assignment[]> {
+  const res = await apiFetch(`/assignments/?class_id=${classId}`);
   const data = await res.json();
 
   if (!res.ok) {
@@ -33,11 +22,8 @@ export async function createAssignment(
   classId: number,
   dueDate?: string
 ) {
-  const res = await fetch(`${API}/create`, {
+  const res = await apiFetch("/assignments/create", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify({
       title,
       class_id: classId,
@@ -56,9 +42,7 @@ export async function createAssignment(
 
 //Get assignment by id
 export async function getAssignmentById(id: number) {
-  const res = await fetch(
-    `${API}/one?id=${id}`
-  );
+  const res = await apiFetch(`/assignments/one?id=${id}`);
 
   const data = await res.json();
 
@@ -71,7 +55,7 @@ export async function getAssignmentById(id: number) {
 
 //Get submission for each student
 export async function getAssignmentAttempts(assignmentId: number) {
-  const res = await fetch(`${API}/${assignmentId}/attempts`);
+  const res = await apiFetch(`/assignments/${assignmentId}/attempts`);
   const data = await res.json();
 
   if (!res.ok) {
