@@ -115,8 +115,10 @@ def create_assignment():
     class_id = data.get("class_id")
     due_date_str = data.get("due_date")
 
-    if not title:
+    if not title or not title.strip():
         return jsonify({"error": "title is required"}), 400
+
+    title = title.strip()
 
     if not class_id:
         return jsonify({"error": "class_id is required"}), 400
@@ -127,6 +129,14 @@ def create_assignment():
 
     if class_obj.teacher_id != current_user.id:
         return jsonify({"error": "Forbidden"}), 403
+
+    duplicate_assignment = Assignment.query.filter(
+        Assignment.class_id == class_id,
+        db.func.lower(Assignment.title) == title.lower(),
+    ).first()
+
+    if duplicate_assignment:
+        return jsonify({"error": "assignment title already exists in this class"}), 400
 
     due_date = None
 

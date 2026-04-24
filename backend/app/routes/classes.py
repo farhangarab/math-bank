@@ -21,8 +21,10 @@ def create_class():
     data = request.json
 
     class_name = data.get("class_name")
-    if not class_name:
+    if not class_name or not class_name.strip():
         return jsonify({"error": "class_name required"}), 400
+
+    class_name = class_name.strip()
 
     class_code = generate_class_code()
 
