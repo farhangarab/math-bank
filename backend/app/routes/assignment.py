@@ -49,12 +49,30 @@ def get_assignments():
     ):
         return jsonify({"error": "Forbidden"}), 403
 
+    assignment_ids = [a.id for a in assignments]
+    max_scores = {}
+
+    if assignment_ids:
+        max_scores = {
+            assignment_id: float(max_score or 0)
+            for assignment_id, max_score in (
+                db.session.query(
+                    Question.assignment_id,
+                    db.func.coalesce(db.func.sum(Question.points), 0),
+                )
+                .filter(Question.assignment_id.in_(assignment_ids))
+                .group_by(Question.assignment_id)
+                .all()
+            )
+        }
+
     for a in assignments:
         item = {
             "id": a.id,
             "title": a.title,
             "class_id": a.class_id,
             "due_date": a.due_date,
+            "max_score": max_scores.get(a.id, 0),
         }
 
         if class_member:

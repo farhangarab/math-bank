@@ -1,10 +1,29 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { ROUTES } from "../router/routes";
 import Button from "../components/Button";
+import { useAuth } from "../context/AuthContext";
 
 export default function WelcomePage() {
   const navigate = useNavigate();
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
+
+  if (user) {
+    const dashboardRoute =
+      user.role === "TEACHER"
+        ? ROUTES.TEACHER_DASHBOARD
+        : ROUTES.STUDENT_DASHBOARD;
+
+    return <Navigate to={dashboardRoute} replace />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-white font-sans text-black">
