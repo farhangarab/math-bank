@@ -2,8 +2,8 @@ import Header from "../components/Header";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getAssignmentAttempts } from "../api/assignment";
-import Alert from "../components/Alert";
 import { useMessage } from "../hooks/useMessage";
+import MessageSlot from "../components/MessageSlot";
 
 type Attempt = {
   attempt_id: number | null;
@@ -96,6 +96,7 @@ function TeacherSubmissionsPage() {
       <div className="flex flex-col items-center mt-10">
         <div className="w-[800px] border border-[#354254] rounded p-6">
           <h1 className="text-xl font-bold text-[#354254] mb-4">Submissions</h1>
+          <MessageSlot message={message} />
 
           {/* TABLE HEADER */}
           <div
@@ -142,11 +143,6 @@ function TeacherSubmissionsPage() {
             <p className="text-gray-500 mt-4">No students found for this class.</p>
           )}
 
-          {message && (
-            <div className="mt-4">
-              <Alert type={message.type} message={message.text} />
-            </div>
-          )}
         </div>
       </div>
     </div>

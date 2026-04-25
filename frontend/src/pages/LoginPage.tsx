@@ -5,9 +5,9 @@ import Input from "../components/Input";
 import { ROUTES } from "../router/routes";
 import Button from "../components/Button";
 import { useAuth } from "../context/AuthContext";
-import Alert from "../components/Alert";
 import { useMessage } from "../hooks/useMessage";
 import { firstInvalid } from "../utils/validation";
+import MessageSlot from "../components/MessageSlot";
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState("");
@@ -113,18 +113,12 @@ export default function LoginPage() {
               Remember Me
             </label>
 
-            <div className="mt-8"></div>
+            <MessageSlot message={message} />
 
             <Button type="submit" variant="primary" full>
               Log In
             </Button>
           </form>
-
-          {message && (
-            <div className="mt-4">
-              <Alert type={message.type} message={message.text} />
-            </div>
-          )}
 
           <p className="text-gray-900 text-lg mt-6">
             Don't have an account?{" "}

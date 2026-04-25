@@ -6,8 +6,8 @@ import ClassCard from "../components/ClassCard";
 import { useEffect, useState } from "react";
 import { getTeacherClasses } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
-import Alert from "../components/Alert";
 import { useMessage } from "../hooks/useMessage";
+import MessageSlot from "../components/MessageSlot";
 
 function TeacherDashboardPage() {
   const navigate = useNavigate();
@@ -49,8 +49,9 @@ function TeacherDashboardPage() {
         <p className="mt-2 mb-6">Welcome {user?.full_name ?? "teacher"}</p>
 
         {/* Create class button */}
-        <div className="mb-8" onClick={() => navigate(ROUTES.CREATE_CLASS)}>
-          <Button>Create Class</Button>
+        <div className="mb-8">
+          <MessageSlot message={message} />
+          <Button onClick={() => navigate(ROUTES.CREATE_CLASS)}>Create Class</Button>
         </div>
 
         {/* My classes section */}
@@ -69,7 +70,9 @@ function TeacherDashboardPage() {
               />
             ))}
 
-            {message && <Alert type={message.type} message={message.text} />}
+            {classes.length === 0 && (
+              <p className="text-gray-500">No classes yet.</p>
+            )}
           </div>
         </div>
       </div>

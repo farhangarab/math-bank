@@ -5,8 +5,8 @@ import { ROUTES } from "../router/routes";
 import { useNavigate } from "react-router-dom";
 import { joinClass } from "../api/auth";
 import { useState } from "react";
-import Alert from "../components/Alert";
 import { useMessage } from "../hooks/useMessage";
+import MessageSlot from "../components/MessageSlot";
 
 function JoinClassPage() {
   const [classCode, setClassCode] = useState("");
@@ -73,9 +73,7 @@ function JoinClassPage() {
             />
           </div>
 
-          {message && <Alert type={message.type} message={message.text} />}
-
-          <div className="mt-6"></div>
+          <MessageSlot message={message} />
 
           <Button onClick={handleJoin}>Join</Button>
         </div>

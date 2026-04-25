@@ -5,9 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../router/routes";
 import { useState } from "react";
 import { registerUser } from "../api/auth";
-import Alert from "../components/Alert";
 import { useMessage } from "../hooks/useMessage";
 import { firstInvalid } from "../utils/validation";
+import MessageSlot from "../components/MessageSlot";
 
 export default function StudentRegisterPage() {
   const [username, setUsername] = useState("");
@@ -159,9 +159,7 @@ export default function StudentRegisterPage() {
               clearFieldError("confirm_password");
             }}
           />
-          {message && <Alert type={message.type} message={message.text} />}
-
-          <div className="mt-6"></div>
+          <MessageSlot message={message} />
 
           <Button type="submit" variant="primary" full onClick={handleRegister}>
             Register

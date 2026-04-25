@@ -13,7 +13,7 @@ function getStudentActionLabel(status?: string) {
   return "Start";
 }
 
-//format date like: Feb 8 by 11:59pm
+//format date like: Feb 8, 2026 by 11:59pm
 function formatDueDate(dateStr?: string) {
   if (!dateStr) return "-";
 
@@ -24,7 +24,7 @@ function formatDueDate(dateStr?: string) {
   const date = d.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
-    year: d.getFullYear() === new Date().getFullYear() ? undefined : "numeric",
+    year: "numeric",
   });
   const time = d
     .toLocaleTimeString("en-US", {

@@ -38,7 +38,7 @@ export function useMessage() {
 
   const showFieldError = (field: string, text: string) => {
     setFieldErrors({ [field]: text });
-    setMessage({ type: "error", text });
+    setMessage(null);
   };
 
   const showSuccess = (text: string) => {
@@ -60,9 +60,13 @@ export function useMessage() {
       typeof apiError.message === "string" && apiError.message
         ? apiError.message
         : fallback;
+    const nextFieldErrors = apiError.errors ?? {};
+    const fieldNames = Object.keys(nextFieldErrors);
+    const hasOnlyFieldErrors =
+      fieldNames.length > 0 && !fieldNames.includes("general");
 
-    setFieldErrors(apiError.errors ?? {});
-    setMessage({ type: "error", text });
+    setFieldErrors(nextFieldErrors);
+    setMessage(hasOnlyFieldErrors ? null : { type: "error", text });
   };
 
   return {

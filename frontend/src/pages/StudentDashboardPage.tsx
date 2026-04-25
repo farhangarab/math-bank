@@ -6,8 +6,8 @@ import ClassCard from "../components/ClassCard";
 import { useEffect, useState } from "react";
 import { getStudentClasses } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
-import Alert from "../components/Alert";
 import { useMessage } from "../hooks/useMessage";
+import MessageSlot from "../components/MessageSlot";
 
 function StudentDashboardPage() {
   const navigate = useNavigate();
@@ -49,6 +49,7 @@ function StudentDashboardPage() {
 
         {/* Join class button */}
         <div className="mb-8">
+          <MessageSlot message={message} />
           <Button onClick={() => navigate(ROUTES.JOIN_CLASS)}>
             Join Class
           </Button>
@@ -69,7 +70,9 @@ function StudentDashboardPage() {
               />
             ))}
 
-            {message && <Alert type={message.type} message={message.text} />}
+            {classes.length === 0 && (
+              <p className="text-gray-500">No classes yet.</p>
+            )}
           </div>
         </div>
       </div>

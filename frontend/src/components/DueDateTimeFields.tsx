@@ -1,10 +1,7 @@
 import { useRef } from "react";
 
 import {
-  getTimePartsFromDateTime,
-  getTimeValue,
   hours,
-  isValidDateValue,
   minutes,
   type TimePeriod,
 } from "../utils/dueDateTime";
@@ -55,25 +52,17 @@ function DueDateTimeFields({
     picker.click();
   };
 
-  const handleDateTimePick = (value: string) => {
+  const handleDatePick = (value: string) => {
     if (!value) {
       onClear();
       return;
     }
 
-    const [dateValue] = value.split("T");
-    const timeParts = getTimePartsFromDateTime(value);
-
-    onChangeDate(dateValue);
-    onChangeHour(timeParts.hour);
-    onChangeMinute(timeParts.minute);
-    onChangePeriod(timeParts.period);
+    onChangeDate(value);
   };
 
-  const timeValue = getTimeValue(hour, minute, period);
-
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_1fr_auto]">
+    <div className="grid gap-4 lg:grid-cols-[1fr_1fr_auto] lg:items-start">
       <div>
         <label
           htmlFor="due-date"
@@ -93,6 +82,7 @@ function DueDateTimeFields({
             error ? "border-red-500 bg-red-50" : "border-[#354254]"
           }`}
         />
+        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
       </div>
 
       <div>
@@ -150,7 +140,7 @@ function DueDateTimeFields({
         </div>
       </div>
 
-      <div className="flex items-end gap-2">
+      <div className="flex items-start gap-2 pt-8">
         <button
           type="button"
           onClick={handleOpenCalendar}
@@ -169,10 +159,10 @@ function DueDateTimeFields({
 
         <input
           ref={datePickerRef}
-          type="datetime-local"
-          value={isValidDateValue(date) && timeValue ? `${date}T${timeValue}` : ""}
-          min={now}
-          onChange={(e) => handleDateTimePick(e.target.value)}
+          type="date"
+          value={date}
+          min={now.slice(0, 10)}
+          onChange={(e) => handleDatePick(e.target.value)}
           className="absolute h-px w-px opacity-0"
           tabIndex={-1}
         />

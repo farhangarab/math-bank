@@ -20,6 +20,13 @@ def serialize_attempt_status(status):
     return status.value if hasattr(status, "value") else status
 
 
+def serialize_due_date(due_date):
+    if not due_date:
+        return None
+
+    return due_date.strftime("%Y-%m-%dT%H:%M")
+
+
 # Get all assignment
 @assignments_bp.route("/", methods=["GET"])
 @login_required
@@ -72,7 +79,7 @@ def get_assignments():
             "id": a.id,
             "title": a.title,
             "class_id": a.class_id,
-            "due_date": a.due_date,
+            "due_date": serialize_due_date(a.due_date),
             "max_score": max_scores.get(a.id, 0),
         }
 
@@ -197,7 +204,7 @@ def get_assignment_by_id():
         {
             "id": assignment.id,
             "title": assignment.title,
-            "due_date": assignment.due_date,
+            "due_date": serialize_due_date(assignment.due_date),
             "class_id": assignment.class_id,
         }
     )

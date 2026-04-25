@@ -5,8 +5,8 @@ import Header from "../components/Header";
 import Button from "../components/Button";
 import ConfirmModal from "../components/ConfirmModal";
 import { useAuth } from "../context/AuthContext";
-import Alert from "../components/Alert";
 import { useMessage } from "../hooks/useMessage";
+import MessageSlot from "../components/MessageSlot";
 
 type Question = {
   id: number;
@@ -179,11 +179,6 @@ const StudentAssignmentPage = () => {
       <div className="p-10 mx-auto">
         {currentQuestion && (
           <div className="w-full">
-            {message && (
-              <div className="mb-4">
-                <Alert type={message.type} message={message.text} />
-              </div>
-            )}
             {/* question */}
             <h2 className="font-bold mb-2 text-[#354254]">
               Q{currentIndex + 1}
@@ -223,6 +218,8 @@ const StudentAssignmentPage = () => {
                   : "Enter your answer"
               }
             />
+
+            <MessageSlot message={message} />
 
             {/* navigation */}
             <div className="flex justify-between items-center mt-6">

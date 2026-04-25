@@ -5,8 +5,8 @@ import { ROUTES } from "../router/routes";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { createClass } from "../api/auth";
-import Alert from "../components/Alert";
 import { useMessage } from "../hooks/useMessage";
+import MessageSlot from "../components/MessageSlot";
 
 function CreateClassPage() {
   const [className, setClassName] = useState("");
@@ -71,11 +71,9 @@ function CreateClassPage() {
             />
           </div>
 
-          <Button onClick={handleCreate}>Create</Button>
+          <MessageSlot message={message} />
 
-          <div className="mt-4">
-            {message && <Alert type={message.type} message={message.text} />}
-          </div>
+          <Button onClick={handleCreate}>Create</Button>
         </div>
       </div>
     </div>

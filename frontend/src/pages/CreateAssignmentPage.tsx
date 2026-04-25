@@ -6,8 +6,8 @@ import Header from "../components/Header";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import DueDateTimeFields from "../components/DueDateTimeFields";
-import Alert from "../components/Alert";
 import { useMessage } from "../hooks/useMessage";
+import MessageSlot from "../components/MessageSlot";
 import {
   getLocalDateTimeValue,
   getTimeValue,
@@ -62,26 +62,42 @@ export default function CreateAssignmentPage() {
     }
 
     const hasDueDate = dueDate.trim() !== "";
-    const hasDueTime = dueHour.trim() !== "" || dueMinute.trim() !== "";
-    const hasCompleteDueTime = dueHour.trim() !== "" && dueMinute.trim() !== "";
+    const hasDueHour = dueHour.trim() !== "";
+    const hasDueMinute = dueMinute.trim() !== "";
+    const hasDueTime = hasDueHour || hasDueMinute;
     let dueDateTime: string | undefined;
 
     if (hasDueDate || hasDueTime) {
+      if (hasDueTime && !hasDueDate) {
+        showFieldError("due_date", "Due date is required when due time is selected. Use YYYY-MM-DD.");
+        return;
+      }
+
       if (!isDateFormatValid(dueDate)) {
         showFieldError("due_date", "Due date format is invalid. Use YYYY-MM-DD.");
         return;
       }
 
       if (!isValidDateValue(dueDate)) {
-        showFieldError("due_date", "Due date is invalid. Choose a real calendar date.");
+        showFieldError(
+          "due_date",
+          "Due date is invalid. Use YYYY-MM-DD and choose a real calendar date.",
+        );
         return;
       }
 
-      const dueTime = hasDueTime
-        ? getTimeValue(dueHour, dueMinute, duePeriod)
-        : "23:59";
+      let dueTime = "23:59";
 
-      if (hasDueTime && (!hasCompleteDueTime || !isValidTimeValue(dueTime))) {
+      if (hasDueTime) {
+        if (!hasDueHour) {
+          showFieldError("due_date", "Due hour is required when due minute is selected.");
+          return;
+        }
+
+        dueTime = getTimeValue(dueHour, hasDueMinute ? dueMinute : "00", duePeriod);
+      }
+
+      if (hasDueTime && !isValidTimeValue(dueTime)) {
         showFieldError("due_date", "Due time is invalid. Choose hour, minute, and AM or PM.");
         return;
       }
@@ -153,7 +169,7 @@ export default function CreateAssignmentPage() {
             onClear={handleClearDueDateTime}
           />
 
-          {message && <Alert type={message.type} message={message.text} />}
+          <MessageSlot message={message} />
 
           <Button onClick={handleCreate}>Create Assignment</Button>
         </div>

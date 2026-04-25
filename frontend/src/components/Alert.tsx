@@ -15,7 +15,7 @@ const alertStyles: Record<AlertType, string> = {
 export default function Alert({ type, message }: AlertProps) {
   return (
     <div
-      className={`rounded border px-3 py-2 text-sm font-medium ${alertStyles[type]}`}
+      className={`w-full rounded-md border px-3 py-2 text-left text-sm font-medium leading-snug ${alertStyles[type]}`}
       role={type === "error" ? "alert" : "status"}
     >
       {message}

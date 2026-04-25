@@ -9,8 +9,8 @@ import AssignmentTable from "../components/AssignmentTable";
 import { startAttempt } from "../api/attempt";
 import type { Assignment } from "../types/assignment";
 import { useAuth } from "../context/AuthContext";
-import Alert from "../components/Alert";
 import { useMessage } from "../hooks/useMessage";
+import MessageSlot from "../components/MessageSlot";
 
 function ClassDetailsPage() {
   const { id } = useParams();
@@ -92,6 +92,7 @@ function ClassDetailsPage() {
 
             {user?.role === "TEACHER" && (
               <div className="mt-4 mb-6">
+                <MessageSlot message={message} />
                 <Button onClick={handleCreateAssignment}>
                   Create Assignment
                 </Button>
@@ -117,7 +118,7 @@ function ClassDetailsPage() {
               <p className="text-gray-500">No assignments yet</p>
             )}
 
-            {message && <Alert type={message.type} message={message.text} />}
+            {user?.role !== "TEACHER" && <MessageSlot message={message} />}
           </div>
         </div>
       </div>

@@ -13,6 +13,7 @@ import QuestionList from "../components/QuestionList";
 import Alert from "../components/Alert";
 import { useMessage } from "../hooks/useMessage";
 import { firstInvalid } from "../utils/validation";
+import MessageSlot from "../components/MessageSlot";
 
 function answerLooksNumeric(answerText: string) {
   return !/[a-zA-Z]/.test(answerText);
@@ -310,11 +311,7 @@ function AssignmentEditorPage() {
             {fieldErrors.points && (
               <p className="mt-1 text-sm text-red-600">{fieldErrors.points}</p>
             )}
-            {message && (
-              <div className="my-4">
-                <Alert type={message.type} message={message.text} />
-              </div>
-            )}
+            <MessageSlot message={message} />
             <Button onClick={handleAddQuestion}>Save Question</Button>
           </div>
 
