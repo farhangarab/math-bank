@@ -5,28 +5,41 @@ import { ROUTES } from "../router/routes";
 import { useNavigate } from "react-router-dom";
 import { joinClass } from "../api/auth";
 import { useState } from "react";
+import { useMessage } from "../hooks/useMessage";
+import MessageSlot from "../components/MessageSlot";
 
 function JoinClassPage() {
   const [classCode, setClassCode] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const {
+    message,
+    fieldErrors,
+    clearAllMessages,
+    clearFieldError,
+    showApiError,
+    showFieldError,
+    showSuccess,
+  } = useMessage();
 
   const navigate = useNavigate();
 
   const handleJoin = async () => {
-    try {
-      setError("");
-      setSuccess("");
+    clearAllMessages();
 
+    if (!classCode.trim()) {
+      showFieldError("class_code", "Class code is required.");
+      return;
+    }
+
+    try {
       await joinClass(classCode);
 
-      setSuccess("Joined successfully");
+      showSuccess("Class joined successfully.");
 
       setTimeout(() => {
         navigate(ROUTES.STUDENT_DASHBOARD);
       }, 800);
     } catch (err: any) {
-      setError(err.message);
+      showApiError(err, "Join class failed.");
     }
   };
 
@@ -52,15 +65,15 @@ function JoinClassPage() {
             <Input
               placeholder="Enter class code"
               value={classCode}
-              onChange={(e) => setClassCode(e.target.value)}
+              error={fieldErrors.class_code}
+              onChange={(e) => {
+                setClassCode(e.target.value);
+                clearFieldError("class_code");
+              }}
             />
           </div>
 
-          {/* pop up */}
-          {error && <p className="text-red-500 text-xl mt-4">{error}</p>}
-          {success && <p className="text-green-600 text-xl">{success}</p>}
-
-          <div className="mt-6"></div>
+          <MessageSlot message={message} />
 
           <Button onClick={handleJoin}>Join</Button>
         </div>

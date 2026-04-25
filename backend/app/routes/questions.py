@@ -6,6 +6,7 @@ from app import db
 from app.utils.math_parser import parse_math_expression
 from app.models.enums import UserRole
 from app.auth_utils import role_required
+from app.response_utils import error_response, field_error, success_response
 
 
 questions_bp = Blueprint("questions", __name__)
@@ -32,14 +33,14 @@ def get_questions():
     assignment_id = request.args.get("assignment_id")
 
     if not assignment_id:
-        return jsonify({"error": "assignment_id required"}), 400
+        return field_error("assignment_id", "Assignment ID is required.")
 
     assignment = db.session.get(Assignment, assignment_id)
     if not assignment:
-        return jsonify({"error": "assignment not found"}), 404
+        return error_response("Assignment was not found.", 404)
 
     if assignment.class_obj.teacher_id != current_user.id:
-        return jsonify({"error": "Forbidden"}), 403
+        return error_response("You do not have permission to view these questions.", 403)
 
     questions = (
         Question.query.filter_by(assignment_id=assignment_id)
@@ -56,7 +57,7 @@ def get_questions():
 @role_required(UserRole.TEACHER)
 def create_question():
 
-    data = request.json
+    data = request.get_json() or {}
 
     question_text = data.get("question_text")
     correct_answer = data.get("correct_answer")
@@ -66,50 +67,46 @@ def create_question():
     grading_type = data.get("grading_type")
     require_simplified = data.get("require_simplified")
 
-    if not question_text:
-        return jsonify({"error": "question_text required"}), 400
+    if not question_text or not question_text.strip():
+        return field_error("question_text", "Question is required.")
 
-    if not correct_answer:
-        return jsonify({"error": "correct_answer required"}), 400
+    if not correct_answer or not correct_answer.strip():
+        return field_error("correct_answer", "Correct answer is required.")
 
     if assignment_id is None:
-        return jsonify({"error": "assignment_id required"}), 400
+        return field_error("assignment_id", "Assignment ID is required.")
 
     if order_index is None:
-        return jsonify({"error": "order_index required"}), 400
+        return field_error("order_index", "Question order is required.")
 
     assignment = db.session.get(Assignment, assignment_id)
     if not assignment:
-        return jsonify({"error": "assignment not found"}), 404
+        return error_response("Assignment was not found.", 404)
 
     if assignment.class_obj.teacher_id != current_user.id:
-        return jsonify({"error": "Forbidden"}), 403
+        return error_response("You do not have permission to add questions here.", 403)
 
     try:
         grading_type_enum = GradingType(grading_type)
     except ValueError:
-        return (
-            jsonify({"error": "invalid grading_type (exact, symbolic, numeric)"}),
-            400,
+        return field_error(
+            "grading_type",
+            "Grading type must be exact, symbolic, or numeric.",
         )
 
     if grading_type_enum == GradingType.NUMERIC:
         try:
             parsed_answer = parse_math_expression(correct_answer)
         except Exception:
-            return (
-                jsonify({"error": "numeric grading requires a valid numeric answer"}),
-                400,
+            return field_error(
+                "correct_answer",
+                "Numeric grading requires a valid numeric answer.",
             )
 
         if parsed_answer.free_symbols:
-            return (
-                jsonify(
-                    {
-                        "error": "numeric grading cannot be used when the correct answer contains variables"
-                    }
-                ),
-                400,
+            return field_error(
+                "correct_answer",
+                "Numeric grading cannot be used when the correct answer contains variables.",
             )
 
     q = Question(
@@ -125,4 +122,8 @@ def create_question():
     db.session.add(q)
     db.session.commit()
 
-    return jsonify({"message": "question created", "question": serialize_question(q)})
+    return success_response(
+        "Question created successfully.",
+        {"question": serialize_question(q)},
+        201,
+    )

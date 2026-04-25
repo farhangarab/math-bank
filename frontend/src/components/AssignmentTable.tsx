@@ -13,27 +13,51 @@ function getStudentActionLabel(status?: string) {
   return "Start";
 }
 
-// ✅ format date like: Feb 8 by 11:59pm
+//format date like: Feb 8, 2026 by 11:59pm
 function formatDueDate(dateStr?: string) {
   if (!dateStr) return "-";
 
   const d = new Date(dateStr);
 
-  const month = d.toLocaleString("en-US", {
+  if (Number.isNaN(d.getTime())) return "-";
+
+  const date = d.toLocaleDateString("en-US", {
     month: "short",
+    day: "numeric",
+    year: "numeric",
   });
+  const time = d
+    .toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    })
+    .toLowerCase()
+    .replace(" ", "");
 
-  const day = d.getDate();
+  return `${date} by ${time}`;
+}
 
-  let hours = d.getHours();
-  const minutes = d.getMinutes().toString().padStart(2, "0");
+function formatNumber(value: number | string | null | undefined) {
+  const numberValue = Number(value);
 
-  const ampm = hours >= 12 ? "pm" : "am";
+  if (!Number.isFinite(numberValue)) return "-";
 
-  hours = hours % 12;
-  if (hours === 0) hours = 12;
+  return Number.isInteger(numberValue)
+    ? numberValue.toString()
+    : numberValue.toFixed(2);
+}
 
-  return `${month} ${day} by ${hours}:${minutes}${ampm}`;
+function formatStudentScore(assignment: Assignment) {
+  if (assignment.status !== "SUBMITTED" || assignment.score == null) {
+    return "-";
+  }
+
+  const score = formatNumber(assignment.score);
+  const maxScore = formatNumber(assignment.max_score);
+
+  if (score === "-" || maxScore === "-") return "-";
+
+  return `${score}/${maxScore}`;
 }
 
 function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
@@ -90,7 +114,7 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
           {role === "STUDENT" && (
             <>
               <div>{a.status ?? "NOT_STARTED"}</div>
-              <div>{a.score ?? "-"}</div>
+              <div>{formatStudentScore(a)}</div>
 
               <div className="flex justify-start">
                 <button

@@ -5,20 +5,49 @@ import Input from "../components/Input";
 import { ROUTES } from "../router/routes";
 import Button from "../components/Button";
 import { useAuth } from "../context/AuthContext";
+import { useMessage } from "../hooks/useMessage";
+import { firstInvalid } from "../utils/validation";
+import MessageSlot from "../components/MessageSlot";
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
-  const [error, setError] = useState("");
+  const {
+    message,
+    fieldErrors,
+    clearAllMessages,
+    clearFieldError,
+    showApiError,
+    showFieldError,
+  } = useMessage();
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    clearAllMessages();
+
+    const invalid = firstInvalid([
+      {
+        field: "identifier",
+        message: "Username or email is required.",
+        isValid: identifier.trim() !== "",
+      },
+      {
+        field: "password",
+        message: "Password is required.",
+        isValid: password !== "",
+      },
+    ]);
+
+    if (invalid) {
+      showFieldError(invalid.field, invalid.message);
+      return;
+    }
+
     try {
-      setError("");
       const user = await login(identifier, password, remember);
 
       if (user.role === "STUDENT") {
@@ -27,7 +56,7 @@ export default function LoginPage() {
         navigate(ROUTES.TEACHER_DASHBOARD);
       }
     } catch (error: any) {
-      setError(error.message);
+      showApiError(error, "Login failed.");
     }
   };
 
@@ -57,14 +86,22 @@ export default function LoginPage() {
               type="text"
               placeholder="Username or email"
               value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
+              error={fieldErrors.identifier}
+              onChange={(e) => {
+                setIdentifier(e.target.value);
+                clearFieldError("identifier");
+              }}
             />
 
             <Input
               type="password"
               placeholder="Password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              error={fieldErrors.password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                clearFieldError("password");
+              }}
             />
 
             <label className="flex items-center gap-2 text-left text-sm text-gray-700">
@@ -76,15 +113,12 @@ export default function LoginPage() {
               Remember Me
             </label>
 
-            <div className="mt-8"></div>
+            <MessageSlot message={message} />
 
             <Button type="submit" variant="primary" full>
               Log In
             </Button>
           </form>
-
-          {/* pop up error */}
-          {error && <p className="text-red-500 mt-4">{error}</p>}
 
           <p className="text-gray-900 text-lg mt-6">
             Don't have an account?{" "}

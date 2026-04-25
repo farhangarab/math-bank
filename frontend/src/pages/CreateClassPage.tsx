@@ -5,28 +5,41 @@ import { ROUTES } from "../router/routes";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { createClass } from "../api/auth";
+import { useMessage } from "../hooks/useMessage";
+import MessageSlot from "../components/MessageSlot";
 
 function CreateClassPage() {
   const [className, setClassName] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const {
+    message,
+    fieldErrors,
+    clearAllMessages,
+    clearFieldError,
+    showApiError,
+    showFieldError,
+    showSuccess,
+  } = useMessage();
 
   const navigate = useNavigate();
 
   const handleCreate = async () => {
-    try {
-      setError("");
-      setSuccess("");
+    clearAllMessages();
 
+    if (!className.trim()) {
+      showFieldError("class_name", "Class name is required.");
+      return;
+    }
+
+    try {
       await createClass(className);
 
-      setSuccess("Class created successfully");
+      showSuccess("Class created successfully.");
 
       setTimeout(() => {
         navigate(ROUTES.TEACHER_DASHBOARD);
       }, 800);
     } catch (err: any) {
-      setError(err.message);
+      showApiError(err, "Create class failed.");
     }
   };
   return (
@@ -50,15 +63,17 @@ function CreateClassPage() {
             <Input
               placeholder="Enter class name"
               value={className}
-              onChange={(e) => setClassName(e.target.value)}
+              error={fieldErrors.class_name}
+              onChange={(e) => {
+                setClassName(e.target.value);
+                clearFieldError("class_name");
+              }}
             />
           </div>
 
-          <Button onClick={handleCreate}>Create</Button>
+          <MessageSlot message={message} />
 
-          {/* pop up */}
-          {error && <p className="text-red-500 text-xl mt-4">{error}</p>}
-          {success && <p className="text-green-600 text-xl">{success}</p>}
+          <Button onClick={handleCreate}>Create</Button>
         </div>
       </div>
     </div>

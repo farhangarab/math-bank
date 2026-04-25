@@ -1,4 +1,4 @@
-import { apiFetch } from "./client";
+import { apiFetch, throwApiError } from "./client";
 
 
 // Get Class By ID
@@ -8,7 +8,7 @@ export async function getClassById(classId: number) {
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.error || "Failed to load class");
+    throwApiError(data, "Failed to load class");
   }
 
   return data;

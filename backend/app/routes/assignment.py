@@ -10,6 +10,7 @@ from app.models.user import User
 from datetime import datetime
 from app import db
 from app.auth_utils import role_required
+from app.response_utils import error_response, field_error, success_response
 
 
 assignments_bp = Blueprint("assignments", __name__)
@@ -19,6 +20,13 @@ def serialize_attempt_status(status):
     return status.value if hasattr(status, "value") else status
 
 
+def serialize_due_date(due_date):
+    if not due_date:
+        return None
+
+    return due_date.strftime("%Y-%m-%dT%H:%M")
+
+
 # Get all assignment
 @assignments_bp.route("/", methods=["GET"])
 @login_required
@@ -26,11 +34,11 @@ def get_assignments():
     class_id = request.args.get("class_id")
 
     if not class_id:
-        return jsonify({"error": "class id required"}), 400
+        return field_error("class_id", "Class ID is required.")
 
     class_obj = db.session.get(Class, class_id)
     if not class_obj:
-        return jsonify({"error": "class not found"}), 404
+        return error_response("Class was not found.", 404)
 
     assignments = Assignment.query.filter_by(class_id=class_id).all()
 
@@ -42,19 +50,37 @@ def get_assignments():
             student_id=current_user.id, class_id=class_id
         ).first()
         if not class_member:
-            return jsonify({"error": "Forbidden"}), 403
+            return error_response("You do not have permission to view assignments.", 403)
     elif (
         current_user.role == UserRole.TEACHER
         and class_obj.teacher_id != current_user.id
     ):
-        return jsonify({"error": "Forbidden"}), 403
+        return error_response("You do not have permission to view assignments.", 403)
+
+    assignment_ids = [a.id for a in assignments]
+    max_scores = {}
+
+    if assignment_ids:
+        max_scores = {
+            assignment_id: float(max_score or 0)
+            for assignment_id, max_score in (
+                db.session.query(
+                    Question.assignment_id,
+                    db.func.coalesce(db.func.sum(Question.points), 0),
+                )
+                .filter(Question.assignment_id.in_(assignment_ids))
+                .group_by(Question.assignment_id)
+                .all()
+            )
+        }
 
     for a in assignments:
         item = {
             "id": a.id,
             "title": a.title,
             "class_id": a.class_id,
-            "due_date": a.due_date,
+            "due_date": serialize_due_date(a.due_date),
+            "max_score": max_scores.get(a.id, 0),
         }
 
         if class_member:
@@ -91,24 +117,37 @@ def get_assignments():
 @role_required(UserRole.TEACHER)
 def create_assignment():
 
-    data = request.json
+    data = request.get_json() or {}
 
     title = data.get("title")
     class_id = data.get("class_id")
     due_date_str = data.get("due_date")
 
-    if not title:
-        return jsonify({"error": "title is required"}), 400
+    if not title or not title.strip():
+        return field_error("title", "Title is required.")
+
+    title = title.strip()
 
     if not class_id:
-        return jsonify({"error": "class_id is required"}), 400
+        return field_error("class_id", "Class ID is required.")
 
     class_obj = db.session.get(Class, class_id)
     if not class_obj:
-        return jsonify({"error": "class not found"}), 404
+        return error_response("Class was not found.", 404)
 
     if class_obj.teacher_id != current_user.id:
-        return jsonify({"error": "Forbidden"}), 403
+        return error_response("You do not have permission to create assignments here.", 403)
+
+    duplicate_assignment = Assignment.query.filter(
+        Assignment.class_id == class_id,
+        db.func.lower(Assignment.title) == title.lower(),
+    ).first()
+
+    if duplicate_assignment:
+        return field_error(
+            "title",
+            "An assignment with this title already exists in this class.",
+        )
 
     due_date = None
 
@@ -116,7 +155,7 @@ def create_assignment():
         try:
             due_date = datetime.strptime(due_date_str, "%Y-%m-%dT%H:%M")
         except ValueError:
-            return jsonify({"error": "date must be YYYY-MM-DDTHH:MM"}), 400
+            return field_error("due_date", "Due date must use YYYY-MM-DDTHH:MM format.")
 
     assignment = Assignment(
         title=title,
@@ -127,7 +166,11 @@ def create_assignment():
     db.session.add(assignment)
     db.session.commit()
 
-    return jsonify({"message": "Assignment created"})
+    return success_response(
+        "Assignment created successfully.",
+        {"assignment_id": assignment.id},
+        201,
+    )
 
 
 # Get assignment by id
@@ -138,12 +181,12 @@ def get_assignment_by_id():
     assignment_id = request.args.get("id")
 
     if not assignment_id:
-        return jsonify({"error": "id required"}), 400
+        return field_error("id", "Assignment ID is required.")
 
     assignment = Assignment.query.get(assignment_id)
 
     if not assignment:
-        return jsonify({"error": "assignment not found"}), 404
+        return error_response("Assignment was not found.", 404)
 
     class_obj = assignment.class_obj
     is_teacher = class_obj.teacher_id == current_user.id
@@ -155,13 +198,13 @@ def get_assignment_by_id():
     )
 
     if not is_teacher and not is_student:
-        return jsonify({"error": "Forbidden"}), 403
+        return error_response("You do not have permission to view this assignment.", 403)
 
     return jsonify(
         {
             "id": assignment.id,
             "title": assignment.title,
-            "due_date": assignment.due_date,
+            "due_date": serialize_due_date(assignment.due_date),
             "class_id": assignment.class_id,
         }
     )
@@ -175,10 +218,10 @@ def get_assignment_attempts(assignment_id):
     assignment = Assignment.query.get(assignment_id)
 
     if not assignment:
-        return jsonify({"error": "assignment not found"}), 404
+        return error_response("Assignment was not found.", 404)
 
     if assignment.class_obj.teacher_id != current_user.id:
-        return jsonify({"error": "Forbidden"}), 403
+        return error_response("You do not have permission to view submissions.", 403)
 
     max_score = (
         db.session.query(db.func.coalesce(db.func.sum(Question.points), 0))

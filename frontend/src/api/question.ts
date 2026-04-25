@@ -1,4 +1,4 @@
-import { apiFetch } from "./client";
+import { apiFetch, throwApiError } from "./client";
 
 
 // get all questions by assignment id
@@ -8,7 +8,7 @@ export async function getQuestions(assignmentId: number) {
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.error || "Failed");
+    throwApiError(data, "Failed to load questions");
   }
 
   return data;
@@ -41,8 +41,8 @@ export async function createQuestion(
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.error || "Create failed");
+    throwApiError(data, "Create question failed");
   }
 
-  return data.question;
+  return data.data?.question ?? data.question;
 }

@@ -6,6 +6,8 @@ import ClassCard from "../components/ClassCard";
 import { useEffect, useState } from "react";
 import { getTeacherClasses } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
+import { useMessage } from "../hooks/useMessage";
+import MessageSlot from "../components/MessageSlot";
 
 function TeacherDashboardPage() {
   const navigate = useNavigate();
@@ -16,16 +18,17 @@ function TeacherDashboardPage() {
   };
 
   const [classes, setClasses] = useState([]);
-  const [error, setError] = useState("");
+  const { message, clearAllMessages, showApiError } = useMessage();
 
   useEffect(() => {
     const loadClasses = async () => {
       try {
+        clearAllMessages();
         const data = await getTeacherClasses();
 
         setClasses(data);
       } catch (err: any) {
-        setError(err.message);
+        showApiError(err, "Failed to load classes.");
       }
     };
 
@@ -46,8 +49,9 @@ function TeacherDashboardPage() {
         <p className="mt-2 mb-6">Welcome {user?.full_name ?? "teacher"}</p>
 
         {/* Create class button */}
-        <div className="mb-8" onClick={() => navigate(ROUTES.CREATE_CLASS)}>
-          <Button>Create Class</Button>
+        <div className="mb-8">
+          <MessageSlot message={message} />
+          <Button onClick={() => navigate(ROUTES.CREATE_CLASS)}>Create Class</Button>
         </div>
 
         {/* My classes section */}
@@ -66,7 +70,9 @@ function TeacherDashboardPage() {
               />
             ))}
 
-            {error && <p className="text-red-500">{error}</p>}
+            {classes.length === 0 && (
+              <p className="text-gray-500">No classes yet.</p>
+            )}
           </div>
         </div>
       </div>

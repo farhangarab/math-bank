@@ -1,5 +1,5 @@
 import type { AuthUser } from "../types/auth";
-import { apiFetch } from "./client";
+import { apiFetch, throwApiError } from "./client";
 
 export async function loginUser(
   identifier: string,
@@ -18,10 +18,10 @@ export async function loginUser(
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.error || "Login failed");
+    throwApiError(data, "Login failed");
   }
 
-  return data;
+  return data.data ?? data;
 }
 
 
@@ -49,7 +49,7 @@ export async function registerUser(
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.error || "Register failed");
+    throwApiError(data, "Register failed");
   }
 
   return data;
@@ -63,7 +63,7 @@ export async function logoutUser() {
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.error || "Logout failed");
+    throwApiError(data, "Logout failed");
   }
 
   return data;
@@ -74,10 +74,10 @@ export async function getCurrentUser(): Promise<AuthUser> {
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.error || "Failed to load current user");
+    throwApiError(data, "Failed to load current user");
   }
 
-  return data.user;
+  return data.data?.user ?? data.user;
 }
 
 export async function joinClass(classCode: string) {
@@ -91,7 +91,7 @@ export async function joinClass(classCode: string) {
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.error || "Join failed");
+    throwApiError(data, "Join failed");
   }
 
   return data;
@@ -103,7 +103,7 @@ export async function getStudentClasses() {
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.error || "Failed to load classes");
+    throwApiError(data, "Failed to load classes");
   }
 
   return data;
@@ -115,7 +115,7 @@ export async function getTeacherClasses() {
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.error);
+    throwApiError(data, "Failed to load classes");
   }
 
   return data;
@@ -132,7 +132,7 @@ export async function createClass(className: string) {
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.error);
+    throwApiError(data, "Create class failed");
   }
 
   return data;

@@ -10,6 +10,10 @@ import { getClassById } from "../api/class";
 import { getQuestions, createQuestion } from "../api/question";
 import MathPreview from "../components/MathPreview";
 import QuestionList from "../components/QuestionList";
+import Alert from "../components/Alert";
+import { useMessage } from "../hooks/useMessage";
+import { firstInvalid } from "../utils/validation";
+import MessageSlot from "../components/MessageSlot";
 
 function answerLooksNumeric(answerText: string) {
   return !/[a-zA-Z]/.test(answerText);
@@ -45,7 +49,15 @@ function AssignmentEditorPage() {
 
   const [gradingType, setGradingType] = useState("symbolic");
   const [requireSimplified, setRequireSimplified] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const {
+    message,
+    fieldErrors,
+    clearAllMessages,
+    clearFieldError,
+    showApiError,
+    showFieldError,
+    showSuccess,
+  } = useMessage();
 
   const [activeInput, setActiveInput] = useState<
     HTMLInputElement | HTMLTextAreaElement | null
@@ -71,12 +83,34 @@ function AssignmentEditorPage() {
   }, [id]);
 
   async function handleAddQuestion() {
-    if (!text.trim() || !answer.trim()) return;
+    clearAllMessages();
+
+    const invalid = firstInvalid([
+      {
+        field: "question_text",
+        message: "Question is required.",
+        isValid: text.trim() !== "",
+      },
+      {
+        field: "correct_answer",
+        message: "Correct answer is required.",
+        isValid: answer.trim() !== "",
+      },
+      {
+        field: "points",
+        message: "Points must be at least 1.",
+        isValid: Number(points) >= 1,
+      },
+    ]);
+
+    if (invalid) {
+      showFieldError(invalid.field, invalid.message);
+      return;
+    }
+
     const orderIndex = questions.length + 1;
 
     try {
-      setErrorMessage("");
-
       const newQuestion = await createQuestion(
         Number(id),
         text,
@@ -91,13 +125,9 @@ function AssignmentEditorPage() {
       setAnswer("");
       setPoints("1");
       setQuestions((currentQuestions) => [...currentQuestions, newQuestion]);
+      showSuccess("Question created successfully.");
     } catch (error) {
-      if (error instanceof Error) {
-        setErrorMessage(error.message);
-        return;
-      }
-
-      setErrorMessage("Failed to save question");
+      showApiError(error, "Failed to save question.");
     }
   }
 
@@ -150,9 +180,22 @@ function AssignmentEditorPage() {
                 }}
                 placeholder="Write your question..."
                 value={text}
-                onChange={(e) => setText(e.target.value)}
-                className="border border-[#354254] rounded p-3 w-full min-h-[120px] focus:outline-none"
+                onChange={(e) => {
+                  setText(e.target.value);
+                  clearFieldError("question_text");
+                }}
+                aria-invalid={Boolean(fieldErrors.question_text)}
+                className={`w-full min-h-[120px] rounded border p-3 focus:outline-none ${
+                  fieldErrors.question_text
+                    ? "border-red-500 bg-red-50"
+                    : "border-[#354254]"
+                }`}
               />
+              {fieldErrors.question_text && (
+                <p className="mt-1 text-sm text-red-600">
+                  {fieldErrors.question_text}
+                </p>
+              )}
               <div className="relative mt-1">
                 <MathPreview expression={text} noBorder />
                 {text && (
@@ -168,7 +211,7 @@ function AssignmentEditorPage() {
               <select
                 value={gradingType}
                 onChange={(e) => {
-                  setErrorMessage("");
+                  clearAllMessages();
                   setGradingType(e.target.value);
                   if (e.target.value !== "symbolic")
                     setRequireSimplified(false);
@@ -191,20 +234,21 @@ function AssignmentEditorPage() {
               </label>
             </div>
 
-            <div className="mb-4 rounded border border-[#d8dee8] bg-[#f7f9fc] px-3 py-2 text-sm text-[#354254]">
-              <div className="font-semibold mb-1">
-                What students will be told
-              </div>
-              <div>Type: {gradingType}</div>
-              <div>Simplified required: {requireSimplified ? "Yes" : "No"}</div>
-              <div className="mt-2">{teacherGuidance}</div>
+            <div className="mb-4">
+              <Alert
+                type="info"
+                message={`Type: ${gradingType}. Simplified required: ${
+                  requireSimplified ? "Yes" : "No"
+                }. ${teacherGuidance}`}
+              />
             </div>
 
             {numericWarning && (
-              <div className="mb-6 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-                Numeric grading is for answers like 3.5, 2/3, or 8. If the
-                answer contains variables like x, use symbolic or exact grading
-                instead.
+              <div className="mb-6">
+                <Alert
+                  type="warning"
+                  message="Numeric grading is for answers like 3.5, 2/3, or 8. If the answer contains variables like x, use symbolic or exact grading instead."
+                />
               </div>
             )}
 
@@ -224,10 +268,20 @@ function AssignmentEditorPage() {
                 value={answer}
                 onChange={(e) => {
                   setAnswer(e.target.value);
-                  setErrorMessage("");
+                  clearFieldError("correct_answer");
                 }}
-                className="border border-[#354254] rounded p-3 w-full focus:outline-none"
+                aria-invalid={Boolean(fieldErrors.correct_answer)}
+                className={`w-full rounded border p-3 focus:outline-none ${
+                  fieldErrors.correct_answer
+                    ? "border-red-500 bg-red-50"
+                    : "border-[#354254]"
+                }`}
               />
+              {fieldErrors.correct_answer && (
+                <p className="mt-1 text-sm text-red-600">
+                  {fieldErrors.correct_answer}
+                </p>
+              )}
               {answer && (
                 <div className="relative mt-1">
                   <MathPreview expression={answer} noBorder />
@@ -243,14 +297,21 @@ function AssignmentEditorPage() {
               type="number"
               placeholder="Points"
               value={points}
-              onChange={(e) => setPoints(e.target.value)}
-              className="border border-[#354254] rounded p-3 w-full mb-6 focus:outline-none"
+              onChange={(e) => {
+                setPoints(e.target.value);
+                clearFieldError("points");
+              }}
+              aria-invalid={Boolean(fieldErrors.points)}
+              className={`w-full rounded border p-3 focus:outline-none ${
+                fieldErrors.points
+                  ? "border-red-500 bg-red-50"
+                  : "border-[#354254]"
+              }`}
             />
-            {errorMessage && (
-              <div className="mb-4 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700">
-                {errorMessage}
-              </div>
+            {fieldErrors.points && (
+              <p className="mt-1 text-sm text-red-600">{fieldErrors.points}</p>
             )}
+            <MessageSlot message={message} />
             <Button onClick={handleAddQuestion}>Save Question</Button>
           </div>
 

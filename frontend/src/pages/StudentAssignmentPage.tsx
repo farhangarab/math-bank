@@ -5,6 +5,8 @@ import Header from "../components/Header";
 import Button from "../components/Button";
 import ConfirmModal from "../components/ConfirmModal";
 import { useAuth } from "../context/AuthContext";
+import { useMessage } from "../hooks/useMessage";
+import MessageSlot from "../components/MessageSlot";
 
 type Question = {
   id: number;
@@ -57,8 +59,7 @@ const StudentAssignmentPage = () => {
     searchParams.get("mode") === "review" || user?.role === "TEACHER";
   const isReadOnly = isReviewMode || isSubmitted;
 
-  const [saveMessage, setSaveMessage] = useState("");
-  const [submitMessage, setSubmitMessage] = useState("");
+  const { message, clearAllMessages, showApiError, showSuccess } = useMessage();
   const [showConfirm, setShowConfirm] = useState(false);
 
   const formatAnswers = () => {
@@ -74,6 +75,7 @@ const StudentAssignmentPage = () => {
 
   const handleSave = async () => {
     if (isReadOnly) return;
+    clearAllMessages();
 
     try {
       const formatted = formatAnswers();
@@ -81,13 +83,9 @@ const StudentAssignmentPage = () => {
       await saveAttempt(Number(attemptId), formatted);
 
       setSavedAnswers(answers);
-      setSaveMessage("Progress saved successfully!");
-
-      setTimeout(() => {
-        setSaveMessage("");
-      }, 2000);
+      showSuccess("Progress saved successfully.");
     } catch (err) {
-      console.error(err);
+      showApiError(err, "Failed to save progress.");
     }
   };
 
@@ -95,6 +93,7 @@ const StudentAssignmentPage = () => {
     if (isReadOnly) return;
 
     setShowConfirm(false);
+    clearAllMessages();
     try {
       const formatted = formatAnswers();
       await submitAttempt(Number(attemptId), formatted);
@@ -111,14 +110,15 @@ const StudentAssignmentPage = () => {
           score: a.score,
         })),
       });
-      setSubmitMessage("Assignment submitted successfully.");
+      showSuccess("Assignment submitted successfully.");
     } catch (err) {
-      console.error(err);
+      showApiError(err, "Failed to submit assignment.");
     }
   };
 
   const handleAnswerChange = (questionId: number, value: string) => {
     if (isReadOnly) return;
+    clearAllMessages();
 
     setAnswers((prev) => ({
       ...prev,
@@ -179,11 +179,6 @@ const StudentAssignmentPage = () => {
       <div className="p-10 mx-auto">
         {currentQuestion && (
           <div className="w-full">
-            {submitMessage && (
-              <div className="mb-4 text-blue-600 font-semibold">
-                {submitMessage}
-              </div>
-            )}
             {/* question */}
             <h2 className="font-bold mb-2 text-[#354254]">
               Q{currentIndex + 1}
@@ -224,11 +219,8 @@ const StudentAssignmentPage = () => {
               }
             />
 
-            {saveMessage && (
-              <div className="mb-4 text-green-600 font-semibold">
-                {saveMessage}
-              </div>
-            )}
+            <MessageSlot message={message} />
+
             {/* navigation */}
             <div className="flex justify-between items-center mt-6">
               <Button

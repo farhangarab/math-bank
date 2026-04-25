@@ -1,9 +1,9 @@
 from functools import wraps
 
-from flask import jsonify
 from flask_login import current_user
 
 from app.models.enums import UserRole
+from app.response_utils import error_response
 
 
 def serialize_user(user):
@@ -28,10 +28,10 @@ def role_required(*roles):
         @wraps(view_func)
         def wrapped(*args, **kwargs):
             if not current_user.is_authenticated:
-                return jsonify({"error": "Authentication required"}), 401
+                return error_response("Authentication required.", 401)
 
             if current_user.role not in allowed_roles:
-                return jsonify({"error": "Forbidden"}), 403
+                return error_response("You do not have permission to do that.", 403)
 
             return view_func(*args, **kwargs)
 
