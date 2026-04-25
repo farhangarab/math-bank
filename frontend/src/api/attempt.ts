@@ -1,4 +1,4 @@
-import { apiFetch } from "./client";
+import { apiFetch, throwApiError } from "./client";
 
 // start the assignment
 export async function startAttempt(assignmentId: number) {
@@ -12,10 +12,10 @@ export async function startAttempt(assignmentId: number) {
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.error || "Failed to start assignment");
+    throwApiError(data, "Failed to start assignment");
   }
 
-  return data;
+  return data.data ?? data;
 }
 
 
@@ -25,10 +25,10 @@ export async function getAttempt(attemptId: number) {
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.error || "Failed to load attempt");
+    throwApiError(data, "Failed to load attempt");
   }
 
-  return data;
+  return data.data ?? data;
 }
 
 // Submit all answers for assignment
@@ -47,10 +47,10 @@ export async function submitAttempt(
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.error || "Failed to submit");
+    throwApiError(data, "Failed to submit");
   }
 
-  return data;
+  return data.data ?? data;
 }
 
 //Save the progress
@@ -69,8 +69,8 @@ export async function saveAttempt(
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.error || "Failed to save");
+    throwApiError(data, "Failed to save");
   }
 
-  return data;
+  return data.data ?? data;
 }

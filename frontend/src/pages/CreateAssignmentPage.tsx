@@ -6,6 +6,8 @@ import Header from "../components/Header";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import DueDateTimeFields from "../components/DueDateTimeFields";
+import Alert from "../components/Alert";
+import { useMessage } from "../hooks/useMessage";
 import {
   getLocalDateTimeValue,
   getTimeValue,
@@ -27,8 +29,15 @@ export default function CreateAssignmentPage() {
   const [dueMinute, setDueMinute] = useState("");
   const [duePeriod, setDuePeriod] = useState<TimePeriod>("AM");
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const {
+    message,
+    fieldErrors,
+    clearAllMessages,
+    clearFieldError,
+    showApiError,
+    showFieldError,
+    showSuccess,
+  } = useMessage();
 
   const now = getLocalDateTimeValue(new Date());
 
@@ -41,16 +50,14 @@ export default function CreateAssignmentPage() {
     setDueHour("");
     setDueMinute("");
     setDuePeriod("AM");
-    setError("");
-    setSuccess("");
+    clearAllMessages();
   };
 
   async function handleCreate() {
-    setError("");
-    setSuccess("");
+    clearAllMessages();
 
     if (!title.trim()) {
-      setError("Title is required");
+      showFieldError("title", "Title is required.");
       return;
     }
 
@@ -61,12 +68,12 @@ export default function CreateAssignmentPage() {
 
     if (hasDueDate || hasDueTime) {
       if (!isDateFormatValid(dueDate)) {
-        setError("Due date format is invalid. Use YYYY-MM-DD.");
+        showFieldError("due_date", "Due date format is invalid. Use YYYY-MM-DD.");
         return;
       }
 
       if (!isValidDateValue(dueDate)) {
-        setError("Due date is invalid. Choose a real calendar date.");
+        showFieldError("due_date", "Due date is invalid. Choose a real calendar date.");
         return;
       }
 
@@ -75,14 +82,14 @@ export default function CreateAssignmentPage() {
         : "23:59";
 
       if (hasDueTime && (!hasCompleteDueTime || !isValidTimeValue(dueTime))) {
-        setError("Due time is invalid. Choose hour, minute, and AM or PM.");
+        showFieldError("due_date", "Due time is invalid. Choose hour, minute, and AM or PM.");
         return;
       }
 
       dueDateTime = `${dueDate}T${dueTime}`;
 
       if (dueDateTime < now) {
-        setError("You can't place a due date/time in the past.");
+        showFieldError("due_date", "You can't place a due date/time in the past.");
         return;
       }
     }
@@ -90,13 +97,13 @@ export default function CreateAssignmentPage() {
     try {
       await createAssignment(title, classId, dueDateTime);
 
-      setSuccess("Assignment created successfully");
+      showSuccess("Assignment created successfully.");
 
       setTimeout(() => {
         navigate(`/class/${classId}`);
       }, 1000);
     } catch (err: any) {
-      setError(err.message);
+      showApiError(err, "Create assignment failed.");
     }
   }
 
@@ -113,7 +120,11 @@ export default function CreateAssignmentPage() {
           <Input
             placeholder="Assignment title"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            error={fieldErrors.title}
+            onChange={(e) => {
+              setTitle(e.target.value);
+              clearFieldError("title");
+            }}
           />
 
           <DueDateTimeFields
@@ -122,16 +133,27 @@ export default function CreateAssignmentPage() {
             minute={dueMinute}
             now={now}
             period={duePeriod}
-            onChangeDate={setDueDate}
-            onChangeHour={setDueHour}
-            onChangeMinute={setDueMinute}
-            onChangePeriod={setDuePeriod}
+            error={fieldErrors.due_date}
+            onChangeDate={(value) => {
+              setDueDate(value);
+              clearFieldError("due_date");
+            }}
+            onChangeHour={(value) => {
+              setDueHour(value);
+              clearFieldError("due_date");
+            }}
+            onChangeMinute={(value) => {
+              setDueMinute(value);
+              clearFieldError("due_date");
+            }}
+            onChangePeriod={(value) => {
+              setDuePeriod(value);
+              clearFieldError("due_date");
+            }}
             onClear={handleClearDueDateTime}
           />
 
-          {error && <p className="text-red-600 font-medium">{error}</p>}
-
-          {success && <p className="text-green-600 font-medium">{success}</p>}
+          {message && <Alert type={message.type} message={message.text} />}
 
           <Button onClick={handleCreate}>Create Assignment</Button>
         </div>

@@ -34,7 +34,11 @@ def create_app():
 
     @login_manager.unauthorized_handler
     def unauthorized():
-        return {"error": "Authentication required"}, 401
+        return {
+            "success": False,
+            "message": "Authentication required.",
+            "errors": {"general": "Authentication required."},
+        }, 401
 
     from app.models import (
         Class,

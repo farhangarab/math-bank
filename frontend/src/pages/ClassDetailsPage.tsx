@@ -9,13 +9,15 @@ import AssignmentTable from "../components/AssignmentTable";
 import { startAttempt } from "../api/attempt";
 import type { Assignment } from "../types/assignment";
 import { useAuth } from "../context/AuthContext";
+import Alert from "../components/Alert";
+import { useMessage } from "../hooks/useMessage";
 
 function ClassDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [classInfo, setClassInfo] = useState<any>(null);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [error, setError] = useState("");
+  const { message, clearAllMessages, showApiError } = useMessage();
   const { user } = useAuth();
 
   const handleBack = () => {
@@ -40,6 +42,7 @@ function ClassDetailsPage() {
 
   const handleStart = async (assignment: Assignment) => {
     try {
+      clearAllMessages();
       if (assignment.attempt_id) {
         navigate(`/attempt/${assignment.attempt_id}`);
         return;
@@ -48,13 +51,14 @@ function ClassDetailsPage() {
       const res = await startAttempt(assignment.id);
       navigate(`/attempt/${res.attempt_id}`);
     } catch (err) {
-      console.error(err);
+      showApiError(err, "Failed to open assignment.");
     }
   };
 
   useEffect(() => {
     const load = async () => {
       try {
+        clearAllMessages();
         const classData = await getClassById(Number(id));
         setClassInfo(classData);
 
@@ -62,7 +66,7 @@ function ClassDetailsPage() {
 
         setAssignments(assign);
       } catch (err: any) {
-        setError(err.message);
+        showApiError(err, "Failed to load class details.");
       }
     };
 
@@ -113,7 +117,7 @@ function ClassDetailsPage() {
               <p className="text-gray-500">No assignments yet</p>
             )}
 
-            {error && <p className="text-red-600">{error}</p>}
+            {message && <Alert type={message.type} message={message.text} />}
           </div>
         </div>
       </div>

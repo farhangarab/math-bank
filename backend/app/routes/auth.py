@@ -1,10 +1,12 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request
 from flask_login import current_user, login_required, login_user, logout_user
 from app import db
 from app.models.user import User
 from app.models.enums import UserRole
 from app.extensions import bcrypt
 from app.auth_utils import serialize_user
+from app.response_utils import error_response, field_error, success_response
+from app.validation_utils import first_required_error
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -15,7 +17,7 @@ TEACHER_CODE = "ABC123"
 @auth_bp.route("/register", methods=["POST"])
 def register():
 
-    data = request.json
+    data = request.get_json() or {}
 
     username = data.get("username")
     full_name = data.get("full_name")
@@ -24,15 +26,28 @@ def register():
     role = data.get("role")
     teacher_code = data.get("teacher_code")
 
-    if not username or not password or not email or not role:
-        return jsonify({"error": "Missing fields"}), 400
+    field, message = first_required_error(
+        data,
+        [
+            ("full_name", "Full name is required."),
+            ("username", "Username is required."),
+            ("email", "Email is required."),
+            ("password", "Password is required."),
+            ("role", "Role is required."),
+        ],
+    )
+    if field:
+        return field_error(field, message)
 
     if not role in ["STUDENT", "TEACHER"]:
-        return jsonify({"error": "Invalid role"}), 400
+        return field_error("role", "Role must be student or teacher.")
 
     if role == "TEACHER":
+        if not teacher_code or not teacher_code.strip():
+            return field_error("teacher_code", "Teacher access code is required.")
+
         if teacher_code != TEACHER_CODE:
-            return jsonify({"error": "Invalid teacher code"}), 400
+            return field_error("teacher_code", "Teacher access code is invalid.")
 
     # valid email
     email_pattern = r"^[^@]+@[^@]+\.[^@]+$"
@@ -40,16 +55,16 @@ def register():
     import re
 
     if not re.match(email_pattern, email):
-        return jsonify({"error": "Invalid email"}), 400
+        return field_error("email", "Email format is invalid.")
 
     if len(password) < 8:
-        return jsonify({"error": "Password too short"}), 400
+        return field_error("password", "Password must be at least 8 characters.")
 
     if User.query.filter_by(username=username).first():
-        return jsonify({"error": "Username exists"}), 400
+        return field_error("username", "Username is already taken.")
 
     if User.query.filter_by(email=email).first():
-        return jsonify({"error": "Email exists"}), 400
+        return field_error("email", "Email is already registered.")
 
     hashed = bcrypt.generate_password_hash(password).decode("utf-8")
 
@@ -64,23 +79,27 @@ def register():
     db.session.add(user)
     db.session.commit()
 
-    return jsonify({"message": "User created"}), 201
+    return success_response(
+        "Account created successfully.",
+        {"user": serialize_user(user)},
+        201,
+    )
 
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
 
-    data = request.get_json()
+    data = request.get_json() or {}
 
     identifier = (data.get("username") or data.get("email") or "").strip()
     password = data.get("password")
     remember = bool(data.get("remember"))
 
     if not identifier:
-        return jsonify({"error": "Username or email is missing"}), 400
+        return field_error("identifier", "Username or email is required.")
 
     if not password:
-        return jsonify({"error": "Password is missing"}), 400
+        return field_error("password", "Password is required.")
 
     # Allow either username or email while keeping the existing route shape.
     user = User.query.filter(
@@ -88,34 +107,26 @@ def login():
     ).first()
 
     if not user:
-        return jsonify({"error": "Invalid credentials"}), 401
+        return error_response("Username/email or password is incorrect.", 401)
 
     if not bcrypt.check_password_hash(user.password_hash, password):
-        return jsonify({"error": "Invalid credentials"}), 401
+        return error_response("Username/email or password is incorrect.", 401)
 
     login_user(user, remember=remember)
 
-    return (
-        jsonify(
-            {
-                "message": "Login successful",
-                "user": serialize_user(user),
-            }
-        ),
-        200,
-    )
+    return success_response("Login successful.", {"user": serialize_user(user)})
 
 
 @auth_bp.route("/logout", methods=["POST"])
 @login_required
 def logout():
     logout_user()
-    return jsonify({"message": "Logout successful"}), 200
+    return success_response("Logout successful.")
 
 
 @auth_bp.route("/me", methods=["GET"])
 def me():
     if not current_user.is_authenticated:
-        return jsonify({"error": "Not logged in"}), 401
+        return error_response("Not logged in.", 401)
 
-    return jsonify({"user": serialize_user(current_user)}), 200
+    return success_response("Current user loaded.", {"user": serialize_user(current_user)})

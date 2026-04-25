@@ -2,6 +2,8 @@ import Header from "../components/Header";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getAssignmentAttempts } from "../api/assignment";
+import Alert from "../components/Alert";
+import { useMessage } from "../hooks/useMessage";
 
 type Attempt = {
   attempt_id: number | null;
@@ -19,7 +21,7 @@ function TeacherSubmissionsPage() {
   const navigate = useNavigate();
 
   const [attempts, setAttempts] = useState<Attempt[]>([]);
-  const [error, setError] = useState("");
+  const { message, clearAllMessages, showApiError } = useMessage();
 
   const handleBack = () => {
     navigate(-1);
@@ -76,10 +78,11 @@ function TeacherSubmissionsPage() {
   useEffect(() => {
     const load = async () => {
       try {
+        clearAllMessages();
         const data = await getAssignmentAttempts(Number(id));
         setAttempts(data);
       } catch (err: any) {
-        setError(err.message);
+        showApiError(err, "Failed to load submissions.");
       }
     };
 
@@ -139,7 +142,11 @@ function TeacherSubmissionsPage() {
             <p className="text-gray-500 mt-4">No students found for this class.</p>
           )}
 
-          {error && <p className="text-red-600 mt-4">{error}</p>}
+          {message && (
+            <div className="mt-4">
+              <Alert type={message.type} message={message.text} />
+            </div>
+          )}
         </div>
       </div>
     </div>

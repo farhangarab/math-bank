@@ -20,6 +20,7 @@ type Props = {
   onChangeMinute: (minute: string) => void;
   onChangePeriod: (period: TimePeriod) => void;
   onClear: () => void;
+  error?: string;
 };
 
 function DueDateTimeFields({
@@ -33,6 +34,7 @@ function DueDateTimeFields({
   onChangeMinute,
   onChangePeriod,
   onClear,
+  error,
 }: Props) {
   const datePickerRef = useRef<HTMLInputElement>(null);
 
@@ -86,7 +88,10 @@ function DueDateTimeFields({
           value={date}
           onChange={(e) => onChangeDate(e.target.value)}
           placeholder="YYYY-MM-DD"
-          className="w-full border border-[#354254] p-2 rounded"
+          aria-invalid={Boolean(error)}
+          className={`w-full rounded border p-2 ${
+            error ? "border-red-500 bg-red-50" : "border-[#354254]"
+          }`}
         />
       </div>
 
@@ -103,7 +108,9 @@ function DueDateTimeFields({
             aria-label="Due hour"
             value={hour}
             onChange={(e) => onChangeHour(e.target.value)}
-            className="w-full border border-[#354254] p-2 rounded"
+            className={`w-full rounded border p-2 ${
+              error ? "border-red-500 bg-red-50" : "border-[#354254]"
+            }`}
           >
             <option value="">Hour</option>
             {hours.map((hourOption) => (
@@ -117,7 +124,9 @@ function DueDateTimeFields({
             aria-label="Due minute"
             value={minute}
             onChange={(e) => onChangeMinute(e.target.value)}
-            className="w-full border border-[#354254] p-2 rounded"
+            className={`w-full rounded border p-2 ${
+              error ? "border-red-500 bg-red-50" : "border-[#354254]"
+            }`}
           >
             <option value="">Min</option>
             {minutes.map((minuteOption) => (
@@ -131,7 +140,9 @@ function DueDateTimeFields({
             aria-label="Due AM or PM"
             value={period}
             onChange={(e) => onChangePeriod(e.target.value as TimePeriod)}
-            className="w-full border border-[#354254] p-2 rounded"
+            className={`w-full rounded border p-2 ${
+              error ? "border-red-500 bg-red-50" : "border-[#354254]"
+            }`}
           >
             <option value="AM">AM</option>
             <option value="PM">PM</option>

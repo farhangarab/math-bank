@@ -6,6 +6,8 @@ import ClassCard from "../components/ClassCard";
 import { useEffect, useState } from "react";
 import { getTeacherClasses } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
+import Alert from "../components/Alert";
+import { useMessage } from "../hooks/useMessage";
 
 function TeacherDashboardPage() {
   const navigate = useNavigate();
@@ -16,16 +18,17 @@ function TeacherDashboardPage() {
   };
 
   const [classes, setClasses] = useState([]);
-  const [error, setError] = useState("");
+  const { message, clearAllMessages, showApiError } = useMessage();
 
   useEffect(() => {
     const loadClasses = async () => {
       try {
+        clearAllMessages();
         const data = await getTeacherClasses();
 
         setClasses(data);
       } catch (err: any) {
-        setError(err.message);
+        showApiError(err, "Failed to load classes.");
       }
     };
 
@@ -66,7 +69,7 @@ function TeacherDashboardPage() {
               />
             ))}
 
-            {error && <p className="text-red-500">{error}</p>}
+            {message && <Alert type={message.type} message={message.text} />}
           </div>
         </div>
       </div>

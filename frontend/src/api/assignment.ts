@@ -1,5 +1,5 @@
 import type { Assignment } from "../types/assignment";
-import { apiFetch } from "./client";
+import { apiFetch, throwApiError } from "./client";
 
 // Get assignments by class
 export async function getAssignments(classId: number): Promise<Assignment[]> {
@@ -7,7 +7,7 @@ export async function getAssignments(classId: number): Promise<Assignment[]> {
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.error || "Failed to load assignments");
+    throwApiError(data, "Failed to load assignments");
   }
 
   return data;
@@ -34,7 +34,7 @@ export async function createAssignment(
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.error || "Create assignment failed");
+    throwApiError(data, "Create assignment failed");
   }
 
   return data;
@@ -47,7 +47,7 @@ export async function getAssignmentById(id: number) {
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.error || "Failed");
+    throwApiError(data, "Failed to load assignment");
   }
 
   return data;
@@ -59,7 +59,7 @@ export async function getAssignmentAttempts(assignmentId: number) {
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.error || "Failed to load submissions");
+    throwApiError(data, "Failed to load submissions");
   }
 
   return data;

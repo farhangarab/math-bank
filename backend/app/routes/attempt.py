@@ -10,6 +10,7 @@ from app.models.enums import AttemptStatus, GradingType, UserRole
 from sympy import simplify
 from app.utils.math_parser import normalize_math_text, parse_math_expression
 from app.auth_utils import role_required
+from app.response_utils import error_response, field_error, success_response
 
 
 attempt_bp = Blueprint("attempts", __name__)
@@ -80,23 +81,23 @@ def _grade_answer(student_answer, question):
 @login_required
 @role_required(UserRole.STUDENT)
 def start_attempt():
-    data = request.get_json()
+    data = request.get_json() or {}
 
     assignment_id = data.get("assignment_id")
 
     if not assignment_id:
-        return jsonify({"error": "Missing data"}), 400
+        return field_error("assignment_id", "Assignment ID is required.")
 
     assignment = Assignment.query.get(assignment_id)
     if not assignment:
-        return jsonify({"error": "Assignment not found"}), 404
+        return error_response("Assignment was not found.", 404)
 
     class_member = ClassMember.query.filter_by(
         student_id=current_user.id, class_id=assignment.class_id
     ).first()
 
     if not class_member:
-        return jsonify({"error": "User not in this class"}), 404
+        return error_response("You are not in this class.", 404)
 
     existing_attempt = (
         Attempt.query.filter_by(
@@ -108,15 +109,12 @@ def start_attempt():
     )
 
     if existing_attempt:
-        return (
-            jsonify(
-                {
-                    "message": "Existing attempt found",
-                    "attempt_id": existing_attempt.id,
-                    "status": serialize_attempt_status(existing_attempt.status),
-                }
-            ),
-            200,
+        return success_response(
+            "Existing attempt found.",
+            {
+                "attempt_id": existing_attempt.id,
+                "status": serialize_attempt_status(existing_attempt.status),
+            },
         )
 
     attempt = Attempt(
@@ -128,14 +126,12 @@ def start_attempt():
     db.session.add(attempt)
     db.session.commit()
 
-    return (
-        jsonify(
-            {
-                "message": "Attempt started",
-                "attempt_id": attempt.id,
-                "status": serialize_attempt_status(attempt.status),
-            }
-        ),
+    return success_response(
+        "Attempt started.",
+        {
+            "attempt_id": attempt.id,
+            "status": serialize_attempt_status(attempt.status),
+        },
         201,
     )
 
@@ -145,25 +141,32 @@ def start_attempt():
 @login_required
 @role_required(UserRole.STUDENT)
 def submit_attempt():
-    data = request.get_json()
+    data = request.get_json() or {}
 
     attempt_id = data.get("attempt_id")
     answers = data.get("answers")
 
     if not attempt_id or answers is None:
-        return jsonify({"error": "Missing data"}), 400
+        return error_response(
+            "Attempt ID and answers are required.",
+            400,
+            {
+                "attempt_id": "Attempt ID is required.",
+                "answers": "Answers are required.",
+            },
+        )
 
     attempt = Attempt.query.get(attempt_id)
 
     if not attempt:
-        return jsonify({"error": "Attempt not found"}), 404
+        return error_response("Attempt was not found.", 404)
 
     if attempt.class_member.student_id != current_user.id:
-        return jsonify({"error": "Forbidden"}), 403
+        return error_response("You do not have permission to submit this attempt.", 403)
 
     # already submitted
     if attempt.status == AttemptStatus.SUBMITTED.value:
-        return jsonify({"error": "Assignment already submitted"}), 400
+        return error_response("Assignment is already submitted.")
 
     total_score = 0
     max_score = 0
@@ -224,17 +227,15 @@ def submit_attempt():
 
     db.session.commit()
 
-    return (
-        jsonify(
-            {
-                "attempt_id": attempt.id,
-                "status": serialize_attempt_status(attempt.status),
-                "total_score": total_score,
-                "max_score": max_score,
-                "results": results,
-            }
-        ),
-        200,
+    return success_response(
+        "Assignment submitted successfully.",
+        {
+            "attempt_id": attempt.id,
+            "status": serialize_attempt_status(attempt.status),
+            "total_score": total_score,
+            "max_score": max_score,
+            "results": results,
+        },
     )
 
 
@@ -246,14 +247,14 @@ def get_attempt(attempt_id):
     attempt = Attempt.query.get(attempt_id)
 
     if attempt is None:
-        return jsonify({"error": "Attempt not found"}), 404
+        return error_response("Attempt was not found.", 404)
 
     class_obj = attempt.assignment.class_obj
     is_owner = attempt.class_member.student_id == current_user.id
     is_teacher = class_obj.teacher_id == current_user.id
 
     if not is_owner and not is_teacher:
-        return jsonify({"error": "Forbidden"}), 403
+        return error_response("You do not have permission to view this attempt.", 403)
 
     questions = (
         Question.query.filter_by(assignment_id=attempt.assignment_id)
@@ -311,24 +312,24 @@ def get_attempt(attempt_id):
 @login_required
 @role_required(UserRole.STUDENT)
 def save_attempt():
-    data = request.get_json()
+    data = request.get_json() or {}
 
     attempt_id = data.get("attempt_id")
     attempt = Attempt.query.get(attempt_id)
 
     if not attempt:
-        return jsonify({"error": "Attempt not found"}), 404
+        return error_response("Attempt was not found.", 404)
 
     if attempt.class_member.student_id != current_user.id:
-        return jsonify({"error": "Forbidden"}), 403
+        return error_response("You do not have permission to save this attempt.", 403)
 
     if attempt.status == AttemptStatus.SUBMITTED.value:
-        return jsonify({"error": "Assignment already submitted"}), 400
+        return error_response("Assignment is already submitted.")
 
     answers = data.get("answers")
 
     if not answers:
-        return jsonify({"error": "Missing answer"}), 400
+        return field_error("answers", "At least one answer is required.")
 
     for ans in answers:
         question_id = ans.get("question_id")
@@ -348,4 +349,4 @@ def save_attempt():
 
     db.session.commit()
 
-    return jsonify({"message": "Progress saved"}), 200
+    return success_response("Progress saved.")

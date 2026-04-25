@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../router/routes";
 import { useState } from "react";
 import { registerUser } from "../api/auth";
+import Alert from "../components/Alert";
+import { useMessage } from "../hooks/useMessage";
+import { firstInvalid } from "../utils/validation";
 
 export default function TeacherRegisterPage() {
   const [username, setUsername] = useState("");
@@ -16,8 +19,15 @@ export default function TeacherRegisterPage() {
 
   const navigate = useNavigate();
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const {
+    message,
+    fieldErrors,
+    clearAllMessages,
+    clearFieldError,
+    showApiError,
+    showFieldError,
+    showSuccess,
+  } = useMessage();
 
   const isValidEmail = (email: string) => {
     const pattern = /^[^@]+@[^@]+\.[^@]+$/;
@@ -25,13 +35,58 @@ export default function TeacherRegisterPage() {
   };
 
   const handleRegister = async () => {
-    if (!isValidEmail(email)) {
-      setError("Invalid email format");
-      return;
-    }
+    clearAllMessages();
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
+    const invalid = firstInvalid([
+      {
+        field: "full_name",
+        message: "Full name is required.",
+        isValid: fullName.trim() !== "",
+      },
+      {
+        field: "username",
+        message: "Username is required.",
+        isValid: username.trim() !== "",
+      },
+      {
+        field: "email",
+        message: "Email is required.",
+        isValid: email.trim() !== "",
+      },
+      {
+        field: "email",
+        message: "Email format is invalid.",
+        isValid: !email.trim() || isValidEmail(email),
+      },
+      {
+        field: "password",
+        message: "Password is required.",
+        isValid: password !== "",
+      },
+      {
+        field: "password",
+        message: "Password must be at least 8 characters.",
+        isValid: !password || password.length >= 8,
+      },
+      {
+        field: "confirm_password",
+        message: "Confirm password is required.",
+        isValid: confirmPassword !== "",
+      },
+      {
+        field: "confirm_password",
+        message: "Passwords do not match.",
+        isValid: !confirmPassword || password === confirmPassword,
+      },
+      {
+        field: "teacher_code",
+        message: "Teacher access code is required.",
+        isValid: teacherCode.trim() !== "",
+      },
+    ]);
+
+    if (invalid) {
+      showFieldError(invalid.field, invalid.message);
       return;
     }
 
@@ -45,13 +100,13 @@ export default function TeacherRegisterPage() {
         teacherCode,
       );
 
-      setSuccess("Account created successfully");
+      showSuccess("Account created successfully.");
 
       setTimeout(() => {
         navigate(ROUTES.LOGIN);
       }, 1500);
     } catch (err: any) {
-      setError(err.message);
+      showApiError(err, "Registration failed.");
     }
   };
 
@@ -67,47 +122,68 @@ export default function TeacherRegisterPage() {
         {/* Input fields */}
         <div className="w-full max-w-[400px]  text-center flex flex-col gap-4">
           <Input
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Full Name"
+            value={fullName}
+            error={fieldErrors.full_name}
+            onChange={(e) => {
+              setFullName(e.target.value);
+              clearFieldError("full_name");
+            }}
           />
 
           <Input
-            placeholder="Full Name"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
+            placeholder="Username"
+            value={username}
+            error={fieldErrors.username}
+            onChange={(e) => {
+              setUsername(e.target.value);
+              clearFieldError("username");
+            }}
           />
 
           <Input
             placeholder="Email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            error={fieldErrors.email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              clearFieldError("email");
+            }}
           />
 
           <Input
             placeholder="Password"
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            error={fieldErrors.password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              clearFieldError("password");
+            }}
           />
 
           <Input
             placeholder="Confirm Password"
             type="password"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            error={fieldErrors.confirm_password}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+              clearFieldError("confirm_password");
+            }}
           />
 
           <Input
             placeholder="Teacher Access Code"
             value={teacherCode}
-            onChange={(e) => setTeacherCode(e.target.value)}
+            error={fieldErrors.teacher_code}
+            onChange={(e) => {
+              setTeacherCode(e.target.value);
+              clearFieldError("teacher_code");
+            }}
           />
 
-          {/* pop up */}
-          {error && <p className="text-red-500 text-xl mt-4">{error}</p>}
-
-          {success && <p className="text-green-600 text-xl">{success}</p>}
+          {message && <Alert type={message.type} message={message.text} />}
 
           <div className="mt-6"></div>
 
