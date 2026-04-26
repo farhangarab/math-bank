@@ -11,20 +11,10 @@ from datetime import datetime
 from app import db
 from app.auth_utils import role_required
 from app.response_utils import error_response, field_error, success_response
+from app.services.serializers import serialize_attempt_status, serialize_due_date
 
 
 assignments_bp = Blueprint("assignments", __name__)
-
-
-def serialize_attempt_status(status):
-    return status.value if hasattr(status, "value") else status
-
-
-def serialize_due_date(due_date):
-    if not due_date:
-        return None
-
-    return due_date.strftime("%Y-%m-%dT%H:%M")
 
 
 # Get all assignment

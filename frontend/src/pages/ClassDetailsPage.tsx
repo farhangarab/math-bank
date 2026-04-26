@@ -3,19 +3,21 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ROUTES } from "../router/routes";
 import Button from "../components/Button";
 import { useEffect, useState } from "react";
-import { getAssignments } from "../api/assignment";
-import { getClassById } from "../api/class";
+import { getAssignments } from "../api/assignments";
+import { getClassById } from "../api/classes";
 import AssignmentTable from "../components/AssignmentTable";
-import { startAttempt } from "../api/attempt";
+import { startAttempt } from "../api/attempts";
 import type { Assignment } from "../types/assignment";
 import { useAuth } from "../context/AuthContext";
 import { useMessage } from "../hooks/useMessage";
 import MessageSlot from "../components/MessageSlot";
+import type { ClassInfo } from "../types/class";
+import Panel from "../components/Panel";
 
 function ClassDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [classInfo, setClassInfo] = useState<any>(null);
+  const [classInfo, setClassInfo] = useState<ClassInfo | null>(null);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const { message, clearAllMessages, showApiError } = useMessage();
   const { user } = useAuth();
@@ -80,7 +82,7 @@ function ClassDetailsPage() {
       <div className="flex flex-col items-center mt-10">
         {classInfo && (
           <>
-            <h1 className="text-3xl font-bold text-[#354254]">
+            <h1 className="text-3xl font-bold text-brand-primary">
               {classInfo.class_name}
             </h1>
 
@@ -101,8 +103,8 @@ function ClassDetailsPage() {
           </>
         )}
 
-        <div className="w-[800px] border border-[#354254] rounded p-6 mt-6">
-          <h2 className="text-xl font-bold mb-4 text-[#354254]">Assignments</h2>
+        <Panel className="w-[800px] mt-6">
+          <h2 className="text-xl font-bold mb-4 text-brand-primary">Assignments</h2>
 
           <div className="flex flex-col gap-4">
             <AssignmentTable
@@ -120,7 +122,7 @@ function ClassDetailsPage() {
 
             {user?.role !== "TEACHER" && <MessageSlot message={message} />}
           </div>
-        </div>
+        </Panel>
       </div>
     </div>
   );

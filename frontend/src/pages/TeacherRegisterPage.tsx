@@ -115,7 +115,7 @@ export default function TeacherRegisterPage() {
       <Header leftText="Back" leftAction={() => navigate(ROUTES.HOME)} />
 
       <div className="flex flex-col items-center justify-center mt-16 gap-6">
-        <h1 className="text-3xl font-bold text-[#354254]">
+        <h1 className="text-3xl font-bold text-brand-primary">
           Teacher Registration
         </h1>
 

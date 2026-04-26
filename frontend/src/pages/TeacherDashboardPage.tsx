@@ -4,10 +4,12 @@ import Header from "../components/Header";
 import { ROUTES } from "../router/routes";
 import ClassCard from "../components/ClassCard";
 import { useEffect, useState } from "react";
-import { getTeacherClasses } from "../api/auth";
+import { getTeacherClasses } from "../api/classes";
 import { useAuth } from "../context/AuthContext";
 import { useMessage } from "../hooks/useMessage";
 import MessageSlot from "../components/MessageSlot";
+import type { ClassInfo } from "../types/class";
+import Panel from "../components/Panel";
 
 function TeacherDashboardPage() {
   const navigate = useNavigate();
@@ -17,7 +19,7 @@ function TeacherDashboardPage() {
     navigate(`/class/${id}`);
   };
 
-  const [classes, setClasses] = useState([]);
+  const [classes, setClasses] = useState<ClassInfo[]>([]);
   const { message, clearAllMessages, showApiError } = useMessage();
 
   useEffect(() => {
@@ -44,7 +46,7 @@ function TeacherDashboardPage() {
       {/* MAIN CONTAINER */}
       <div className="flex flex-col items-center mt-10">
         {/* Title */}
-        <h1 className="text-3xl font-bold text-[#354254]">Teacher Dashboard</h1>
+        <h1 className="text-3xl font-bold text-brand-primary">Teacher Dashboard</h1>
 
         <p className="mt-2 mb-6">Welcome {user?.full_name ?? "teacher"}</p>
 
@@ -55,12 +57,12 @@ function TeacherDashboardPage() {
         </div>
 
         {/* My classes section */}
-        <div className="w-[700px] border border-[#354254] rounded p-6">
-          <h2 className="text-xl font-bold mb-4 text-[#354254]">My Classes</h2>
+        <Panel className="w-[700px]">
+          <h2 className="text-xl font-bold mb-4 text-brand-primary">My Classes</h2>
 
           {/* Example list */}
           <div className="flex flex-col gap-4 mt-6">
-            {classes.map((c: any) => (
+            {classes.map((c) => (
               <ClassCard
                 key={c.id}
                 id={c.id}
@@ -74,7 +76,7 @@ function TeacherDashboardPage() {
               <p className="text-gray-500">No classes yet.</p>
             )}
           </div>
-        </div>
+        </Panel>
       </div>
     </div>
   );

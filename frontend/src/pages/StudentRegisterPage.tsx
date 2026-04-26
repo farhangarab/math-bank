@@ -102,7 +102,7 @@ export default function StudentRegisterPage() {
       <Header leftText="Back" leftAction={() => navigate(ROUTES.HOME)} />
 
       <div className="flex flex-col items-center justify-center mt-16 gap-6">
-        <h1 className="text-3xl font-bold text-[#354254]">
+        <h1 className="text-3xl font-bold text-brand-primary">
           Student Registration
         </h1>
 

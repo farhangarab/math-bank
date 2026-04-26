@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { createAssignment } from "../api/assignment";
+import { createAssignment } from "../api/assignments";
 import Header from "../components/Header";
 import Input from "../components/Input";
 import Button from "../components/Button";
@@ -128,7 +128,7 @@ export default function CreateAssignmentPage() {
       <Header title="MATHBANK" leftText="Back" leftAction={handleBack} />
 
       <div className="max-w-2xl mx-auto mt-10">
-        <h1 className="text-2xl font-bold text-[#354254] mb-6">
+        <h1 className="text-2xl font-bold text-brand-primary mb-6">
           Create Assignment
         </h1>
 

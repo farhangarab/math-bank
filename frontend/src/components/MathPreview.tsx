@@ -117,7 +117,7 @@ function MathPreview({ expression, noBorder }: Props) {
   return (
     <div
       className={`
-    bg-transparent pt-2 mt-1 text-[#354254] whitespace-pre-wrap min-h-[32px]
+    bg-transparent pt-2 mt-1 text-brand-primary whitespace-pre-wrap min-h-[32px]
     ${noBorder ? "" : "border-t border-dashed border-gray-200"}
   `}
     >

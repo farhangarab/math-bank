@@ -1,7 +1,6 @@
 import type { Assignment } from "../types/assignment";
 import { apiFetch, throwApiError } from "./client";
 
-// Get assignments by class
 export async function getAssignments(classId: number): Promise<Assignment[]> {
   const res = await apiFetch(`/assignments/?class_id=${classId}`);
   const data = await res.json();
@@ -13,14 +12,10 @@ export async function getAssignments(classId: number): Promise<Assignment[]> {
   return data;
 }
 
-
-
-
-// Create assignment
 export async function createAssignment(
   title: string,
   classId: number,
-  dueDate?: string
+  dueDate?: string,
 ) {
   const res = await apiFetch("/assignments/create", {
     method: "POST",
@@ -40,10 +35,8 @@ export async function createAssignment(
   return data;
 }
 
-//Get assignment by id
-export async function getAssignmentById(id: number) {
+export async function getAssignmentById(id: number): Promise<Assignment> {
   const res = await apiFetch(`/assignments/one?id=${id}`);
-
   const data = await res.json();
 
   if (!res.ok) {
@@ -53,7 +46,6 @@ export async function getAssignmentById(id: number) {
   return data;
 }
 
-//Get submission for each student
 export async function getAssignmentAttempts(assignmentId: number) {
   const res = await apiFetch(`/assignments/${assignmentId}/attempts`);
   const data = await res.json();

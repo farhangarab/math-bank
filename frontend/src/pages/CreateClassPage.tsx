@@ -4,9 +4,10 @@ import Input from "../components/Input";
 import { ROUTES } from "../router/routes";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { createClass } from "../api/auth";
+import { createClass } from "../api/classes";
 import { useMessage } from "../hooks/useMessage";
 import MessageSlot from "../components/MessageSlot";
+import Panel from "../components/Panel";
 
 function CreateClassPage() {
   const [className, setClassName] = useState("");
@@ -51,14 +52,14 @@ function CreateClassPage() {
 
       <div className="flex flex-col items-center mt-10">
         {/* Title */}
-        <h1 className="text-3xl font-bold text-[#354254]">Create Class</h1>
+        <h1 className="text-3xl font-bold text-brand-primary">Create Class</h1>
 
         <p className="mt-2 mb-6">Enter class name</p>
 
         {/* Form box */}
-        <div className="w-[700px] border border-[#354254] rounded p-6">
+        <Panel className="w-[700px]">
           {/* Label */}
-          <p className="mb-2 font-semibold text-[#354254]">Class Name</p>
+          <p className="mb-2 font-semibold text-brand-primary">Class Name</p>
           <div className="mb-4">
             <Input
               placeholder="Enter class name"
@@ -74,7 +75,7 @@ function CreateClassPage() {
           <MessageSlot message={message} />
 
           <Button onClick={handleCreate}>Create</Button>
-        </div>
+        </Panel>
       </div>
     </div>
   );

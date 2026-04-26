@@ -3,10 +3,11 @@ import Button from "../components/Button";
 import Input from "../components/Input";
 import { ROUTES } from "../router/routes";
 import { useNavigate } from "react-router-dom";
-import { joinClass } from "../api/auth";
+import { joinClass } from "../api/classes";
 import { useState } from "react";
 import { useMessage } from "../hooks/useMessage";
 import MessageSlot from "../components/MessageSlot";
+import Panel from "../components/Panel";
 
 function JoinClassPage() {
   const [classCode, setClassCode] = useState("");
@@ -52,14 +53,14 @@ function JoinClassPage() {
 
       <div className="flex flex-col items-center mt-10">
         {/* Title */}
-        <h1 className="text-3xl font-bold text-[#354254]">Join Class</h1>
+        <h1 className="text-3xl font-bold text-brand-primary">Join Class</h1>
 
         <p className="mt-2 mb-6">Enter class code</p>
 
         {/* Form box */}
-        <div className="w-[700px] border border-[#354254] rounded p-6">
+        <Panel className="w-[700px]">
           {/* Label */}
-          <p className="mb-2 font-semibold text-[#354254]">Class Code</p>
+          <p className="mb-2 font-semibold text-brand-primary">Class Code</p>
 
           <div className="mb-4">
             <Input
@@ -76,7 +77,7 @@ function JoinClassPage() {
           <MessageSlot message={message} />
 
           <Button onClick={handleJoin}>Join</Button>
-        </div>
+        </Panel>
       </div>
     </div>
   );
