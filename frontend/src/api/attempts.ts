@@ -1,6 +1,6 @@
+import type { AttemptAnswer } from "../types/attempt";
 import { apiFetch, throwApiError } from "./client";
 
-// start the assignment
 export async function startAttempt(assignmentId: number) {
   const res = await apiFetch("/attempts/start", {
     method: "POST",
@@ -18,8 +18,6 @@ export async function startAttempt(assignmentId: number) {
   return data.data ?? data;
 }
 
-
-// get the questions in assignment with attempt id
 export async function getAttempt(attemptId: number) {
   const res = await apiFetch(`/attempts/${attemptId}`);
   const data = await res.json();
@@ -31,10 +29,9 @@ export async function getAttempt(attemptId: number) {
   return data.data ?? data;
 }
 
-// Submit all answers for assignment
 export async function submitAttempt(
   attemptId: number,
-  answers: { question_id: number; answer_text: string }[]
+  answers: AttemptAnswer[],
 ) {
   const res = await apiFetch("/attempts/submit", {
     method: "POST",
@@ -53,11 +50,7 @@ export async function submitAttempt(
   return data.data ?? data;
 }
 
-//Save the progress
-export async function saveAttempt(
-  attemptId: number,
-  answers: { question_id: number; answer_text: string }[]
-) {
+export async function saveAttempt(attemptId: number, answers: AttemptAnswer[]) {
   const res = await apiFetch("/attempts/save", {
     method: "POST",
     body: JSON.stringify({

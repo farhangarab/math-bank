@@ -6,10 +6,12 @@ type AlertProps = {
 };
 
 const alertStyles: Record<AlertType, string> = {
-  error: "border-red-300 bg-red-50 text-red-700",
-  success: "border-green-300 bg-green-50 text-green-700",
-  warning: "border-amber-300 bg-amber-50 text-amber-800",
-  info: "border-blue-300 bg-blue-50 text-blue-700",
+  error: "border-status-errorBorder bg-status-errorBg text-status-errorText",
+  success:
+    "border-status-successBorder bg-status-successBg text-status-successText",
+  warning:
+    "border-status-warningBorder bg-status-warningBg text-status-warningText",
+  info: "border-status-infoBorder bg-status-infoBg text-status-infoText",
 };
 
 export default function Alert({ type, message }: AlertProps) {

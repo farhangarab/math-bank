@@ -7,9 +7,11 @@ type ClassCardProps = {
 
 function ClassCard({ id, name, code, onView }: ClassCardProps) {
   return (
-    <div className="flex items-center border border-[#354254] rounded px-4 py-3 mb-3">
+    <div className="flex items-center border border-brand-primary rounded px-4 py-3 mb-3">
       {/* name */}
-      <div className="w-1/3 text-lg font-semibold text-[#354254]">{name}</div>
+      <div className="w-1/3 text-lg font-semibold text-brand-primary">
+        {name}
+      </div>
 
       {/* class code */}
       <div className="w-1/3 text-center text-m font-bold text-gray-600">
@@ -21,12 +23,12 @@ function ClassCard({ id, name, code, onView }: ClassCardProps) {
         <button
           onClick={() => onView?.(id)}
           className="
-            bg-[#354254]
+            bg-brand-primary
             text-white
             px-4
             py-1
             rounded
-            hover:bg-[#2b3645]
+            hover:bg-brand-primaryHover
             transition
           "
         >

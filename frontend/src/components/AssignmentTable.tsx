@@ -1,4 +1,5 @@
 import type { Assignment } from "../types/assignment";
+import { formatDueDate, formatNumber } from "../utils/format";
 
 type Props = {
   assignments: Assignment[];
@@ -11,40 +12,6 @@ function getStudentActionLabel(status?: string) {
   if (status === "IN_PROGRESS") return "Continue";
   if (status === "SUBMITTED") return "Review";
   return "Start";
-}
-
-//format date like: Feb 8, 2026 by 11:59pm
-function formatDueDate(dateStr?: string) {
-  if (!dateStr) return "-";
-
-  const d = new Date(dateStr);
-
-  if (Number.isNaN(d.getTime())) return "-";
-
-  const date = d.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-  const time = d
-    .toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-    })
-    .toLowerCase()
-    .replace(" ", "");
-
-  return `${date} by ${time}`;
-}
-
-function formatNumber(value: number | string | null | undefined) {
-  const numberValue = Number(value);
-
-  if (!Number.isFinite(numberValue)) return "-";
-
-  return Number.isInteger(numberValue)
-    ? numberValue.toString()
-    : numberValue.toFixed(2);
 }
 
 function formatStudentScore(assignment: Assignment) {
@@ -68,7 +35,7 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
     <div className="w-full">
       {/* HEADER */}
       <div
-        className="grid border-b border-[#354254] pb-2 font-semibold text-[#354254]"
+        className="grid border-b border-brand-primary pb-2 font-semibold text-brand-primary"
         style={{
           gridTemplateColumns:
             role === "STUDENT" ? studentColumns : teacherColumns,
@@ -105,7 +72,7 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
           }}
         >
           {/* NAME */}
-          <div className="text-[#354254]">{a.title}</div>
+          <div className="text-brand-primary">{a.title}</div>
 
           {/* DUE */}
           <div>{formatDueDate(a.due_date)}</div>
@@ -120,12 +87,12 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
                 <button
                   onClick={() => onOpen?.(a)}
                   className="
-                    bg-[#354254]
+                    bg-brand-primary
                     text-white
                     w-[110px]
                     py-1
                     rounded
-                    hover:bg-[#2b3645]
+                    hover:bg-brand-primaryHover
                   "
                 >
                   {getStudentActionLabel(a.status)}
@@ -142,8 +109,8 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
                   onClick={() => onEdit?.(a.id)}
                   className="
                     border
-                    border-[#354254]
-                    text-[#354254]
+                    border-brand-primary
+                    text-brand-primary
                     w-[110px]
                     py-1
                     rounded
@@ -158,12 +125,12 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
                 <button
                   onClick={() => onOpen?.(a)}
                   className="
-                    bg-[#354254]
+                    bg-brand-primary
                     text-white
                     w-[110px]
                     py-1
                     rounded
-                    hover:bg-[#2b3645]
+                    hover:bg-brand-primaryHover
                   "
                 >
                   Submissions

@@ -5,8 +5,8 @@ import MathToolbar from "../components/MathToolbar";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-import { getAssignmentById } from "../api/assignment";
-import { getClassById } from "../api/class";
+import { getAssignmentById } from "../api/assignments";
+import { getClassById } from "../api/classes";
 import { getQuestions, createQuestion } from "../api/question";
 import MathPreview from "../components/MathPreview";
 import QuestionList from "../components/QuestionList";
@@ -14,40 +14,24 @@ import Alert from "../components/Alert";
 import { useMessage } from "../hooks/useMessage";
 import { firstInvalid } from "../utils/validation";
 import MessageSlot from "../components/MessageSlot";
-
-function answerLooksNumeric(answerText: string) {
-  return !/[a-zA-Z]/.test(answerText);
-}
-
-function getTeacherGuidance(gradingType: string, requireSimplified: boolean) {
-  if (gradingType === "exact") {
-    return "Use Exact when you want students to match the written form of the answer. Spaces are ignored.";
-  }
-
-  if (gradingType === "numeric") {
-    return "Use Numeric only for number-only answers like 8, 2/3, or 0.25.";
-  }
-
-  if (requireSimplified) {
-    return "Use Symbolic + Require simplified when equivalent algebra is okay, but students must simplify their final form.";
-  }
-
-  return "Use Symbolic when equivalent algebraic answers should be accepted even if they look different.";
-}
+import type { Assignment } from "../types/assignment";
+import type { ClassInfo } from "../types/class";
+import type { GradingType, Question } from "../types/question";
+import { answerLooksNumeric, getTeacherGuidance } from "../utils/grading";
 
 function AssignmentEditorPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [assignment, setAssignment] = useState<any>(null);
-  const [classInfo, setClassInfo] = useState<any>(null);
-  const [questions, setQuestions] = useState<any[]>([]);
+  const [assignment, setAssignment] = useState<Assignment | null>(null);
+  const [classInfo, setClassInfo] = useState<ClassInfo | null>(null);
+  const [questions, setQuestions] = useState<Question[]>([]);
 
   const [text, setText] = useState("");
   const [answer, setAnswer] = useState("");
   const [points, setPoints] = useState("1");
 
-  const [gradingType, setGradingType] = useState("symbolic");
+  const [gradingType, setGradingType] = useState<GradingType>("symbolic");
   const [requireSimplified, setRequireSimplified] = useState(false);
   const {
     message,
@@ -141,12 +125,12 @@ function AssignmentEditorPage() {
 
       <div className="flex flex-col items-center mt-10 pb-10">
         {classInfo && (
-          <h1 className="text-3xl text-[#354254] font-bold">
+          <h1 className="text-3xl text-brand-primary font-bold">
             {classInfo.class_name}
           </h1>
         )}
         {assignment && (
-          <h2 className="text-2xl font-semibold text-[#354254] mt-4">
+          <h2 className="text-2xl font-semibold text-brand-primary mt-4">
             {assignment.title}
           </h2>
         )}
@@ -158,18 +142,18 @@ function AssignmentEditorPage() {
             the fields scroll, while the toolbar stays pinned at the bottom
         */}
         <div
-          className="w-[800px] border border-[#354254] rounded mt-6 flex flex-col"
+          className="w-[800px] border border-brand-primary rounded mt-6 flex flex-col"
           style={{ maxHeight: "calc(100vh - 220px)" }}
         >
           {/* ── scrollable content area ── */}
           <div className="flex-1 overflow-y-auto p-6">
-            <h3 className="text-xl font-bold text-[#354254] mb-6">
+            <h3 className="text-xl font-bold text-brand-primary mb-6">
               Add Question
             </h3>
 
             {/* QUESTION */}
             <div className="mb-6">
-              <label className="block text-[#354254] font-medium mb-2">
+              <label className="block text-brand-primary font-medium mb-2">
                 Question
               </label>
               <textarea
@@ -187,12 +171,12 @@ function AssignmentEditorPage() {
                 aria-invalid={Boolean(fieldErrors.question_text)}
                 className={`w-full min-h-[120px] rounded border p-3 focus:outline-none ${
                   fieldErrors.question_text
-                    ? "border-red-500 bg-red-50"
-                    : "border-[#354254]"
+                    ? "border-status-errorText bg-status-errorBg"
+                    : "border-brand-primary"
                 }`}
               />
               {fieldErrors.question_text && (
-                <p className="mt-1 text-sm text-red-600">
+                <p className="mt-1 text-sm text-status-errorText">
                   {fieldErrors.question_text}
                 </p>
               )}
@@ -212,18 +196,18 @@ function AssignmentEditorPage() {
                 value={gradingType}
                 onChange={(e) => {
                   clearAllMessages();
-                  setGradingType(e.target.value);
+                  setGradingType(e.target.value as GradingType);
                   if (e.target.value !== "symbolic")
                     setRequireSimplified(false);
                 }}
-                className="border border-[#354254] p-2 rounded"
+                className="border border-brand-primary p-2 rounded"
               >
                 <option value="exact">Exact</option>
                 <option value="symbolic">Symbolic</option>
                 <option value="numeric">Numeric</option>
               </select>
 
-              <label className="flex items-center gap-2 text-[#354254]">
+              <label className="flex items-center gap-2 text-brand-primary">
                 <input
                   type="checkbox"
                   checked={requireSimplified}
@@ -254,7 +238,7 @@ function AssignmentEditorPage() {
 
             {/* ANSWER */}
             <div className="mb-6">
-              <label className="block text-[#354254] font-medium mb-2">
+              <label className="block text-brand-primary font-medium mb-2">
                 Answer
               </label>
               <input
@@ -273,12 +257,12 @@ function AssignmentEditorPage() {
                 aria-invalid={Boolean(fieldErrors.correct_answer)}
                 className={`w-full rounded border p-3 focus:outline-none ${
                   fieldErrors.correct_answer
-                    ? "border-red-500 bg-red-50"
-                    : "border-[#354254]"
+                    ? "border-status-errorText bg-status-errorBg"
+                    : "border-brand-primary"
                 }`}
               />
               {fieldErrors.correct_answer && (
-                <p className="mt-1 text-sm text-red-600">
+                <p className="mt-1 text-sm text-status-errorText">
                   {fieldErrors.correct_answer}
                 </p>
               )}
@@ -304,19 +288,21 @@ function AssignmentEditorPage() {
               aria-invalid={Boolean(fieldErrors.points)}
               className={`w-full rounded border p-3 focus:outline-none ${
                 fieldErrors.points
-                  ? "border-red-500 bg-red-50"
-                  : "border-[#354254]"
+                  ? "border-status-errorText bg-status-errorBg"
+                  : "border-brand-primary"
               }`}
             />
             {fieldErrors.points && (
-              <p className="mt-1 text-sm text-red-600">{fieldErrors.points}</p>
+              <p className="mt-1 text-sm text-status-errorText">
+                {fieldErrors.points}
+              </p>
             )}
             <MessageSlot message={message} />
             <Button onClick={handleAddQuestion}>Save Question</Button>
           </div>
 
           {/* ── sticky toolbar — always visible at the bottom of the card ── */}
-          <div className="border-t border-[#354254] bg-white shrink-0">
+          <div className="border-t border-brand-primary bg-white shrink-0">
             <MathToolbar
               activeInput={activeInput}
               activeField={activeField}
@@ -327,8 +313,8 @@ function AssignmentEditorPage() {
         </div>
 
         {/* QUESTIONS LIST */}
-        <div className="w-[800px] border border-[#354254] rounded p-6 mt-6">
-          <h3 className="text-xl font-bold text-[#354254] mb-4">Questions</h3>
+        <div className="w-[800px] border border-brand-primary rounded p-6 mt-6">
+          <h3 className="text-xl font-bold text-brand-primary mb-4">Questions</h3>
           <QuestionList questions={questions} />
         </div>
       </div>

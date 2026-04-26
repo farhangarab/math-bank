@@ -68,8 +68,8 @@ function MathToolbar({
               text-xs font-medium px-3 py-1 rounded-full border transition-colors
               ${
                 activeTab === tab
-                  ? "bg-[#354254] text-white border-[#354254]"
-                  : "bg-transparent text-[#354254] border-[#354254] hover:bg-gray-100"
+                  ? "bg-brand-primary text-white border-brand-primary"
+                  : "bg-transparent text-brand-primary border-brand-primary hover:bg-gray-100"
               }
             `}
           >
@@ -145,8 +145,8 @@ function Btn({
         h-9 px-3 rounded-lg border text-sm transition-all active:scale-95
         ${
           accent
-            ? "bg-[#354254] text-white border-[#354254] hover:bg-[#2a3545]"
-            : "bg-white text-[#354254] border-[#354254] hover:bg-gray-50"
+            ? "bg-brand-primary text-white border-brand-primary hover:bg-brand-primaryHover"
+            : "bg-white text-brand-primary border-brand-primary hover:bg-gray-50"
         }
       `}
     >

@@ -3,26 +3,14 @@ from flask_login import current_user, login_required
 from app.models.question import Question, GradingType
 from app.models.assignment import Assignment
 from app import db
-from app.utils.math_parser import parse_math_expression
 from app.models.enums import UserRole
 from app.auth_utils import role_required
 from app.response_utils import error_response, field_error, success_response
+from app.services.grading import validate_numeric_answer
+from app.services.serializers import serialize_question
 
 
 questions_bp = Blueprint("questions", __name__)
-
-
-def serialize_question(question):
-    return {
-        "id": question.id,
-        "question_text": question.question_text,
-        "correct_answer": question.correct_answer,
-        "points": question.points,
-        "order_index": question.order_index,
-        "assignment_id": question.assignment_id,
-        "grading_type": question.grading_type.value,
-        "require_simplified": question.require_simplified,
-    }
 
 
 # Get all questions by assignment
@@ -96,14 +84,14 @@ def create_question():
 
     if grading_type_enum == GradingType.NUMERIC:
         try:
-            parsed_answer = parse_math_expression(correct_answer)
+            is_numeric_answer = validate_numeric_answer(correct_answer)
         except Exception:
             return field_error(
                 "correct_answer",
                 "Numeric grading requires a valid numeric answer.",
             )
 
-        if parsed_answer.free_symbols:
+        if not is_numeric_answer:
             return field_error(
                 "correct_answer",
                 "Numeric grading cannot be used when the correct answer contains variables.",

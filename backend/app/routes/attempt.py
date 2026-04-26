@@ -6,74 +6,18 @@ from app.models.class_member import ClassMember
 from app.models.question import Question
 from app.models.attempt_answer import AttemptAnswer
 from app.models.assignment import Assignment
-from app.models.enums import AttemptStatus, GradingType, UserRole
-from sympy import simplify
-from app.utils.math_parser import normalize_math_text, parse_math_expression
+from app.models.enums import AttemptStatus, UserRole
 from app.auth_utils import role_required
 from app.response_utils import error_response, field_error, success_response
+from app.services.grading import grade_answer
+from app.services.serializers import (
+    can_reveal_attempt_answers,
+    serialize_attempt_question,
+    serialize_attempt_status,
+)
 
 
 attempt_bp = Blueprint("attempts", __name__)
-NUMERIC_TOLERANCE = 1e-9
-
-
-def serialize_attempt_status(status):
-    return status.value if hasattr(status, "value") else status
-
-
-def _normalize_exact_answer(answer_text):
-    return normalize_math_text(answer_text)
-
-
-def _are_symbolically_equivalent(student_expr, correct_expr):
-    try:
-        return simplify(student_expr - correct_expr) == 0
-    except Exception:
-        return student_expr.equals(correct_expr) is True
-
-
-def _is_simplified_expression(answer_text):
-    parsed_expr = parse_math_expression(answer_text, evaluate=False)
-    simplified_expr = simplify(parsed_expr)
-    return str(parsed_expr) == str(simplified_expr)
-
-
-def _is_numeric_match(student_expr, correct_expr):
-    if student_expr.free_symbols or correct_expr.free_symbols:
-        return False
-
-    student_value = student_expr.evalf()
-    correct_value = correct_expr.evalf()
-
-    return abs(float(student_value - correct_value)) <= NUMERIC_TOLERANCE
-
-
-def _grade_answer(student_answer, question):
-    grading_type = question.grading_type
-    if not isinstance(grading_type, GradingType):
-        grading_type = GradingType(grading_type)
-
-    if not _normalize_exact_answer(student_answer):
-        return False
-
-    if grading_type == GradingType.EXACT:
-        return _normalize_exact_answer(student_answer) == _normalize_exact_answer(
-            question.correct_answer
-        )
-
-    student_expr = parse_math_expression(student_answer)
-    correct_expr = parse_math_expression(question.correct_answer)
-
-    if grading_type == GradingType.NUMERIC:
-        return _is_numeric_match(student_expr, correct_expr)
-
-    if not _are_symbolically_equivalent(student_expr, correct_expr):
-        return False
-
-    if question.require_simplified:
-        return _is_simplified_expression(student_answer)
-
-    return True
 
 
 # start the assignment
@@ -186,7 +130,7 @@ def submit_attempt():
         score = 0
 
         try:
-            if _grade_answer(student_answer, question):
+            if grade_answer(student_answer, question):
                 is_correct = True
                 score = points
 
@@ -263,23 +207,10 @@ def get_attempt(attempt_id):
     )
 
     question_list = []
-    can_reveal_answers = (
-        serialize_attempt_status(attempt.status) == AttemptStatus.SUBMITTED.value
-    )
+    can_reveal_answers = can_reveal_attempt_answers(attempt)
 
     for question in questions:
-        question_data = {
-            "id": question.id,
-            "question_text": question.question_text,
-            "points": question.points,
-            "grading_type": question.grading_type.value,
-            "require_simplified": question.require_simplified,
-        }
-
-        if can_reveal_answers:
-            question_data["correct_answer"] = question.correct_answer
-
-        question_list.append(question_data)
+        question_list.append(serialize_attempt_question(question, can_reveal_answers))
 
     # We need this for saving the progress
     answer_list = []

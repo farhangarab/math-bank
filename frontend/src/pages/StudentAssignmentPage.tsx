@@ -1,44 +1,15 @@
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getAttempt, saveAttempt, submitAttempt } from "../api/attempt";
+import { getAttempt, saveAttempt, submitAttempt } from "../api/attempts";
 import Header from "../components/Header";
 import Button from "../components/Button";
 import ConfirmModal from "../components/ConfirmModal";
 import { useAuth } from "../context/AuthContext";
 import { useMessage } from "../hooks/useMessage";
 import MessageSlot from "../components/MessageSlot";
-
-type Question = {
-  id: number;
-  question_text: string;
-  points: number;
-  grading_type: string;
-  require_simplified: boolean;
-  correct_answer?: string;
-};
-
-function getGradingTypeLabel(gradingType: string) {
-  if (gradingType === "exact") return "Exact";
-  if (gradingType === "symbolic") return "Symbolic";
-  if (gradingType === "numeric") return "Numeric";
-  return gradingType;
-}
-
-function getStudentGuidance(gradingType: string, requireSimplified: boolean) {
-  if (gradingType === "exact") {
-    return "Match the teacher's answer form exactly. Spaces do not matter.";
-  }
-
-  if (gradingType === "numeric") {
-    return "Enter a numeric value only, such as 8, 2/3, or 0.25.";
-  }
-
-  if (requireSimplified) {
-    return "Equivalent algebra is accepted, but your final answer must be simplified.";
-  }
-
-  return "Equivalent algebra is accepted. Your answer does not have to match the same written form.";
-}
+import type { AttemptAnswer, AttemptResult, AttemptStatus } from "../types/attempt";
+import type { Question } from "../types/question";
+import { getGradingTypeLabel, getStudentGuidance } from "../utils/grading";
 
 const StudentAssignmentPage = () => {
   const { attemptId } = useParams();
@@ -52,8 +23,11 @@ const StudentAssignmentPage = () => {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [savedAnswers, setSavedAnswers] = useState<Record<number, string>>({});
 
-  const [result, setResult] = useState<any>(null);
-  const [attemptStatus, setAttemptStatus] = useState("");
+  const [result, setResult] = useState<{
+    total_score: number;
+    results: AttemptResult[];
+  } | null>(null);
+  const [attemptStatus, setAttemptStatus] = useState<AttemptStatus | "">("");
   const isSubmitted = attemptStatus === "SUBMITTED";
   const isReviewMode =
     searchParams.get("mode") === "review" || user?.role === "TEACHER";
@@ -62,7 +36,7 @@ const StudentAssignmentPage = () => {
   const { message, clearAllMessages, showApiError, showSuccess } = useMessage();
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const formatAnswers = () => {
+  const formatAnswers = (): AttemptAnswer[] => {
     return Object.entries(answers).map(([questionId, value]) => ({
       question_id: Number(questionId),
       answer_text: value,
@@ -135,7 +109,7 @@ const StudentAssignmentPage = () => {
         setAttemptStatus(data.status);
 
         const saved: Record<number, string> = {};
-        data.answers.forEach((a: any) => {
+        data.answers.forEach((a: AttemptAnswer) => {
           saved[a.question_id] = a.answer_text;
         });
 
@@ -147,8 +121,8 @@ const StudentAssignmentPage = () => {
             total_score: data.total_score,
             results: data.answers.map((a: any) => ({
               question_id: a.question_id,
-              is_correct: a.is_correct,
-              score: a.score,
+              is_correct: Boolean(a.is_correct),
+              score: a.score ?? 0,
             })),
           });
         }
@@ -180,13 +154,13 @@ const StudentAssignmentPage = () => {
         {currentQuestion && (
           <div className="w-full">
             {/* question */}
-            <h2 className="font-bold mb-2 text-[#354254]">
+            <h2 className="font-bold mb-2 text-brand-primary">
               Q{currentIndex + 1}
             </h2>
 
             <p className="mb-4">{currentQuestion.question_text}</p>
 
-            <div className="mb-4 rounded border border-[#d8dee8] bg-[#f7f9fc] p-3 text-sm text-[#354254]">
+            <div className="mb-4 rounded border border-brand-borderSoft bg-brand-surface p-3 text-sm text-brand-primary">
               <div className="font-semibold mb-2">
                 How this question is graded
               </div>
@@ -211,7 +185,7 @@ const StudentAssignmentPage = () => {
                 handleAnswerChange(currentQuestion.id, e.target.value)
               }
               disabled={isReadOnly}
-              className="border border-[#354254] px-3 py-2 w-full"
+              className="border border-brand-primary px-3 py-2 w-full"
               placeholder={
                 isReadOnly
                   ? "Answer is read-only in review mode"

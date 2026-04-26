@@ -66,7 +66,7 @@ function DueDateTimeFields({
       <div>
         <label
           htmlFor="due-date"
-          className="mb-2 block font-semibold text-[#354254]"
+          className="mb-2 block font-semibold text-brand-primary"
         >
           Due date (optional)
         </label>
@@ -79,16 +79,16 @@ function DueDateTimeFields({
           placeholder="YYYY-MM-DD"
           aria-invalid={Boolean(error)}
           className={`w-full rounded border p-2 ${
-            error ? "border-red-500 bg-red-50" : "border-[#354254]"
+            error ? "border-status-errorText bg-status-errorBg" : "border-brand-primary"
           }`}
         />
-        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-1 text-sm text-status-errorText">{error}</p>}
       </div>
 
       <div>
         <label
           htmlFor="due-time"
-          className="mb-2 block font-semibold text-[#354254]"
+          className="mb-2 block font-semibold text-brand-primary"
         >
           Due time (optional)
         </label>
@@ -99,7 +99,7 @@ function DueDateTimeFields({
             value={hour}
             onChange={(e) => onChangeHour(e.target.value)}
             className={`w-full rounded border p-2 ${
-              error ? "border-red-500 bg-red-50" : "border-[#354254]"
+              error ? "border-status-errorText bg-status-errorBg" : "border-brand-primary"
             }`}
           >
             <option value="">Hour</option>
@@ -115,7 +115,7 @@ function DueDateTimeFields({
             value={minute}
             onChange={(e) => onChangeMinute(e.target.value)}
             className={`w-full rounded border p-2 ${
-              error ? "border-red-500 bg-red-50" : "border-[#354254]"
+              error ? "border-status-errorText bg-status-errorBg" : "border-brand-primary"
             }`}
           >
             <option value="">Min</option>
@@ -131,7 +131,7 @@ function DueDateTimeFields({
             value={period}
             onChange={(e) => onChangePeriod(e.target.value as TimePeriod)}
             className={`w-full rounded border p-2 ${
-              error ? "border-red-500 bg-red-50" : "border-[#354254]"
+              error ? "border-status-errorText bg-status-errorBg" : "border-brand-primary"
             }`}
           >
             <option value="AM">AM</option>
@@ -144,7 +144,7 @@ function DueDateTimeFields({
         <button
           type="button"
           onClick={handleOpenCalendar}
-          className="rounded border border-[#354254] px-3 py-2 font-semibold text-[#354254] hover:bg-[#354254] hover:text-white"
+          className="rounded border border-brand-primary px-3 py-2 font-semibold text-brand-primary hover:bg-brand-primary hover:text-white"
         >
           Calendar
         </button>
@@ -152,7 +152,7 @@ function DueDateTimeFields({
         <button
           type="button"
           onClick={onClear}
-          className="rounded border border-[#354254] px-3 py-2 font-semibold text-[#354254] hover:bg-[#354254] hover:text-white"
+          className="rounded border border-brand-primary px-3 py-2 font-semibold text-brand-primary hover:bg-brand-primary hover:text-white"
         >
           Clear
         </button>
