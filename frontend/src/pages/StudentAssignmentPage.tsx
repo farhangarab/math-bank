@@ -21,6 +21,7 @@ import type {
 } from "../types/attempt";
 import type { ClassInfo } from "../types/class";
 import type { Question } from "../types/question";
+import { formatDueDate, formatNumber } from "../utils/format";
 import { getGradingTypeLabel, getStudentGuidance } from "../utils/grading";
 
 const StudentAssignmentPage = () => {
@@ -45,6 +46,7 @@ const StudentAssignmentPage = () => {
     total_score: number;
     results: AttemptResult[];
   } | null>(null);
+  const [submittedAt, setSubmittedAt] = useState<string | null>(null);
   const [attemptStatus, setAttemptStatus] = useState<AttemptStatus | "">("");
   const isSubmitted = attemptStatus === "SUBMITTED";
   const isReviewMode =
@@ -53,6 +55,7 @@ const StudentAssignmentPage = () => {
 
   const { message, clearAllMessages, showApiError, showSuccess } = useMessage();
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showUnansweredWarning, setShowUnansweredWarning] = useState(false);
 
   const currentQuestion = questions[currentIndex];
   const currentAnswer = currentQuestion ? answers[currentQuestion.id] || "" : "";
@@ -69,7 +72,7 @@ const StudentAssignmentPage = () => {
   const assignmentLabel =
     classInfo || assignment
       ? `${classInfo?.class_name ?? "Class"}${
-          assignment?.title ? ` • ${assignment.title}` : ""
+          assignment?.title ? ` - ${assignment.title}` : ""
         }`
       : "Student Assignment";
   const previewGradingMessage = currentQuestion
@@ -77,6 +80,19 @@ const StudentAssignmentPage = () => {
       ? "Symbolic grading accepts equivalent answers."
       : gradingGuidance
     : "";
+  const totalPoints = questions.reduce(
+    (total, question) => total + question.points,
+    0,
+  );
+  const hasStudentScore =
+    result?.total_score !== undefined && result?.total_score !== null;
+  const unansweredQuestions = questions.filter(
+    (question) => !answers[question.id]?.trim(),
+  );
+  const hasUnansweredQuestions = unansweredQuestions.length > 0;
+  const confirmMessage = showUnansweredWarning
+    ? "Some questions are unanswered. Are you sure you want to submit? Once you submit, there is no way back."
+    : "Once you submit, your answers will be locked and cannot be changed.";
 
   const formatAnswers = (): AttemptAnswer[] => {
     return Object.entries(answers).map(([questionId, value]) => ({
@@ -87,6 +103,25 @@ const StudentAssignmentPage = () => {
 
   const isChanged = () => {
     return JSON.stringify(answers) !== JSON.stringify(savedAnswers);
+  };
+
+  const getQuestionButtonClass = (question: Question, index: number) => {
+    const isCurrentQuestion = index === currentIndex;
+    const isAnswered = Boolean(answers[question.id]?.trim());
+
+    if ((showUnansweredWarning || isSubmitted) && !isAnswered) {
+      return "border-status-errorBorder bg-status-errorBg text-status-errorText";
+    }
+
+    if (isCurrentQuestion) {
+      return "border-status-infoBorder bg-status-infoBg text-status-infoText";
+    }
+
+    if (isAnswered) {
+      return "border-status-successBorder bg-status-successBg text-status-successText";
+    }
+
+    return "border-brand-borderSoft bg-brand-surface text-gray-500";
   };
 
   const handleSave = async () => {
@@ -102,6 +137,11 @@ const StudentAssignmentPage = () => {
     }
   };
 
+  const handleSubmitClick = () => {
+    setShowUnansweredWarning(hasUnansweredQuestions);
+    setShowConfirm(true);
+  };
+
   const handleConfirm = async () => {
     if (isReadOnly) return;
 
@@ -114,6 +154,7 @@ const StudentAssignmentPage = () => {
 
       setQuestions(submittedAttempt.questions);
       setAttemptStatus("SUBMITTED");
+      setSubmittedAt(submittedAttempt.submitted_at ?? null);
       setResult({
         total_score: submittedAttempt.total_score,
         results: submittedAttempt.answers.map((answer: AttemptAnswer) => ({
@@ -144,12 +185,19 @@ const StudentAssignmentPage = () => {
   };
 
   useEffect(() => {
+    if (!hasUnansweredQuestions) {
+      setShowUnansweredWarning(false);
+    }
+  }, [hasUnansweredQuestions]);
+
+  useEffect(() => {
     const load = async () => {
       try {
         const data = await getAttempt(Number(attemptId));
 
         setQuestions(data.questions);
         setAttemptStatus(data.status);
+        setSubmittedAt(data.submitted_at ?? null);
 
         try {
           const loadedAssignment = await getAssignmentById(data.assignment_id);
@@ -223,13 +271,7 @@ const StudentAssignmentPage = () => {
         </section>
 
         {currentQuestion && (
-          <section
-            className={`grid gap-6 ${
-              showPreview
-                ? "lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]"
-                : ""
-            }`}
-          >
+          <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]">
             <Panel className="min-w-0">
               <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>
@@ -326,7 +368,7 @@ const StudentAssignmentPage = () => {
 
               {!isReadOnly && (
                 <div className="mt-6 flex justify-end">
-                  <Button onClick={() => setShowConfirm(true)}>Submit</Button>
+                  <Button onClick={handleSubmitClick}>Submit</Button>
                 </div>
               )}
 
@@ -351,31 +393,114 @@ const StudentAssignmentPage = () => {
               )}
             </Panel>
 
-            {showPreview && (
-              <Panel className="h-fit min-w-0 bg-brand-surface p-4 lg:sticky lg:top-6">
-                <div className="mb-3 flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold uppercase tracking-wide text-gray-500">
-                      Preview
-                    </p>
-                    <h2 className="mt-1 text-xl font-bold text-brand-primary">
-                      Question {currentIndex + 1}
-                    </h2>
+            <aside className="min-w-0 space-y-4 lg:sticky lg:top-6 lg:h-fit">
+              {showPreview && (
+                <Panel className="bg-brand-surface p-4">
+                  <div className="mb-3 flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+                        Preview
+                      </p>
+                      <h2 className="mt-1 text-xl font-bold text-brand-primary">
+                        Question {currentIndex + 1}
+                      </h2>
+                    </div>
+                    <span className="rounded-md border border-brand-borderSoft bg-white px-2 py-1 text-sm font-semibold text-brand-primary">
+                      {currentQuestion.points} pts
+                    </span>
                   </div>
-                  <span className="rounded-md border border-brand-borderSoft bg-white px-2 py-1 text-sm font-semibold text-brand-primary">
-                    {currentQuestion.points} pts
+
+                  <div className="rounded-md border border-brand-borderSoft bg-white p-3 text-brand-primary">
+                    <MathPreview expression={currentAnswer} compact noBorder />
+                  </div>
+
+                  <p className="mt-3 text-sm text-gray-500">
+                    {previewGradingMessage}
+                  </p>
+                </Panel>
+              )}
+
+              <Panel className="bg-white p-4">
+                <h2 className="mb-3 text-lg font-bold text-brand-primary">
+                  Questions
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {questions.map((question, index) => (
+                    <button
+                      key={question.id}
+                      type="button"
+                      onClick={() => setCurrentIndex(index)}
+                      className={`h-10 w-10 rounded-md border text-sm font-semibold transition-colors ${getQuestionButtonClass(
+                        question,
+                        index,
+                      )}`}
+                    >
+                      {index + 1}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-500">
+                  <span className="flex items-center gap-2">
+                    <span className="h-3 w-3 rounded-sm border border-status-successBorder bg-status-successBg" />
+                    Green = Answered
                   </span>
+                  <span className="flex items-center gap-2">
+                    <span className="h-3 w-3 rounded-sm border border-status-infoBorder bg-status-infoBg" />
+                    Blue = Current
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <span className="h-3 w-3 rounded-sm border border-brand-borderSoft bg-brand-surface" />
+                    Gray = Unanswered
+                  </span>
+                  {(showUnansweredWarning || isSubmitted) && (
+                    <span className="flex items-center gap-2">
+                      <span className="h-3 w-3 rounded-sm border border-status-errorBorder bg-status-errorBg" />
+                      Red = Needs answer
+                    </span>
+                  )}
                 </div>
-
-                <div className="rounded-md border border-brand-borderSoft bg-white p-3 text-brand-primary">
-                  <MathPreview expression={currentAnswer} compact noBorder />
-                </div>
-
-                <p className="mt-3 text-sm text-gray-500">
-                  {previewGradingMessage}
-                </p>
               </Panel>
-            )}
+
+              <Panel className="bg-white p-4">
+                <h2 className="mb-3 text-lg font-bold text-brand-primary">
+                  Information
+                </h2>
+                <dl className="space-y-3 text-sm">
+                  <div className="flex items-center justify-between gap-4">
+                    <dt className="text-gray-500">Due Date</dt>
+                    <dd className="text-right font-semibold text-brand-primary">
+                      {assignment?.due_date
+                        ? formatDueDate(assignment.due_date)
+                        : "No due date"}
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <dt className="text-gray-500">Total Score possible</dt>
+                    <dd className="font-semibold text-brand-primary">
+                      {formatNumber(totalPoints)}
+                    </dd>
+                  </div>
+                  {submittedAt && (
+                    <div className="flex items-center justify-between gap-4">
+                      <dt className="text-gray-500">Submitted Date</dt>
+                      <dd className="text-right font-semibold text-brand-primary">
+                        {formatDueDate(submittedAt)}
+                      </dd>
+                    </div>
+                  )}
+                  {hasStudentScore && (
+                    <div className="flex items-center justify-between gap-4">
+                      <dt className="text-gray-500">Student Score</dt>
+                      <dd className="font-semibold text-brand-primary">
+                        {formatNumber(result.total_score)} /{" "}
+                        {formatNumber(totalPoints)}
+                      </dd>
+                    </div>
+                  )}
+                </dl>
+              </Panel>
+            </aside>
           </section>
         )}
       </main>
@@ -383,7 +508,7 @@ const StudentAssignmentPage = () => {
       <ConfirmModal
         open={showConfirm}
         title="Submit Assignment?"
-        message="Once you submit, your answers will be locked and cannot be changed."
+        message={confirmMessage}
         onCancel={() => setShowConfirm(false)}
         onConfirm={handleConfirm}
       />
