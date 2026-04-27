@@ -1,7 +1,7 @@
 import Header from "../components/Header";
 import Input from "../components/Input";
 import Button from "../components/Button";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ROUTES } from "../router/routes";
 import { useState } from "react";
 import { registerUser } from "../api/auth";
@@ -164,6 +164,13 @@ export default function StudentRegisterPage() {
           <Button type="submit" variant="primary" full onClick={handleRegister}>
             Register
           </Button>
+
+          <p className="text-brand-primary">
+            Already have an account?{" "}
+            <Link to={ROUTES.LOGIN} className="font-semibold hover:underline">
+              Login.
+            </Link>
+          </p>
         </div>
       </div>
     </div>
