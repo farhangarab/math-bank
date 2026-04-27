@@ -4,6 +4,7 @@ from app import db
 from app.models.class_model import Class
 from app.models.enums import UserRole
 from app.models.class_member import ClassMember
+from app.models.assignment import Assignment
 from app.auth_utils import role_required
 from app.response_utils import error_response, field_error, success_response
 
@@ -56,7 +57,14 @@ def get_my_classes():
 
     for c in classes:
         result.append(
-            {"id": c.id, "class_name": c.class_name, "class_code": c.class_code}
+            {
+                "id": c.id,
+                "class_name": c.class_name,
+                "class_code": c.class_code,
+                "students_count": ClassMember.query.filter_by(class_id=c.id).count(),
+                "assignments_count": Assignment.query.filter_by(class_id=c.id).count(),
+                "created_at": c.created_at.isoformat() if c.created_at else None,
+            }
         )
 
     return jsonify(result), 200

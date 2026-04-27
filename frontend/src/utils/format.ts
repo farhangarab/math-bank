@@ -30,3 +30,17 @@ export function formatDueDate(dateStr?: string) {
 
   return `${date} by ${time}`;
 }
+// format class created date
+export function formatCreatedDate(dateText?: string | null) {
+  if (!dateText) return "-";
+
+  const date = new Date(dateText);
+
+  if (Number.isNaN(date.getTime())) return "-";
+
+  return date.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
