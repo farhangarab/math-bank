@@ -13,6 +13,7 @@ import CreateAssignmentPage from "./pages/CreateAssignmentPage";
 import AssignmentEditorPage from "./pages/AssignmentEditorPage";
 import StudentAssignmentPage from "./pages/StudentAssignmentPage";
 import TeacherSubmissionsPage from "./pages/TeacherSubmissionsPage";
+import TeacherClassStudentsPage from "./pages/TeacherClassStudentsPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -45,6 +46,10 @@ function App() {
             element={<TeacherDashboardPage />}
           />
           <Route path={ROUTES.CREATE_CLASS} element={<CreateClassPage />} />
+          <Route
+            path={ROUTES.TEACHER_CLASS_STUDENTS}
+            element={<TeacherClassStudentsPage />}
+          />
           <Route
             path={ROUTES.CREATE_ASSIGNMENT}
             element={<CreateAssignmentPage />}

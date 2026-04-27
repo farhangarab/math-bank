@@ -21,6 +21,10 @@ function TeacherDashboardPage() {
     navigate(`/class/${id}`);
   };
 
+  const handleViewStudents = (id: number) => {
+    navigate(`/teacher/classes/${id}/students`);
+  };
+
   const handleCopyClassCode = (id: number, code?: string) => {
     if (!code) return;
 
@@ -116,7 +120,13 @@ function TeacherDashboardPage() {
                         )}
                       </td>
                       <td className="px-4 py-3 text-gray-700">
-                        {c.students_count ?? 0}
+                        <button
+                          type="button"
+                          onClick={() => handleViewStudents(c.id)}
+                          className="font-semibold text-brand-primary hover:underline"
+                        >
+                          {c.students_count ?? 0}
+                        </button>
                       </td>
                       <td className="px-4 py-3 text-gray-700">
                         {c.assignments_count ?? 0}

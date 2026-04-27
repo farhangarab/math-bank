@@ -10,6 +10,7 @@ export const ROUTES = {
 
   CREATE_CLASS: "/teacher/create-class",
   JOIN_CLASS: "/student/join-class",
+  TEACHER_CLASS_STUDENTS: "/teacher/classes/:classId/students",
 
   CLASS_DETAILS: "class/:id",
 

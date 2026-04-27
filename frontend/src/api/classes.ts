@@ -1,4 +1,4 @@
-import type { ClassInfo } from "../types/class";
+import type { ClassInfo, ClassStudentsResponse } from "../types/class";
 import { apiFetch, throwApiError } from "./client";
 
 export async function getClassById(classId: number): Promise<ClassInfo> {
@@ -63,6 +63,35 @@ export async function getTeacherClasses(): Promise<ClassInfo[]> {
 
   if (!res.ok) {
     throwApiError(data, "Failed to load classes");
+  }
+
+  return data;
+}
+
+export async function getClassStudents(
+  classId: number
+): Promise<ClassStudentsResponse> {
+  const res = await apiFetch(`/classes/${classId}/students`);
+  const data = await res.json();
+
+  if (!res.ok) {
+    throwApiError(data, "Failed to load students");
+  }
+
+  return data;
+}
+
+export async function removeClassStudent(
+  classId: number,
+  classMemberId: number
+) {
+  const res = await apiFetch(`/classes/${classId}/students/${classMemberId}`, {
+    method: "DELETE",
+  });
+  const data = await res.json();
+
+  if (!res.ok) {
+    throwApiError(data, "Failed to remove student");
   }
 
   return data;

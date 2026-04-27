@@ -5,6 +5,7 @@ from app.models.class_model import Class
 from app.models.enums import UserRole
 from app.models.class_member import ClassMember
 from app.models.assignment import Assignment
+from app.models.user import User
 from app.auth_utils import role_required
 from app.response_utils import error_response, field_error, success_response
 
@@ -68,6 +69,75 @@ def get_my_classes():
         )
 
     return jsonify(result), 200
+
+
+# get students in one teacher class
+@classes_bp.route("/<int:class_id>/students", methods=["GET"])
+@login_required
+@role_required(UserRole.TEACHER)
+def get_class_students(class_id):
+    class_obj = Class.query.get(class_id)
+
+    if not class_obj:
+        return error_response("Class was not found.", 404)
+
+    if class_obj.teacher_id != current_user.id:
+        return error_response("You do not have permission to view this class.", 403)
+
+    memberships = (
+        db.session.query(ClassMember, User)
+        .join(User, ClassMember.student_id == User.id)
+        .filter(ClassMember.class_id == class_obj.id)
+        .order_by(User.full_name)
+        .all()
+    )
+
+    students = []
+
+    for member, student in memberships:
+        students.append(
+            {
+                "class_member_id": member.id,
+                "student_id": student.id,
+                "student_name": student.full_name,
+                "email": student.email,
+                "joined_on": member.joined_at.isoformat() if member.joined_at else None,
+            }
+        )
+
+    return jsonify(
+        {
+            "class_id": class_obj.id,
+            "class_name": class_obj.class_name,
+            "students": students,
+        }
+    ), 200
+
+
+# remove one student from a teacher class
+@classes_bp.route("/<int:class_id>/students/<int:class_member_id>", methods=["DELETE"])
+@login_required
+@role_required(UserRole.TEACHER)
+def remove_class_student(class_id, class_member_id):
+    class_obj = Class.query.get(class_id)
+
+    if not class_obj:
+        return error_response("Class was not found.", 404)
+
+    if class_obj.teacher_id != current_user.id:
+        return error_response("You do not have permission to update this class.", 403)
+
+    member = ClassMember.query.filter_by(
+        id=class_member_id, class_id=class_obj.id
+    ).first()
+
+    if not member:
+        return error_response("Student was not found in this class.", 404)
+
+    db.session.delete(member)
+    db.session.commit()
+
+    return success_response("Student removed from class.")
 
 
 # Get class by Id
