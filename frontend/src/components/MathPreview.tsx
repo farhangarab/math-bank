@@ -105,9 +105,10 @@ function splitTextAndMath(input: string): Part[] {
 type Props = {
   expression: string;
   noBorder?: boolean;
+  compact?: boolean;
 };
 
-function MathPreview({ expression, noBorder }: Props) {
+function MathPreview({ expression, noBorder, compact }: Props) {
   if (!expression) {
     return <div className="text-gray-400">Nothing to preview</div>;
   }
@@ -117,7 +118,8 @@ function MathPreview({ expression, noBorder }: Props) {
   return (
     <div
       className={`
-    bg-transparent pt-2 mt-1 text-brand-primary whitespace-pre-wrap min-h-[32px]
+    bg-transparent text-brand-primary whitespace-pre-wrap
+    ${compact ? "min-h-0" : "pt-2 mt-1 min-h-[32px]"}
     ${noBorder ? "" : "border-t border-dashed border-gray-200"}
   `}
     >

@@ -1,23 +1,22 @@
-import Header from "../components/Header";
-import Button from "../components/Button";
-import MathToolbar from "../components/MathToolbar";
-
-import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { getAssignmentById } from "../api/assignments";
 import { getClassById } from "../api/classes";
-import { getQuestions, createQuestion } from "../api/question";
-import MathPreview from "../components/MathPreview";
+import { createQuestion, getQuestions } from "../api/question";
+import AssignmentEditorHeader from "../components/assignment-editor/AssignmentEditorHeader";
+import FloatingMathToolbar from "../components/assignment-editor/FloatingMathToolbar";
+import QuestionEditorForm from "../components/assignment-editor/QuestionEditorForm";
+import StudentPreview from "../components/assignment-editor/StudentPreview";
+import Header from "../components/Header";
+import Panel from "../components/Panel";
 import QuestionList from "../components/QuestionList";
-import Alert from "../components/Alert";
 import { useMessage } from "../hooks/useMessage";
-import { firstInvalid } from "../utils/validation";
-import MessageSlot from "../components/MessageSlot";
 import type { Assignment } from "../types/assignment";
 import type { ClassInfo } from "../types/class";
 import type { GradingType, Question } from "../types/question";
-import { answerLooksNumeric, getTeacherGuidance } from "../utils/grading";
+import { answerLooksNumeric } from "../utils/grading";
+import { firstInvalid } from "../utils/validation";
 
 function AssignmentEditorPage() {
   const { id } = useParams();
@@ -29,10 +28,21 @@ function AssignmentEditorPage() {
 
   const [text, setText] = useState("");
   const [answer, setAnswer] = useState("");
-  const [points, setPoints] = useState("1");
-
+  const [points, setPoints] = useState("0");
   const [gradingType, setGradingType] = useState<GradingType>("symbolic");
   const [requireSimplified, setRequireSimplified] = useState(false);
+
+  const [showPreview, setShowPreview] = useState(true);
+  const [showQuestionList, setShowQuestionList] = useState(true);
+  const [showMathSymbols, setShowMathSymbols] = useState(true);
+
+  const [activeInput, setActiveInput] = useState<
+    HTMLInputElement | HTMLTextAreaElement | null
+  >(null);
+  const [activeField, setActiveField] = useState<"question" | "answer" | null>(
+    null,
+  );
+
   const {
     message,
     fieldErrors,
@@ -43,28 +53,44 @@ function AssignmentEditorPage() {
     showSuccess,
   } = useMessage();
 
-  const [activeInput, setActiveInput] = useState<
-    HTMLInputElement | HTMLTextAreaElement | null
-  >(null);
-  const [activeField, setActiveField] = useState<"question" | "answer" | null>(
-    null,
-  );
+  useEffect(() => {
+    let isCurrent = true;
 
-  const handleBack = () => navigate(-1);
+    async function loadAssignmentEditor() {
+      if (!id) return;
+      const loadedAssignment = await getAssignmentById(Number(id));
+      const loadedClass = await getClassById(loadedAssignment.class_id);
+      const loadedQuestions = await getQuestions(loadedAssignment.id);
 
-  async function loadAll() {
-    if (!id) return;
-    const a = await getAssignmentById(Number(id));
-    setAssignment(a);
-    const c = await getClassById(a.class_id);
-    setClassInfo(c);
-    const qs = await getQuestions(a.id);
-    setQuestions(qs);
+      if (!isCurrent) return;
+      setAssignment(loadedAssignment);
+      setClassInfo(loadedClass);
+      setQuestions(loadedQuestions);
+    }
+
+    loadAssignmentEditor();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [id]);
+
+  function resetQuestionForm() {
+    clearAllMessages();
+    setText("");
+    setAnswer("");
+    setPoints("0");
+    setGradingType("symbolic");
+    setRequireSimplified(false);
   }
 
-  useEffect(() => {
-    loadAll();
-  }, [id]);
+  function setActiveEditorField(
+    input: HTMLInputElement | HTMLTextAreaElement,
+    field: "question" | "answer",
+  ) {
+    setActiveInput(input);
+    setActiveField(field);
+  }
 
   async function handleAddQuestion() {
     clearAllMessages();
@@ -82,8 +108,8 @@ function AssignmentEditorPage() {
       },
       {
         field: "points",
-        message: "Points must be at least 1.",
-        isValid: Number(points) >= 1,
+        message: "Points cannot be negative.",
+        isValid: Number(points) >= 0,
       },
     ]);
 
@@ -92,14 +118,12 @@ function AssignmentEditorPage() {
       return;
     }
 
-    const orderIndex = questions.length + 1;
-
     try {
       const newQuestion = await createQuestion(
         Number(id),
         text,
         answer,
-        orderIndex,
+        questions.length + 1,
         Number(points),
         gradingType,
         requireSimplified,
@@ -107,7 +131,7 @@ function AssignmentEditorPage() {
 
       setText("");
       setAnswer("");
-      setPoints("1");
+      setPoints("0");
       setQuestions((currentQuestions) => [...currentQuestions, newQuestion]);
       showSuccess("Question created successfully.");
     } catch (error) {
@@ -115,209 +139,96 @@ function AssignmentEditorPage() {
     }
   }
 
+  const nextQuestionNumber = questions.length + 1;
   const numericWarning =
     gradingType === "numeric" && answer.trim() && !answerLooksNumeric(answer);
-  const teacherGuidance = getTeacherGuidance(gradingType, requireSimplified);
 
   return (
     <div className="min-h-screen bg-white">
-      <Header title="MATHBANK" leftText="Back" leftAction={handleBack} />
+      <Header
+        title="MATHBANK"
+        leftText="Back"
+        leftAction={() => navigate(-1)}
+      />
 
-      <div className="flex flex-col items-center mt-10 pb-10">
-        {classInfo && (
-          <h1 className="text-3xl text-brand-primary font-bold">
-            {classInfo.class_name}
-          </h1>
-        )}
-        {assignment && (
-          <h2 className="text-2xl font-semibold text-brand-primary mt-4">
-            {assignment.title}
-          </h2>
-        )}
+      <main
+        className={`w-full px-4 py-6 sm:px-6 lg:px-8 ${
+          showMathSymbols ? "pb-44" : "pb-10"
+        }`}
+      >
+        <AssignmentEditorHeader
+          classNameText={classInfo?.class_name ?? "Class"}
+          assignmentTitle={assignment?.title ?? "Assignment"}
+          questionCount={questions.length}
+          showPreview={showPreview}
+          showQuestionList={showQuestionList}
+          showMathSymbols={showMathSymbols}
+          onTogglePreview={() => setShowPreview((value) => !value)}
+          onToggleQuestionList={() => setShowQuestionList((value) => !value)}
+          onToggleMathSymbols={() => setShowMathSymbols((value) => !value)}
+        />
 
-        {/*
-          FORM CARD
-          - flex flex-col so toolbar can sit at the bottom
-          - max-h + overflow-y-auto on the inner content makes only
-            the fields scroll, while the toolbar stays pinned at the bottom
-        */}
-        <div
-          className="w-[800px] border border-brand-primary rounded mt-6 flex flex-col"
-          style={{ maxHeight: "calc(100vh - 220px)" }}
+        <section
+          className={`grid gap-6 ${
+            showPreview
+              ? "lg:grid-cols-[minmax(0,1fr)_minmax(420px,520px)]"
+              : ""
+          }`}
         >
-          {/* ── scrollable content area ── */}
-          <div className="flex-1 overflow-y-auto p-6">
-            <h3 className="text-xl font-bold text-brand-primary mb-6">
-              Add Question
-            </h3>
+          <QuestionEditorForm
+            questionNumber={nextQuestionNumber}
+            text={text}
+            answer={answer}
+            points={points}
+            gradingType={gradingType}
+            requireSimplified={requireSimplified}
+            numericWarning={numericWarning}
+            message={message}
+            fieldErrors={fieldErrors}
+            onTextChange={setText}
+            onAnswerChange={setAnswer}
+            onPointsChange={setPoints}
+            onGradingTypeChange={setGradingType}
+            onRequireSimplifiedChange={setRequireSimplified}
+            onActiveFieldChange={setActiveEditorField}
+            onClearFieldError={clearFieldError}
+            onClearAllMessages={clearAllMessages}
+            onCancel={resetQuestionForm}
+            onSave={handleAddQuestion}
+          />
 
-            {/* QUESTION */}
-            <div className="mb-6">
-              <label className="block text-brand-primary font-medium mb-2">
-                Question
-              </label>
-              <textarea
-                id="question-input"
-                onFocus={(e) => {
-                  setActiveInput(e.target);
-                  setActiveField("question");
-                }}
-                placeholder="Write your question..."
-                value={text}
-                onChange={(e) => {
-                  setText(e.target.value);
-                  clearFieldError("question_text");
-                }}
-                aria-invalid={Boolean(fieldErrors.question_text)}
-                className={`w-full min-h-[120px] rounded border p-3 focus:outline-none ${
-                  fieldErrors.question_text
-                    ? "border-status-errorText bg-status-errorBg"
-                    : "border-brand-primary"
-                }`}
-              />
-              {fieldErrors.question_text && (
-                <p className="mt-1 text-sm text-status-errorText">
-                  {fieldErrors.question_text}
-                </p>
-              )}
-              <div className="relative mt-1">
-                <MathPreview expression={text} noBorder />
-                {text && (
-                  <span className="absolute top-2 right-2 text-[10px] text-gray-400 uppercase tracking-wide">
-                    student view
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* SETTINGS */}
-            <div className="flex gap-4 mb-6 items-center">
-              <select
-                value={gradingType}
-                onChange={(e) => {
-                  clearAllMessages();
-                  setGradingType(e.target.value as GradingType);
-                  if (e.target.value !== "symbolic")
-                    setRequireSimplified(false);
-                }}
-                className="border border-brand-primary p-2 rounded"
-              >
-                <option value="exact">Exact</option>
-                <option value="symbolic">Symbolic</option>
-                <option value="numeric">Numeric</option>
-              </select>
-
-              <label className="flex items-center gap-2 text-brand-primary">
-                <input
-                  type="checkbox"
-                  checked={requireSimplified}
-                  disabled={gradingType !== "symbolic"}
-                  onChange={(e) => setRequireSimplified(e.target.checked)}
-                />
-                Require simplified
-              </label>
-            </div>
-
-            <div className="mb-4">
-              <Alert
-                type="info"
-                message={`Type: ${gradingType}. Simplified required: ${
-                  requireSimplified ? "Yes" : "No"
-                }. ${teacherGuidance}`}
-              />
-            </div>
-
-            {numericWarning && (
-              <div className="mb-6">
-                <Alert
-                  type="warning"
-                  message="Numeric grading is for answers like 3.5, 2/3, or 8. If the answer contains variables like x, use symbolic or exact grading instead."
-                />
-              </div>
-            )}
-
-            {/* ANSWER */}
-            <div className="mb-6">
-              <label className="block text-brand-primary font-medium mb-2">
-                Answer
-              </label>
-              <input
-                id="answer-input"
-                onFocus={(e) => {
-                  setActiveInput(e.target);
-                  setActiveField("answer");
-                }}
-                type="text"
-                placeholder="Correct answer (e.g., 4*x)"
-                value={answer}
-                onChange={(e) => {
-                  setAnswer(e.target.value);
-                  clearFieldError("correct_answer");
-                }}
-                aria-invalid={Boolean(fieldErrors.correct_answer)}
-                className={`w-full rounded border p-3 focus:outline-none ${
-                  fieldErrors.correct_answer
-                    ? "border-status-errorText bg-status-errorBg"
-                    : "border-brand-primary"
-                }`}
-              />
-              {fieldErrors.correct_answer && (
-                <p className="mt-1 text-sm text-status-errorText">
-                  {fieldErrors.correct_answer}
-                </p>
-              )}
-              {answer && (
-                <div className="relative mt-1">
-                  <MathPreview expression={answer} noBorder />
-                  <span className="absolute top-2 right-2 text-[10px] text-gray-400 uppercase tracking-wide">
-                    student view
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* POINTS */}
-            <input
-              type="number"
-              placeholder="Points"
-              value={points}
-              onChange={(e) => {
-                setPoints(e.target.value);
-                clearFieldError("points");
-              }}
-              aria-invalid={Boolean(fieldErrors.points)}
-              className={`w-full rounded border p-3 focus:outline-none ${
-                fieldErrors.points
-                  ? "border-status-errorText bg-status-errorBg"
-                  : "border-brand-primary"
-              }`}
+          {showPreview && (
+            <StudentPreview
+              questionNumber={nextQuestionNumber}
+              questionText={text}
+              answerText={answer}
+              points={points}
+              gradingType={gradingType}
+              requireSimplified={requireSimplified}
+              mode={activeField === "answer" ? "answer" : "student"}
             />
-            {fieldErrors.points && (
-              <p className="mt-1 text-sm text-status-errorText">
-                {fieldErrors.points}
-              </p>
-            )}
-            <MessageSlot message={message} />
-            <Button onClick={handleAddQuestion}>Save Question</Button>
-          </div>
+          )}
+        </section>
 
-          {/* ── sticky toolbar — always visible at the bottom of the card ── */}
-          <div className="border-t border-brand-primary bg-white shrink-0">
-            <MathToolbar
-              activeInput={activeInput}
-              activeField={activeField}
-              onQuestionChange={setText}
-              onAnswerChange={setAnswer}
-            />
-          </div>
-        </div>
+        {showQuestionList && (
+          <Panel className="mt-6">
+            <h2 className="mb-4 text-xl font-bold text-brand-primary">
+              Questions List ({questions.length})
+            </h2>
+            <QuestionList questions={questions} />
+          </Panel>
+        )}
+      </main>
 
-        {/* QUESTIONS LIST */}
-        <div className="w-[800px] border border-brand-primary rounded p-6 mt-6">
-          <h3 className="text-xl font-bold text-brand-primary mb-4">Questions</h3>
-          <QuestionList questions={questions} />
-        </div>
-      </div>
+      <FloatingMathToolbar
+        showMathSymbols={showMathSymbols}
+        activeInput={activeInput}
+        activeField={activeField}
+        onQuestionChange={setText}
+        onAnswerChange={setAnswer}
+        onShow={() => setShowMathSymbols(true)}
+        onHide={() => setShowMathSymbols(false)}
+      />
     </div>
   );
 }
