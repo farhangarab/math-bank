@@ -41,9 +41,6 @@ function QuestionList({ questions }: Props) {
               </td>
               <td className="px-3 py-4 align-top text-brand-primary">
                 <div className="line-clamp-2 max-w-[420px] overflow-hidden">
-                  <span className="font-semibold">
-                    (Q{q.order_index ?? index + 1}){" "}
-                  </span>
                   <MathPreview expression={q.question_text} compact noBorder />
                 </div>
               </td>
