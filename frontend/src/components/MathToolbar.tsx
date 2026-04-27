@@ -67,9 +67,9 @@ function MathToolbar({
             className={`
               text-xs font-medium px-3 py-1 rounded-full border transition-colors
               ${
-                activeTab === tab
+            activeTab === tab
                   ? "bg-brand-primary text-white border-brand-primary"
-                  : "bg-transparent text-brand-primary border-brand-primary hover:bg-gray-100"
+                  : "bg-transparent text-brand-primary border-brand-primary hover:bg-brand-primary hover:text-white"
               }
             `}
           >
@@ -89,7 +89,7 @@ function MathToolbar({
             <Btn label="( )" onPress={() => insertSmartParens()} />
             <Btn label="a/b" onPress={() => insertTemplate("fraction")} />
             <Btn label="π" onPress={() => insert("pi", 2)} />
-            <Btn label="x²" onPress={() => insert("^2", 2)} accent />
+            <Btn label="x²" onPress={() => insert("^2", 2)} />
             <Btn label="xⁿ" onPress={() => insert("^", 1)} />
           </>
         )}
@@ -112,11 +112,7 @@ function MathToolbar({
 
         {activeTab === "Calculus" && (
           <>
-            <Btn
-              label="∫ dx"
-              onPress={() => insertTemplate("integral")}
-              accent
-            />
+            <Btn label="∫ dx" onPress={() => insertTemplate("integral")} />
             <Btn label="lim" onPress={() => insertTemplate("limit")} />
             <Btn label="Σ" onPress={() => insert("sum( , (n,1,10))", 5)} />
           </>
@@ -129,11 +125,9 @@ function MathToolbar({
 function Btn({
   label,
   onPress,
-  accent = false,
 }: {
   label: string;
   onPress: () => void;
-  accent?: boolean;
 }) {
   return (
     <button
@@ -143,11 +137,7 @@ function Btn({
       }}
       className={`
         h-9 px-3 rounded-lg border text-sm transition-all active:scale-95
-        ${
-          accent
-            ? "bg-brand-primary text-white border-brand-primary hover:bg-brand-primaryHover"
-            : "bg-white text-brand-primary border-brand-primary hover:bg-gray-50"
-        }
+        bg-white text-brand-primary border-brand-primary hover:bg-brand-primary hover:text-white
       `}
     >
       {label}

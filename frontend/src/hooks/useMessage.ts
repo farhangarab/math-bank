@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { AlertType } from "../components/Alert";
 import type { ApiError, FieldErrors } from "../api/client";
 
-type MessageState = {
+export type MessageState = {
   type: AlertType;
   text: string;
 };
