@@ -32,7 +32,7 @@ function AssignmentEditorHeader({
           {assignmentTitle}
         </h1>
         <div className="mt-2 text-sm text-gray-500">
-          {questionCount} questions total
+          Total questions: {questionCount}
         </div>
       </div>
 
