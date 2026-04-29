@@ -5,6 +5,8 @@ from app.models.class_model import Class
 from app.models.enums import UserRole
 from app.models.class_member import ClassMember
 from app.models.assignment import Assignment
+from app.models.attempt import Attempt
+from app.models.attempt_answer import AttemptAnswer
 from app.models.user import User
 from app.auth_utils import role_required
 from app.response_utils import error_response, field_error, success_response
@@ -115,10 +117,10 @@ def get_class_students(class_id):
 
 
 # remove one student from a teacher class
-@classes_bp.route("/<int:class_id>/students/<int:class_member_id>", methods=["DELETE"])
+@classes_bp.route("/<int:class_id>/students/<int:student_id>", methods=["DELETE"])
 @login_required
 @role_required(UserRole.TEACHER)
-def remove_class_student(class_id, class_member_id):
+def remove_class_student(class_id, student_id):
     class_obj = Class.query.get(class_id)
 
     if not class_obj:
@@ -128,16 +130,26 @@ def remove_class_student(class_id, class_member_id):
         return error_response("You do not have permission to update this class.", 403)
 
     member = ClassMember.query.filter_by(
-        id=class_member_id, class_id=class_obj.id
+        class_id=class_obj.id, student_id=student_id
     ).first()
 
     if not member:
         return error_response("Student was not found in this class.", 404)
 
-    db.session.delete(member)
-    db.session.commit()
+    try:
+        attempts = Attempt.query.filter_by(class_member_id=member.id).all()
 
-    return success_response("Student removed from class.")
+        for attempt in attempts:
+            AttemptAnswer.query.filter_by(attempt_id=attempt.id).delete()
+            db.session.delete(attempt)
+
+        db.session.delete(member)
+        db.session.commit()
+
+        return jsonify({"message": "Student removed from class"}), 200
+    except Exception:
+        db.session.rollback()
+        return error_response("Failed to remove student from class.", 500)
 
 
 # Get class by Id

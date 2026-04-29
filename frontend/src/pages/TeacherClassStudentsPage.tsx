@@ -16,7 +16,7 @@ function TeacherClassStudentsPage() {
   const [className, setClassName] = useState("");
   const [students, setStudents] = useState<ClassStudent[]>([]);
   const [studentToRemove, setStudentToRemove] = useState<ClassStudent | null>(
-    null
+    null,
   );
   const { message, clearAllMessages, showApiError, showSuccess } = useMessage();
 
@@ -41,13 +41,13 @@ function TeacherClassStudentsPage() {
       clearAllMessages();
       await removeClassStudent(
         Number(classId),
-        selectedStudent.class_member_id
+        selectedStudent.student_id,
       );
       setStudents((current) =>
         current.filter(
           (student) =>
-            student.class_member_id !== selectedStudent.class_member_id
-        )
+            student.class_member_id !== selectedStudent.class_member_id,
+        ),
       );
       showSuccess("Student removed from class.");
     } catch (err) {

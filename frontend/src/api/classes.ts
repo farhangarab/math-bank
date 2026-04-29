@@ -83,9 +83,9 @@ export async function getClassStudents(
 
 export async function removeClassStudent(
   classId: number,
-  classMemberId: number
+  studentId: number
 ) {
-  const res = await apiFetch(`/classes/${classId}/students/${classMemberId}`, {
+  const res = await apiFetch(`/classes/${classId}/students/${studentId}`, {
     method: "DELETE",
   });
   const data = await res.json();
