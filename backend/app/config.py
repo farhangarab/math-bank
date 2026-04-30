@@ -12,10 +12,11 @@ class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-me")
     SQLALCHEMY_DATABASE_URI = os.getenv(
         "DATABASE_URL",
+        "mysql+pymysql://root:password@localhost:3306/mathbank",
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     TEACHER_ACCESS_CODE = os.getenv("TEACHER_ACCESS_CODE", "ABC123")
-    FRONTEND_URL = os.getenv("FRONTEND_URL")
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
     FRONTEND_ORIGINS = [
         origin.strip()
         for origin in os.getenv(
