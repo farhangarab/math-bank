@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getClassStudents, removeClassStudent } from "../api/classes";
-import Button from "../components/Button";
 import ConfirmModal from "../components/ConfirmModal";
 import Header from "../components/Header";
 import MessageSlot from "../components/MessageSlot";
@@ -10,7 +9,7 @@ import type { ClassStudent } from "../types/class";
 import { useMessage } from "../hooks/useMessage";
 import { formatCreatedDate } from "../utils/format";
 
-function TeacherClassStudentsPage() {
+function StudentListPage() {
   const { classId } = useParams();
   const navigate = useNavigate();
   const [className, setClassName] = useState("");
@@ -112,12 +111,13 @@ function TeacherClassStudentsPage() {
                         {formatCreatedDate(student.joined_on)}
                       </td>
                       <td className="px-4 py-3">
-                        <Button
-                          variant="ghost"
+                        <button
+                          type="button"
                           onClick={() => setStudentToRemove(student)}
+                          className="rounded-md border border-status-errorBorder bg-status-errorBg px-6 py-2 font-semibold text-status-errorText transition-colors hover:bg-status-errorBorder"
                         >
                           Remove
-                        </Button>
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -139,4 +139,4 @@ function TeacherClassStudentsPage() {
   );
 }
 
-export default TeacherClassStudentsPage;
+export default StudentListPage;

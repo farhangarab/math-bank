@@ -10,10 +10,10 @@ import CreateClassPage from "./pages/CreateClassPage";
 import JoinClassPage from "./pages/JoinClassPage";
 import ClassDetailsPage from "./pages/ClassDetailsPage";
 import CreateAssignmentPage from "./pages/CreateAssignmentPage";
-import AssignmentEditorPage from "./pages/AssignmentEditorPage";
+import QuestionPage from "./pages/QuestionPage";
 import StudentAssignmentPage from "./pages/StudentAssignmentPage";
 import TeacherSubmissionsPage from "./pages/TeacherSubmissionsPage";
-import TeacherClassStudentsPage from "./pages/TeacherClassStudentsPage";
+import StudentListPage from "./pages/StudentListPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -47,17 +47,14 @@ function App() {
           />
           <Route path={ROUTES.CREATE_CLASS} element={<CreateClassPage />} />
           <Route
-            path={ROUTES.TEACHER_CLASS_STUDENTS}
-            element={<TeacherClassStudentsPage />}
+            path={ROUTES.STUDENT_LIST}
+            element={<StudentListPage />}
           />
           <Route
             path={ROUTES.CREATE_ASSIGNMENT}
             element={<CreateAssignmentPage />}
           />
-          <Route
-            path={ROUTES.EDIT_ASSIGNMENT}
-            element={<AssignmentEditorPage />}
-          />
+          <Route path={ROUTES.ASSIGNMENT_QUESTIONS} element={<QuestionPage />} />
           <Route
             path={ROUTES.TEACHER_SUBMISSIONS_PAGE}
             element={<TeacherSubmissionsPage />}

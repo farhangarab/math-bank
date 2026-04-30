@@ -10,6 +10,7 @@ import { useMessage } from "../hooks/useMessage";
 import MessageSlot from "../components/MessageSlot";
 import type { ClassInfo } from "../types/class";
 import Panel from "../components/Panel";
+import { getFirstName } from "../utils/format";
 
 function StudentDashboardPage() {
   const navigate = useNavigate();
@@ -45,9 +46,13 @@ function StudentDashboardPage() {
       {/* MAIN CONTAINER */}
       <div className="flex flex-col items-center mt-10">
         {/* Title */}
-        <h1 className="text-3xl font-bold text-brand-primary">Student Dashboard</h1>
+        <h1 className="text-3xl font-bold text-brand-primary">
+          Student Dashboard
+        </h1>
 
-        <p className="mt-2 mb-6">Welcome {user?.full_name ?? "student"}</p>
+        <p className="mt-2 mb-6">
+          Welcome back, {getFirstName(user?.full_name)}! 👋
+        </p>
 
         {/* Join class button */}
         <div className="mb-8">
@@ -59,7 +64,9 @@ function StudentDashboardPage() {
 
         {/* My classes section */}
         <Panel className="w-[700px]">
-          <h2 className="text-xl font-bold mb-4 text-brand-primary">My Classes</h2>
+          <h2 className="text-xl font-bold mb-4 text-brand-primary">
+            My Classes
+          </h2>
 
           {/* Classes list */}
           <div className="flex flex-col gap-4 mt-6">

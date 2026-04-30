@@ -44,3 +44,11 @@ export function formatCreatedDate(dateText?: string | null) {
     year: "numeric",
   });
 }
+
+export function getFirstName(fullName?: string | null, fallback = "there") {
+  const name = fullName?.trim();
+
+  if (!name) return fallback;
+
+  return name.split(/\s+/)[0];
+}

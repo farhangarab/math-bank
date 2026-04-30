@@ -9,13 +9,12 @@ import { useMessage } from "../hooks/useMessage";
 import MessageSlot from "../components/MessageSlot";
 import type { ClassInfo } from "../types/class";
 import Panel from "../components/Panel";
-import { formatCreatedDate } from "../utils/format";
-import CopyIcon from "../components/icons/CopyIcon";
+import { formatCreatedDate, getFirstName } from "../utils/format";
+import CopyClassCode from "../components/CopyClassCode";
 
 function TeacherDashboardPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [copiedClassId, setCopiedClassId] = useState<number | null>(null);
 
   const handleView = (id: number) => {
     navigate(`/class/${id}`);
@@ -23,17 +22,6 @@ function TeacherDashboardPage() {
 
   const handleViewStudents = (id: number) => {
     navigate(`/teacher/classes/${id}/students`);
-  };
-
-  const handleCopyClassCode = (id: number, code?: string) => {
-    if (!code) return;
-
-    navigator.clipboard?.writeText(code);
-    setCopiedClassId(id);
-
-    setTimeout(() => {
-      setCopiedClassId(null);
-    }, 1500);
   };
 
   const [classes, setClasses] = useState<ClassInfo[]>([]);
@@ -63,19 +51,27 @@ function TeacherDashboardPage() {
       {/* MAIN CONTAINER */}
       <div className="flex flex-col items-center mt-10">
         {/* Title */}
-        <h1 className="text-3xl font-bold text-brand-primary">Teacher Dashboard</h1>
+        <h1 className="text-3xl font-bold text-brand-primary">
+          Teacher Dashboard
+        </h1>
 
-        <p className="mt-2 mb-6">Welcome {user?.full_name ?? "teacher"}</p>
+        <p className="mt-2 mb-6">
+          Welcome back, {getFirstName(user?.full_name)}! 👋
+        </p>
 
         {/* Create class button */}
         <div className="mb-8">
           <MessageSlot message={message} />
-          <Button onClick={() => navigate(ROUTES.CREATE_CLASS)}>Create Class</Button>
+          <Button onClick={() => navigate(ROUTES.CREATE_CLASS)}>
+            Create Class
+          </Button>
         </div>
 
         {/* My classes section */}
         <Panel className="w-full max-w-[900px]">
-          <h2 className="text-xl font-bold mb-4 text-brand-primary">My Classes</h2>
+          <h2 className="text-xl font-bold mb-4 text-brand-primary">
+            My Classes
+          </h2>
 
           {classes.length === 0 ? (
             <p className="mt-6 text-gray-500">No classes yet.</p>
@@ -99,25 +95,7 @@ function TeacherDashboardPage() {
                         {c.class_name}
                       </td>
                       <td className="px-4 py-3 font-bold text-gray-600">
-                        {c.class_code ? (
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => handleCopyClassCode(c.id, c.class_code)}
-                              className="flex cursor-copy items-center gap-2 font-bold text-gray-600 hover:text-brand-primary"
-                            >
-                              <span>{c.class_code}</span>
-                              <CopyIcon />
-                            </button>
-                            {copiedClassId === c.id && (
-                              <span className="rounded-full border border-status-successBorder bg-status-successBg px-2 py-1 text-sm font-semibold text-status-successText">
-                                Copied
-                              </span>
-                            )}
-                          </div>
-                        ) : (
-                          "-"
-                        )}
+                        <CopyClassCode code={c.class_code} />
                       </td>
                       <td className="px-4 py-3 text-gray-700">
                         <button
