@@ -1,5 +1,6 @@
 from flask import Blueprint, current_app, request
 from flask_login import current_user, login_required, login_user, logout_user
+from sqlalchemy.exc import IntegrityError
 from app import db
 from app.models.user import User
 from app.models.enums import UserRole
@@ -82,8 +83,16 @@ def register():
         role=UserRole(role),
     )
 
-    db.session.add(user)
-    db.session.commit()
+    try:
+        db.session.add(user)
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return error_response(
+            "Username or email is already registered.",
+            400,
+            {"general": "Username or email is already registered."},
+        )
 
     return success_response(
         "Account created successfully.",

@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_login import current_user, login_required
+from sqlalchemy.exc import IntegrityError
 
 from app import db
 
@@ -8,7 +9,6 @@ from app.models.class_member import ClassMember
 from app.models.enums import UserRole
 from app.auth_utils import role_required
 from app.response_utils import error_response, field_error, success_response
-
 
 student_bp = Blueprint("student_bp", __name__)
 
@@ -42,8 +42,12 @@ def join_class():
 
     member = ClassMember(class_id=class_obj.id, student_id=current_user.id)
 
-    db.session.add(member)
-    db.session.commit()
+    try:
+        db.session.add(member)
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return error_response("You already joined this class.")
 
     return success_response(
         "Class joined successfully.",

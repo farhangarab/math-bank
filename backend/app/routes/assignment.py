@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_login import current_user, login_required
+from sqlalchemy.exc import IntegrityError
 from app.models.assignment import Assignment
 from app.models.attempt import Attempt
 from app.models.class_member import ClassMember
@@ -153,8 +154,15 @@ def create_assignment():
         due_date=due_date,
     )
 
-    db.session.add(assignment)
-    db.session.commit()
+    try:
+        db.session.add(assignment)
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return field_error(
+            "title",
+            "An assignment with this title already exists in this class.",
+        )
 
     return success_response(
         "Assignment created successfully.",

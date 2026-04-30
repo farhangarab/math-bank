@@ -5,6 +5,13 @@ from sqlalchemy import Enum
 class Attempt(db.Model):
 
     __tablename__ = "attempts"
+    __table_args__ = (
+        db.UniqueConstraint(
+            "assignment_id",
+            "class_member_id",
+            name="uq_attempt_assignment_class_member",
+        ),
+    )
 
     id = db.Column(db.Integer, primary_key=True)
 

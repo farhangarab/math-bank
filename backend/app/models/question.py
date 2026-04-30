@@ -5,6 +5,9 @@ from .enums import GradingType
 class Question(db.Model):
 
     __tablename__ = "questions"
+    __table_args__ = (
+        db.UniqueConstraint("assignment_id", "order_index", name="uq_question_order"),
+    )
 
     id = db.Column(db.Integer, primary_key=True)
 
