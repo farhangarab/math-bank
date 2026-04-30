@@ -5,6 +5,7 @@ import { getAssignmentById } from "../api/assignments";
 import { getAttempt, saveAttempt, submitAttempt } from "../api/attempts";
 import { getClassById } from "../api/classes";
 import FloatingMathToolbar from "../components/assignment-editor/FloatingMathToolbar";
+import NumericWarning from "../components/assignment-editor/NumericWarning";
 import Button from "../components/Button";
 import ConfirmModal from "../components/ConfirmModal";
 import Header from "../components/Header";
@@ -22,7 +23,7 @@ import type {
 import type { ClassInfo } from "../types/class";
 import type { Question } from "../types/question";
 import { formatDueDate, formatNumber } from "../utils/format";
-import { getStudentGuidance } from "../utils/grading";
+import { answerLooksNumeric, getStudentGuidance } from "../utils/grading";
 
 const StudentAssignmentPage = () => {
   const { attemptId } = useParams();
@@ -62,6 +63,10 @@ const StudentAssignmentPage = () => {
   const currentAnswer = currentQuestion
     ? answers[currentQuestion.id] || ""
     : "";
+  const numericWarning =
+    currentQuestion?.grading_type === "numeric" &&
+    currentAnswer.trim() &&
+    !answerLooksNumeric(currentAnswer);
   const currentResult = result?.results?.find(
     (r) => r.question_id === currentQuestion?.id,
   );
@@ -252,9 +257,7 @@ const StudentAssignmentPage = () => {
                   {classInfo?.class_name ?? "Class"}{" "}
                   {assignment?.title && (
                     <>
-                      <span className="font-medium text-gray-400">
-                        &bull;
-                      </span>{" "}
+                      <span className="font-medium text-gray-400">&bull;</span>{" "}
                       {assignment.title}
                     </>
                   )}
@@ -340,6 +343,11 @@ const StudentAssignmentPage = () => {
                     : "Enter your answer"
                 }
               />
+              {numericWarning && (
+                <div className="mt-3">
+                  <NumericWarning message="Enter a numeric value only, such as 8, 2/3, or 0.25." />
+                </div>
+              )}
 
               <MessageSlot message={message} />
 
@@ -401,9 +409,7 @@ const StudentAssignmentPage = () => {
 
                   <p className="mt-2">
                     <strong>Result:</strong>{" "}
-                    {currentResult?.is_correct
-                      ? "✅ Correct"
-                      : "❌ Incorrect"}
+                    {currentResult?.is_correct ? "✅ Correct" : "❌ Incorrect"}
                   </p>
                 </div>
               )}

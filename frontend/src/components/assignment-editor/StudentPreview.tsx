@@ -27,7 +27,7 @@ function StudentPreview({
   const isAnswerMode = mode === "answer";
 
   return (
-    <Panel className="h-fit min-w-0 bg-brand-surface p-4 lg:sticky lg:top-6">
+    <Panel className="h-fit min-w-0 bg-white p-4 lg:sticky lg:top-6">
       <div className="mb-3 flex items-start justify-between gap-3">
         <div>
           <p className="text-sm font-semibold uppercase tracking-wide text-gray-500">
