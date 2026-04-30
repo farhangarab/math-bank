@@ -30,4 +30,7 @@ class Attempt(db.Model):
 
     assignment = db.relationship("Assignment", backref="attempts")
 
-    class_member = db.relationship("ClassMember", backref="attempts")
+    class_member = db.relationship(
+        "ClassMember",
+        backref=db.backref("attempts", cascade="all, delete-orphan"),
+    )

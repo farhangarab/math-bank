@@ -13,6 +13,7 @@ import { useMessage } from "../hooks/useMessage";
 import MessageSlot from "../components/MessageSlot";
 import type { ClassInfo } from "../types/class";
 import Panel from "../components/Panel";
+import CopyClassCode from "../components/CopyClassCode";
 
 function ClassDetailsPage() {
   const { id } = useParams();
@@ -35,7 +36,7 @@ function ClassDetailsPage() {
   };
 
   const handleEditAssignment = (assignmentId: number) => {
-    navigate(`/assignment/${assignmentId}/edit`);
+    navigate(`/assignment/${assignmentId}/questions`);
   };
 
   const handleOpenAssignment = (assignment: Assignment) => {
@@ -87,9 +88,10 @@ function ClassDetailsPage() {
             </h1>
 
             {user?.role === "TEACHER" && (
-              <p className="mt-2 text-gray-600">
-                Class code: {classInfo.class_code}
-              </p>
+              <div className="mt-2 flex items-center gap-2 text-gray-600">
+                <span>Class code:</span>
+                <CopyClassCode code={classInfo.class_code} />
+              </div>
             )}
 
             {user?.role === "TEACHER" && (

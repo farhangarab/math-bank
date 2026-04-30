@@ -18,7 +18,7 @@ import type { GradingType, Question } from "../types/question";
 import { answerLooksNumeric } from "../utils/grading";
 import { firstInvalid } from "../utils/validation";
 
-function AssignmentEditorPage() {
+function QuestionPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -233,4 +233,4 @@ function AssignmentEditorPage() {
   );
 }
 
-export default AssignmentEditorPage;
+export default QuestionPage;

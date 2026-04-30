@@ -23,6 +23,9 @@ class AttemptAnswer(db.Model):
 
     question_id = db.Column(db.Integer, db.ForeignKey("questions.id"), nullable=False)
 
-    attempt = db.relationship("Attempt", backref="answers")
+    attempt = db.relationship(
+        "Attempt",
+        backref=db.backref("answers", cascade="all, delete-orphan"),
+    )
 
     question = db.relationship("Question", backref="attempt_answers")

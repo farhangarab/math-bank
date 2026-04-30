@@ -55,7 +55,7 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
 
         {role === "TEACHER" && (
           <>
-            <div>Edit</div>
+            <div>Questions</div>
             <div>Action</div>
           </>
         )}
@@ -117,7 +117,7 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
                     hover:bg-gray-100
                   "
                 >
-                  Edit
+                  Add
                 </button>
               </div>
 

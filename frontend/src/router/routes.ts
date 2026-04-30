@@ -10,12 +10,13 @@ export const ROUTES = {
 
   CREATE_CLASS: "/teacher/create-class",
   JOIN_CLASS: "/student/join-class",
+  STUDENT_LIST: "/teacher/classes/:classId/students",
 
   CLASS_DETAILS: "class/:id",
 
   CREATE_ASSIGNMENT: "/class/:id/create-assignment",
 
-  EDIT_ASSIGNMENT: "/assignment/:id/edit",
+  ASSIGNMENT_QUESTIONS: "/assignment/:id/questions",
 
   STUDENT_ASSIGNMENT_PAGE: "/attempt/:attemptId",
 

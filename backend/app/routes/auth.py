@@ -14,14 +14,23 @@ auth_bp = Blueprint("auth", __name__)
 TEACHER_CODE = "ABC123"
 
 
+def normalize_full_name(value):
+    words = (value or "").strip().split()
+    return " ".join(word.capitalize() for word in words)
+
+
+def normalize_lower_text(value):
+    return (value or "").strip().lower()
+
+
 @auth_bp.route("/register", methods=["POST"])
 def register():
 
     data = request.get_json() or {}
 
-    username = data.get("username")
-    full_name = data.get("full_name")
-    email = data.get("email")
+    username = normalize_lower_text(data.get("username"))
+    full_name = normalize_full_name(data.get("full_name"))
+    email = normalize_lower_text(data.get("email"))
     password = data.get("password")
     role = data.get("role")
     teacher_code = data.get("teacher_code")
@@ -91,7 +100,7 @@ def login():
 
     data = request.get_json() or {}
 
-    identifier = (data.get("username") or data.get("email") or "").strip()
+    identifier = normalize_lower_text(data.get("username") or data.get("email"))
     password = data.get("password")
     remember = bool(data.get("remember"))
 
