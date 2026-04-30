@@ -38,10 +38,7 @@ function StudentListPage() {
 
     try {
       clearAllMessages();
-      await removeClassStudent(
-        Number(classId),
-        selectedStudent.student_id,
-      );
+      await removeClassStudent(Number(classId), selectedStudent.student_id);
       setStudents((current) =>
         current.filter(
           (student) =>
@@ -114,7 +111,7 @@ function StudentListPage() {
                         <button
                           type="button"
                           onClick={() => setStudentToRemove(student)}
-                          className="rounded-md border border-status-errorBorder bg-status-errorBg px-6 py-2 font-semibold text-status-errorText transition-colors hover:bg-status-errorBorder"
+                          className="rounded-md border border-status-errorText px-6 py-2 font-semibold text-status-errorText transition-colors duration-200 hover:bg-status-errorText hover:text-white"
                         >
                           Remove
                         </button>

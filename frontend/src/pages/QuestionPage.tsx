@@ -8,6 +8,7 @@ import AssignmentEditorHeader from "../components/assignment-editor/AssignmentEd
 import FloatingMathToolbar from "../components/assignment-editor/FloatingMathToolbar";
 import QuestionEditorForm from "../components/assignment-editor/QuestionEditorForm";
 import StudentPreview from "../components/assignment-editor/StudentPreview";
+import ConfirmModal from "../components/ConfirmModal";
 import Header from "../components/Header";
 import Panel from "../components/Panel";
 import QuestionList from "../components/QuestionList";
@@ -35,6 +36,7 @@ function QuestionPage() {
   const [showPreview, setShowPreview] = useState(true);
   const [showQuestionList, setShowQuestionList] = useState(true);
   const [showMathSymbols, setShowMathSymbols] = useState(true);
+  const [showBackConfirm, setShowBackConfirm] = useState(false);
 
   const [activeInput, setActiveInput] = useState<
     HTMLInputElement | HTMLTextAreaElement | null
@@ -82,6 +84,19 @@ function QuestionPage() {
     setPoints("0");
     setGradingType("symbolic");
     setRequireSimplified(false);
+  }
+
+  function hasUnsavedQuestion() {
+    return text.trim() !== "" || answer.trim() !== "";
+  }
+
+  function handleBack() {
+    if (hasUnsavedQuestion()) {
+      setShowBackConfirm(true);
+      return;
+    }
+
+    navigate(-1);
   }
 
   function setActiveEditorField(
@@ -145,11 +160,7 @@ function QuestionPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header
-        title="MATHBANK"
-        leftText="Back"
-        leftAction={() => navigate(-1)}
-      />
+      <Header title="MATHBANK" leftText="Back" leftAction={handleBack} />
 
       <main
         className={`w-full px-4 py-6 sm:px-6 lg:px-8 ${
@@ -162,10 +173,8 @@ function QuestionPage() {
           questionCount={questions.length}
           showPreview={showPreview}
           showQuestionList={showQuestionList}
-          showMathSymbols={showMathSymbols}
           onTogglePreview={() => setShowPreview((value) => !value)}
           onToggleQuestionList={() => setShowQuestionList((value) => !value)}
-          onToggleMathSymbols={() => setShowMathSymbols((value) => !value)}
         />
 
         <section
@@ -228,6 +237,14 @@ function QuestionPage() {
         onAnswerChange={setAnswer}
         onShow={() => setShowMathSymbols(true)}
         onHide={() => setShowMathSymbols(false)}
+      />
+
+      <ConfirmModal
+        open={showBackConfirm}
+        title="Leave without saving?"
+        message="Unsaved question changes will be lost."
+        onCancel={() => setShowBackConfirm(false)}
+        onConfirm={() => navigate(-1)}
       />
     </div>
   );

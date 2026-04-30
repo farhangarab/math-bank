@@ -197,9 +197,13 @@ function QuestionEditorForm({
           <MessageSlot message={message} />
 
           <div className="flex flex-wrap justify-end gap-3">
-            <Button variant="ghost" onClick={onCancel}>
-              Cancel
-            </Button>
+            <button
+              type="button"
+              onClick={onCancel}
+              className="rounded-md border border-status-errorText px-6 py-2 font-semibold text-status-errorText transition-colors duration-200 hover:bg-status-errorText hover:text-white"
+            >
+              Reset
+            </button>
             <Button onClick={onSave}>Save Question</Button>
           </div>
         </div>

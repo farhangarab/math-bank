@@ -101,7 +101,7 @@ function TeacherDashboardPage() {
                         <button
                           type="button"
                           onClick={() => handleViewStudents(c.id)}
-                          className="font-semibold text-brand-primary hover:underline"
+                          className="font-semibold text-brand-primary underline"
                         >
                           {c.students_count ?? 0}
                         </button>

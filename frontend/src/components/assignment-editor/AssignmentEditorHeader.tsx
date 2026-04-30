@@ -6,10 +6,8 @@ type Props = {
   questionCount: number;
   showPreview: boolean;
   showQuestionList: boolean;
-  showMathSymbols: boolean;
   onTogglePreview: () => void;
   onToggleQuestionList: () => void;
-  onToggleMathSymbols: () => void;
 };
 
 function AssignmentEditorHeader({
@@ -18,10 +16,8 @@ function AssignmentEditorHeader({
   questionCount,
   showPreview,
   showQuestionList,
-  showMathSymbols,
   onTogglePreview,
   onToggleQuestionList,
-  onToggleMathSymbols,
 }: Props) {
   return (
     <section className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -42,9 +38,6 @@ function AssignmentEditorHeader({
         </Button>
         <Button variant="ghost" onClick={onToggleQuestionList}>
           {showQuestionList ? "Hide Questions List" : "Show Questions List"}
-        </Button>
-        <Button variant="ghost" onClick={onToggleMathSymbols}>
-          {showMathSymbols ? "Hide Math Symbols" : "Show Math Symbols"}
         </Button>
       </div>
     </section>
