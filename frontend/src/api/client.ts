@@ -1,7 +1,4 @@
-const apiHost =
-  typeof window === "undefined" ? "localhost" : window.location.hostname;
-
-const API_BASE = `http://${apiHost}:5000/api`;
+import { API_BASE_URL } from "./apiConfig";
 
 type ApiFetchOptions = RequestInit & {
   headers?: HeadersInit;
@@ -20,7 +17,7 @@ export class ApiError extends Error {
 }
 
 export async function apiFetch(path: string, options: ApiFetchOptions = {}) {
-  const response = await fetch(`${API_BASE}${path}`, {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
     credentials: "include",
     ...options,
     headers: {
@@ -43,4 +40,4 @@ export function throwApiError(data: any, fallback: string): never {
   throw new ApiError(getBestApiMessage(data, fallback), data?.errors ?? {});
 }
 
-export { API_BASE };
+export { API_BASE_URL };
