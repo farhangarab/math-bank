@@ -58,6 +58,7 @@ const StudentAssignmentPage = () => {
 
   const { message, clearAllMessages, showApiError, showSuccess } = useMessage();
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showBackConfirm, setShowBackConfirm] = useState(false);
   const [showUnansweredWarning, setShowUnansweredWarning] = useState(false);
 
   const currentQuestion = questions[currentIndex];
@@ -106,6 +107,15 @@ const StudentAssignmentPage = () => {
 
   const isChanged = () => {
     return JSON.stringify(answers) !== JSON.stringify(savedAnswers);
+  };
+
+  const handleBack = () => {
+    if (!isReadOnly && isChanged()) {
+      setShowBackConfirm(true);
+      return;
+    }
+
+    navigate(-1);
   };
 
   const getQuestionButtonClass = (question: Question, index: number) => {
@@ -242,7 +252,7 @@ const StudentAssignmentPage = () => {
       <Header
         title="MATHBANK"
         leftText="Back"
-        leftAction={() => navigate(-1)}
+        leftAction={handleBack}
       />
 
       <main
@@ -288,18 +298,6 @@ const StudentAssignmentPage = () => {
                     onClick={() => setShowPreview((v) => !v)}
                   >
                     {showPreview ? "Hide Preview" : "Show Preview"}
-                  </Button>
-                </span>
-              </Tooltip>
-              <Tooltip text="Open or close the math keyboard.">
-                <span>
-                  <Button
-                    variant="ghost"
-                    onClick={() => setShowMathSymbols((v) => !v)}
-                  >
-                    {showMathSymbols
-                      ? "Hide Math Symbols"
-                      : "Show Math Symbols"}
                   </Button>
                 </span>
               </Tooltip>
@@ -558,6 +556,14 @@ const StudentAssignmentPage = () => {
         message={confirmMessage}
         onCancel={() => setShowConfirm(false)}
         onConfirm={handleConfirm}
+      />
+
+      <ConfirmModal
+        open={showBackConfirm}
+        title="Leave without saving?"
+        message="Your latest answer changes have not been saved."
+        onCancel={() => setShowBackConfirm(false)}
+        onConfirm={() => navigate(-1)}
       />
 
       <FloatingMathToolbar

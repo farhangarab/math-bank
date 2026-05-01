@@ -1,10 +1,6 @@
 import { useRef } from "react";
 
-import {
-  hours,
-  minutes,
-  type TimePeriod,
-} from "../utils/dueDateTime";
+import { hours, minutes, type TimePeriod } from "../utils/dueDateTime";
 import Tooltip from "./ui/Tooltip";
 
 type Props = {
@@ -81,7 +77,9 @@ function DueDateTimeFields({
             placeholder="YYYY-MM-DD"
             aria-invalid={Boolean(error)}
             className={`w-full rounded border p-2 ${
-              error ? "border-status-errorText bg-status-errorBg" : "border-brand-primary"
+              error
+                ? "border-status-errorText bg-status-errorBg"
+                : "border-brand-primary"
             }`}
           />
         </Tooltip>
@@ -100,51 +98,57 @@ function DueDateTimeFields({
           text="Leave blank to make it due at 11:59 PM."
           className="w-full"
         >
-        <div id="due-time" className="grid w-full grid-cols-3 gap-2">
-          <select
-            aria-label="Due hour"
-            value={hour}
-            onChange={(e) => onChangeHour(e.target.value)}
-            className={`w-full rounded border p-2 ${
-              error ? "border-status-errorText bg-status-errorBg" : "border-brand-primary"
-            }`}
-          >
-            <option value="">Hour</option>
-            {hours.map((hourOption) => (
-              <option key={hourOption} value={hourOption}>
-                {hourOption}
-              </option>
-            ))}
-          </select>
+          <div id="due-time" className="grid w-full grid-cols-3 gap-2">
+            <select
+              aria-label="Due hour"
+              value={hour}
+              onChange={(e) => onChangeHour(e.target.value)}
+              className={`w-full rounded border p-2 ${
+                error
+                  ? "border-status-errorText bg-status-errorBg"
+                  : "border-brand-primary"
+              }`}
+            >
+              <option value="">Hour</option>
+              {hours.map((hourOption) => (
+                <option key={hourOption} value={hourOption}>
+                  {hourOption}
+                </option>
+              ))}
+            </select>
 
-          <select
-            aria-label="Due minute"
-            value={minute}
-            onChange={(e) => onChangeMinute(e.target.value)}
-            className={`w-full rounded border p-2 ${
-              error ? "border-status-errorText bg-status-errorBg" : "border-brand-primary"
-            }`}
-          >
-            <option value="">Min</option>
-            {minutes.map((minuteOption) => (
-              <option key={minuteOption} value={minuteOption}>
-                {minuteOption}
-              </option>
-            ))}
-          </select>
+            <select
+              aria-label="Due minute"
+              value={minute}
+              onChange={(e) => onChangeMinute(e.target.value)}
+              className={`w-full rounded border p-2 ${
+                error
+                  ? "border-status-errorText bg-status-errorBg"
+                  : "border-brand-primary"
+              }`}
+            >
+              <option value="">Min</option>
+              {minutes.map((minuteOption) => (
+                <option key={minuteOption} value={minuteOption}>
+                  {minuteOption}
+                </option>
+              ))}
+            </select>
 
-          <select
-            aria-label="Due AM or PM"
-            value={period}
-            onChange={(e) => onChangePeriod(e.target.value as TimePeriod)}
-            className={`w-full rounded border p-2 ${
-              error ? "border-status-errorText bg-status-errorBg" : "border-brand-primary"
-            }`}
-          >
-            <option value="AM">AM</option>
-            <option value="PM">PM</option>
-          </select>
-        </div>
+            <select
+              aria-label="Due AM or PM"
+              value={period}
+              onChange={(e) => onChangePeriod(e.target.value as TimePeriod)}
+              className={`w-full rounded border p-2 ${
+                error
+                  ? "border-status-errorText bg-status-errorBg"
+                  : "border-brand-primary"
+              }`}
+            >
+              <option value="AM">AM</option>
+              <option value="PM">PM</option>
+            </select>
+          </div>
         </Tooltip>
       </div>
 
@@ -160,7 +164,7 @@ function DueDateTimeFields({
         <button
           type="button"
           onClick={onClear}
-          className="rounded border border-brand-primary px-3 py-2 font-semibold text-brand-primary hover:bg-brand-primary hover:text-white"
+          className="rounded border border-status-errorText px-3 py-2 font-semibold text-status-errorText transition-colors duration-200 hover:bg-status-errorText hover:text-white"
         >
           Clear
         </button>
