@@ -1,4 +1,5 @@
 import Button from "../Button";
+import Tooltip from "../ui/Tooltip";
 
 type Props = {
   classNameText: string;
@@ -33,12 +34,20 @@ function AssignmentEditorHeader({
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Button variant="ghost" onClick={onTogglePreview}>
-          {showPreview ? "Hide Preview" : "Show Preview"}
-        </Button>
-        <Button variant="ghost" onClick={onToggleQuestionList}>
-          {showQuestionList ? "Hide Questions List" : "Show Questions List"}
-        </Button>
+        <Tooltip text="Show or hide the student view.">
+          <span>
+            <Button variant="ghost" onClick={onTogglePreview}>
+              {showPreview ? "Hide Preview" : "Show Preview"}
+            </Button>
+          </span>
+        </Tooltip>
+        <Tooltip text="Show or hide saved questions.">
+          <span>
+            <Button variant="ghost" onClick={onToggleQuestionList}>
+              {showQuestionList ? "Hide Questions List" : "Show Questions List"}
+            </Button>
+          </span>
+        </Tooltip>
       </div>
     </section>
   );

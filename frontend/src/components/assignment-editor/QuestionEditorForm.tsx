@@ -2,6 +2,7 @@ import Button from "../Button";
 import MessageSlot from "../MessageSlot";
 import Panel from "../Panel";
 import NumericWarning from "./NumericWarning";
+import Tooltip from "../ui/Tooltip";
 import type { GradingType } from "../../types/question";
 import type { MessageState } from "../../hooks/useMessage";
 
@@ -124,23 +125,28 @@ function QuestionEditorForm({
               >
                 Points
               </label>
-              <input
-                id="points-input"
-                type="number"
-                min="0"
-                placeholder="Points"
-                value={points}
-                onChange={(event) => {
-                  onPointsChange(event.target.value);
-                  onClearFieldError("points");
-                }}
-                aria-invalid={Boolean(fieldErrors.points)}
-                className={`w-full rounded-md border p-3 text-brand-primary focus:outline-none ${
-                  fieldErrors.points
-                    ? "border-status-errorText bg-status-errorBg"
-                    : "border-brand-primary bg-white"
-                }`}
-              />
+              <Tooltip
+                text="How many points this question is worth."
+                className="w-full"
+              >
+                <input
+                  id="points-input"
+                  type="number"
+                  min="0"
+                  placeholder="Points"
+                  value={points}
+                  onChange={(event) => {
+                    onPointsChange(event.target.value);
+                    onClearFieldError("points");
+                  }}
+                  aria-invalid={Boolean(fieldErrors.points)}
+                  className={`w-full rounded-md border p-3 text-brand-primary focus:outline-none ${
+                    fieldErrors.points
+                      ? "border-status-errorText bg-status-errorBg"
+                      : "border-brand-primary bg-white"
+                  }`}
+                />
+              </Tooltip>
               {fieldErrors.points && (
                 <p className="mt-1 text-sm text-status-errorText">
                   {fieldErrors.points}
@@ -149,18 +155,26 @@ function QuestionEditorForm({
             </div>
           </div>
 
-          <label className="flex items-center gap-2 text-brand-primary">
-            <input
-              type="checkbox"
-              checked={requireSimplified}
-              disabled={gradingType !== "symbolic"}
-              onChange={(event) =>
-                onRequireSimplifiedChange(event.target.checked)
-              }
-              className="h-4 w-4"
-            />
-            Require Simplified Form
-          </label>
+          <Tooltip
+            text={
+              gradingType === "symbolic"
+                ? "Students must write the answer in simplest form."
+                : "Only available with symbolic grading."
+            }
+          >
+            <label className="flex items-center gap-2 text-brand-primary">
+              <input
+                type="checkbox"
+                checked={requireSimplified}
+                disabled={gradingType !== "symbolic"}
+                onChange={(event) =>
+                  onRequireSimplifiedChange(event.target.checked)
+                }
+                className="h-4 w-4"
+              />
+              Require Simplified Form
+            </label>
+          </Tooltip>
 
           {numericWarning && <NumericWarning />}
 

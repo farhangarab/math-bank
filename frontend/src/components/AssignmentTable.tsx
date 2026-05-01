@@ -1,4 +1,5 @@
 import type { Assignment } from "../types/assignment";
+import Tooltip from "./ui/Tooltip";
 import { formatDueDate, formatNumber } from "../utils/format";
 
 type Props = {
@@ -25,6 +26,12 @@ function formatStudentScore(assignment: Assignment) {
   if (score === "-" || maxScore === "-") return "-";
 
   return `${score}/${maxScore}`;
+}
+
+function getStatusTooltip(status?: string) {
+  if (status === "IN_PROGRESS") return "You have started this assignment.";
+  if (status === "SUBMITTED") return "This assignment has been turned in.";
+  return "You have not started this assignment yet.";
 }
 
 function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
@@ -80,7 +87,11 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
           {/* STUDENT */}
           {role === "STUDENT" && (
             <>
-              <div>{a.status ?? "NOT_STARTED"}</div>
+              <div>
+                <Tooltip text={getStatusTooltip(a.status)}>
+                  <span>{a.status ?? "NOT_STARTED"}</span>
+                </Tooltip>
+              </div>
               <div>{formatStudentScore(a)}</div>
 
               <div className="flex justify-start">
@@ -105,20 +116,22 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
           {role === "TEACHER" && (
             <>
               <div className="flex justify-start">
-                <button
-                  onClick={() => onEdit?.(a.id)}
-                  className="
-                    border
-                    border-brand-primary
-                    text-brand-primary
-                    w-[110px]
-                    py-1
-                    rounded
-                    hover:bg-gray-100
-                  "
-                >
-                  Add
-                </button>
+                <Tooltip text="Add or review questions.">
+                  <button
+                    onClick={() => onEdit?.(a.id)}
+                    className="
+                      border
+                      border-brand-primary
+                      text-brand-primary
+                      w-[110px]
+                      py-1
+                      rounded
+                      hover:bg-gray-100
+                    "
+                  >
+                    Add
+                  </button>
+                </Tooltip>
               </div>
 
               <div className="flex justify-start">

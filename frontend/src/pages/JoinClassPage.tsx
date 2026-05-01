@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useMessage } from "../hooks/useMessage";
 import MessageSlot from "../components/MessageSlot";
 import Panel from "../components/Panel";
+import Tooltip from "../components/ui/Tooltip";
 
 function JoinClassPage() {
   const [classCode, setClassCode] = useState("");
@@ -63,15 +64,20 @@ function JoinClassPage() {
           <p className="mb-2 font-semibold text-brand-primary">Class Code</p>
 
           <div className="mb-4">
-            <Input
-              placeholder="Enter class code"
-              value={classCode}
-              error={fieldErrors.class_code}
-              onChange={(e) => {
-                setClassCode(e.target.value);
-                clearFieldError("class_code");
-              }}
-            />
+            <Tooltip
+              text="Your teacher gives you this code."
+              className="w-full"
+            >
+              <Input
+                placeholder="Enter class code"
+                value={classCode}
+                error={fieldErrors.class_code}
+                onChange={(e) => {
+                  setClassCode(e.target.value);
+                  clearFieldError("class_code");
+                }}
+              />
+            </Tooltip>
           </div>
 
           <MessageSlot message={message} />

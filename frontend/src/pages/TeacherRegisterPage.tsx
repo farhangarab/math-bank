@@ -8,6 +8,7 @@ import { registerUser } from "../api/auth";
 import { useMessage } from "../hooks/useMessage";
 import { firstInvalid } from "../utils/validation";
 import MessageSlot from "../components/MessageSlot";
+import Tooltip from "../components/ui/Tooltip";
 
 export default function TeacherRegisterPage() {
   const [username, setUsername] = useState("");
@@ -173,15 +174,20 @@ export default function TeacherRegisterPage() {
             }}
           />
 
-          <Input
-            placeholder="Teacher Access Code"
-            value={teacherCode}
-            error={fieldErrors.teacher_code}
-            onChange={(e) => {
-              setTeacherCode(e.target.value);
-              clearFieldError("teacher_code");
-            }}
-          />
+          <Tooltip
+            text="Ask your school or admin for this code."
+            className="w-full"
+          >
+            <Input
+              placeholder="Teacher Access Code"
+              value={teacherCode}
+              error={fieldErrors.teacher_code}
+              onChange={(e) => {
+                setTeacherCode(e.target.value);
+                clearFieldError("teacher_code");
+              }}
+            />
+          </Tooltip>
 
           <MessageSlot message={message} />
 

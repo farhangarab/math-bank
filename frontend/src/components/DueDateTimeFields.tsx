@@ -5,6 +5,7 @@ import {
   minutes,
   type TimePeriod,
 } from "../utils/dueDateTime";
+import Tooltip from "./ui/Tooltip";
 
 type Props = {
   date: string;
@@ -71,17 +72,19 @@ function DueDateTimeFields({
           Due date (optional)
         </label>
 
-        <input
-          id="due-date"
-          type="text"
-          value={date}
-          onChange={(e) => onChangeDate(e.target.value)}
-          placeholder="YYYY-MM-DD"
-          aria-invalid={Boolean(error)}
-          className={`w-full rounded border p-2 ${
-            error ? "border-status-errorText bg-status-errorBg" : "border-brand-primary"
-          }`}
-        />
+        <Tooltip text="Use YYYY-MM-DD, like 2026-05-01." className="w-full">
+          <input
+            id="due-date"
+            type="text"
+            value={date}
+            onChange={(e) => onChangeDate(e.target.value)}
+            placeholder="YYYY-MM-DD"
+            aria-invalid={Boolean(error)}
+            className={`w-full rounded border p-2 ${
+              error ? "border-status-errorText bg-status-errorBg" : "border-brand-primary"
+            }`}
+          />
+        </Tooltip>
         {error && <p className="mt-1 text-sm text-status-errorText">{error}</p>}
       </div>
 
@@ -93,7 +96,11 @@ function DueDateTimeFields({
           Due time (optional)
         </label>
 
-        <div id="due-time" className="grid grid-cols-3 gap-2">
+        <Tooltip
+          text="Leave blank to make it due at 11:59 PM."
+          className="w-full"
+        >
+        <div id="due-time" className="grid w-full grid-cols-3 gap-2">
           <select
             aria-label="Due hour"
             value={hour}
@@ -138,6 +145,7 @@ function DueDateTimeFields({
             <option value="PM">PM</option>
           </select>
         </div>
+        </Tooltip>
       </div>
 
       <div className="flex items-start gap-2 pt-8">

@@ -101,6 +101,8 @@ function TeacherDashboardPage() {
                         <button
                           type="button"
                           onClick={() => handleViewStudents(c.id)}
+                          title="View Student List"
+                          aria-label={`Open student list for ${c.class_name}`}
                           className="font-semibold text-brand-primary underline"
                         >
                           {c.students_count ?? 0}

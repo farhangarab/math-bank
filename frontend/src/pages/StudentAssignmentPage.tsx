@@ -12,6 +12,7 @@ import Header from "../components/Header";
 import MathPreview from "../components/MathPreview";
 import MessageSlot from "../components/MessageSlot";
 import Panel from "../components/Panel";
+import Tooltip from "../components/ui/Tooltip";
 import { useAuth } from "../context/AuthContext";
 import { useMessage } from "../hooks/useMessage";
 import type { Assignment } from "../types/assignment";
@@ -271,20 +272,37 @@ const StudentAssignmentPage = () => {
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]">
             <div className="flex justify-end mr-2">
               {!isReadOnly && currentQuestion && (
-                <Button onClick={handleSubmitClick}>Submit</Button>
+                <Tooltip text="Turn in the assignment and lock your answers.">
+                  <span>
+                    <Button onClick={handleSubmitClick}>Submit</Button>
+                  </span>
+                </Tooltip>
               )}
             </div>
 
             <div className="flex flex-wrap gap-2 lg:justify-end">
-              <Button variant="ghost" onClick={() => setShowPreview((v) => !v)}>
-                {showPreview ? "Hide Preview" : "Show Preview"}
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => setShowMathSymbols((v) => !v)}
-              >
-                {showMathSymbols ? "Hide Math Symbols" : "Show Math Symbols"}
-              </Button>
+              <Tooltip text="Show or hide your rendered answer.">
+                <span>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowPreview((v) => !v)}
+                  >
+                    {showPreview ? "Hide Preview" : "Show Preview"}
+                  </Button>
+                </span>
+              </Tooltip>
+              <Tooltip text="Open or close the math keyboard.">
+                <span>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowMathSymbols((v) => !v)}
+                  >
+                    {showMathSymbols
+                      ? "Hide Math Symbols"
+                      : "Show Math Symbols"}
+                  </Button>
+                </span>
+              </Tooltip>
             </div>
           </div>
         </section>
@@ -360,13 +378,23 @@ const StudentAssignmentPage = () => {
                 </Button>
 
                 {!isReadOnly ? (
-                  <Button
-                    onClick={handleSave}
-                    disabled={!isChanged()}
-                    variant="ghost"
+                  <Tooltip
+                    text={
+                      isChanged()
+                        ? "Save your answers without submitting."
+                        : "No answer changes to save yet."
+                    }
                   >
-                    Save Progress
-                  </Button>
+                    <span>
+                      <Button
+                        onClick={handleSave}
+                        disabled={!isChanged()}
+                        variant="ghost"
+                      >
+                        Save Progress
+                      </Button>
+                    </span>
+                  </Tooltip>
                 ) : (
                   <div className="text-sm text-gray-500">
                     {isSubmitted ? "Submitted" : "Review mode"}
