@@ -127,7 +127,7 @@ export default function CreateAssignmentPage() {
     <div className="min-h-screen bg-white">
       <Header title="MATHBANK" leftText="Back" leftAction={handleBack} />
 
-      <div className="max-w-2xl mx-auto mt-10">
+      <div className="mx-auto mt-10 w-full max-w-2xl px-4 sm:px-6">
         <h1 className="text-2xl font-bold text-brand-primary mb-6">
           Create Assignment
         </h1>

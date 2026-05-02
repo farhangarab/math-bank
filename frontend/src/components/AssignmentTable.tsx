@@ -39,10 +39,11 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
   const teacherColumns = "2fr 2fr 120px 120px";
 
   return (
-    <div className="w-full">
+    <div className="w-full overflow-x-auto">
+      <div className={role === "STUDENT" ? "min-w-[720px]" : "min-w-[620px]"}>
       {/* HEADER */}
       <div
-        className="grid border-b border-brand-primary pb-2 font-semibold text-brand-primary"
+        className="grid gap-3 border-b border-brand-primary pb-2 font-semibold text-brand-primary"
         style={{
           gridTemplateColumns:
             role === "STUDENT" ? studentColumns : teacherColumns,
@@ -72,7 +73,7 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
       {assignments.map((a) => (
         <div
           key={a.id}
-          className="grid border-b border-gray-300 py-3 items-center"
+          className="grid items-center gap-3 border-b border-gray-300 py-3"
           style={{
             gridTemplateColumns:
               role === "STUDENT" ? studentColumns : teacherColumns,
@@ -153,6 +154,7 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
           )}
         </div>
       ))}
+      </div>
     </div>
   );
 }

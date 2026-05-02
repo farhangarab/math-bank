@@ -65,8 +65,8 @@ function StudentListPage() {
         leftAction={() => navigate(-1)}
       />
 
-      <div className="flex flex-col items-center mt-10">
-        <h1 className="text-3xl font-bold text-brand-primary">
+      <div className="mx-auto mt-10 flex w-full max-w-[960px] flex-col items-center px-4 sm:px-6">
+        <h1 className="text-center text-3xl font-bold text-brand-primary">
           {className || "Class"}
         </h1>
 

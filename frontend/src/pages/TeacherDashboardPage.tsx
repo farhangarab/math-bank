@@ -49,13 +49,13 @@ function TeacherDashboardPage() {
       <Header />
 
       {/* MAIN CONTAINER */}
-      <div className="flex flex-col items-center mt-10">
+      <div className="mx-auto mt-10 flex w-full max-w-[960px] flex-col items-center px-4 sm:px-6">
         {/* Title */}
-        <h1 className="text-3xl font-bold text-brand-primary">
+        <h1 className="text-center text-3xl font-bold text-brand-primary">
           Teacher Dashboard
         </h1>
 
-        <p className="mt-2 mb-6">
+        <p className="mb-6 mt-2 text-center">
           Welcome back, {getFirstName(user?.full_name)}! 👋
         </p>
 

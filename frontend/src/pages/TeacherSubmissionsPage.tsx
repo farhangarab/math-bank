@@ -78,14 +78,16 @@ function TeacherSubmissionsPage() {
     <div className="min-h-screen bg-white">
       <Header title="MATHBANK" leftText="Back" leftAction={handleBack} />
 
-      <div className="flex flex-col items-center mt-10">
-        <Panel className="w-[800px]">
+      <div className="mx-auto mt-10 flex w-full max-w-[900px] flex-col items-center px-4 sm:px-6">
+        <Panel className="w-full">
           <h1 className="text-xl font-bold text-brand-primary mb-4">Submissions</h1>
           <MessageSlot message={message} />
 
+          <div className="overflow-x-auto">
+            <div className="min-w-[640px]">
           {/* TABLE HEADER */}
           <div
-            className="grid border-b border-brand-primary pb-2 font-semibold text-brand-primary"
+            className="grid gap-3 border-b border-brand-primary pb-2 font-semibold text-brand-primary"
             style={{ gridTemplateColumns: tableColumns }}
           >
             <div>Student</div>
@@ -98,7 +100,7 @@ function TeacherSubmissionsPage() {
           {attempts.map((a) => (
             <div
               key={a.attempt_id ?? `student-${a.student_id}`}
-              className="grid border-b border-gray-300 py-3 items-center"
+              className="grid items-center gap-3 border-b border-gray-300 py-3"
               style={{ gridTemplateColumns: tableColumns }}
             >
               <div>{a.student_name}</div>
@@ -123,6 +125,8 @@ function TeacherSubmissionsPage() {
               </div>
             </div>
           ))}
+            </div>
+          </div>
 
           {attempts.length === 0 && (
             <p className="text-gray-500 mt-4">No students found for this class.</p>

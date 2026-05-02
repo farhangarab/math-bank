@@ -37,7 +37,7 @@ function FloatingMathToolbar({
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-20 border-t border-brand-primary bg-brand-surface shadow-lg">
-      <div className="flex items-center justify-between gap-3 px-4 pt-3 sm:px-6 lg:px-8">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-3 sm:flex-nowrap sm:px-6 lg:px-8">
         <div className="text-sm font-semibold text-brand-primary">
           Insert Math Symbols
         </div>

@@ -118,7 +118,7 @@ function MathPreview({ expression, noBorder, compact }: Props) {
   return (
     <div
       className={`
-    bg-transparent text-brand-primary whitespace-pre-wrap
+    min-w-0 overflow-x-auto bg-transparent text-brand-primary whitespace-pre-wrap break-words
     ${compact ? "min-h-0" : "pt-2 mt-1 min-h-[32px]"}
     ${noBorder ? "" : "border-t border-dashed border-gray-200"}
   `}

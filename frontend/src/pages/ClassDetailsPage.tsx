@@ -80,15 +80,15 @@ function ClassDetailsPage() {
     <div className="min-h-screen bg-white">
       <Header title="MATHBANK" leftText="Back" leftAction={handleBack} />
 
-      <div className="flex flex-col items-center mt-10">
+      <div className="mx-auto mt-10 flex w-full max-w-[900px] flex-col items-center px-4 sm:px-6">
         {classInfo && (
           <>
-            <h1 className="text-3xl font-bold text-brand-primary">
+            <h1 className="text-center text-3xl font-bold text-brand-primary">
               {classInfo.class_name}
             </h1>
 
             {user?.role === "TEACHER" && (
-              <div className="mt-2 flex items-center gap-2 text-gray-600">
+              <div className="mt-2 flex flex-wrap items-center justify-center gap-2 text-gray-600">
                 <span>Class code:</span>
                 <CopyClassCode code={classInfo.class_code} />
               </div>
@@ -105,7 +105,7 @@ function ClassDetailsPage() {
           </>
         )}
 
-        <Panel className="w-[800px] mt-6">
+        <Panel className="mt-6 w-full">
           <h2 className="text-xl font-bold mb-4 text-brand-primary">Assignments</h2>
 
           <div className="flex flex-col gap-4">

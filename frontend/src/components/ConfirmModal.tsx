@@ -18,13 +18,13 @@ function ConfirmModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg w-[90%] max-w-md text-center shadow-lg">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+      <div className="w-full max-w-md rounded-lg bg-white p-5 text-center shadow-lg sm:p-6">
         <h2 className="text-lg font-bold text-brand-primary mb-3">{title}</h2>
 
         <p className="text-sm text-gray-600 mb-6">{message}</p>
 
-        <div className="flex justify-center gap-4">
+        <div className="flex flex-col justify-center gap-3 sm:flex-row sm:gap-4">
           <Button variant="ghost" onClick={onCancel}>
             Cancel
           </Button>

@@ -152,7 +152,7 @@ function DueDateTimeFields({
         </Tooltip>
       </div>
 
-      <div className="flex items-start gap-2 pt-8">
+      <div className="flex flex-wrap items-start gap-2 pt-0 lg:pt-8">
         <button
           type="button"
           onClick={handleOpenCalendar}

@@ -262,7 +262,7 @@ const StudentAssignmentPage = () => {
       >
         <section className="mb-5">
           <div>
-            <h1 className="text-2xl font-bold text-brand-primary">
+            <h1 className="break-words text-2xl font-bold text-brand-primary">
               {classInfo || assignment ? (
                 <>
                   {classInfo?.class_name ?? "Class"}{" "}
@@ -469,7 +469,7 @@ const StudentAssignmentPage = () => {
                 <h2 className="mb-3 text-lg font-bold text-brand-primary">
                   Questions
                 </h2>
-                <div className="grid max-h-[154px] grid-cols-8 gap-2 overflow-y-auto pr-1">
+                <div className="grid max-h-[154px] grid-cols-5 gap-2 overflow-y-auto pr-1 sm:grid-cols-8">
                   {questions.map((question, index) => (
                     <button
                       key={question.id}
@@ -514,7 +514,7 @@ const StudentAssignmentPage = () => {
                 <dl className="space-y-3 text-sm">
                   <div className="flex items-center justify-between gap-4">
                     <dt className="text-gray-500">Due Date</dt>
-                    <dd className="text-right font-semibold text-brand-primary">
+                    <dd className="min-w-0 break-words text-right font-semibold text-brand-primary">
                       {assignment?.due_date
                         ? formatDueDate(assignment.due_date)
                         : "No due date"}
@@ -529,7 +529,7 @@ const StudentAssignmentPage = () => {
                   {submittedAt && (
                     <div className="flex items-center justify-between gap-4">
                       <dt className="text-gray-500">Submitted Date</dt>
-                      <dd className="text-right font-semibold text-brand-primary">
+                      <dd className="min-w-0 break-words text-right font-semibold text-brand-primary">
                         {formatDueDate(submittedAt)}
                       </dd>
                     </div>

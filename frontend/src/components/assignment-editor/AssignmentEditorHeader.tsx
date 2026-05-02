@@ -22,8 +22,8 @@ function AssignmentEditorHeader({
 }: Props) {
   return (
     <section className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div>
-        <h1 className="text-2xl font-bold text-brand-primary">
+      <div className="min-w-0">
+        <h1 className="break-words text-2xl font-bold text-brand-primary">
           {classNameText}{" "}
           <span className="font-medium text-gray-400">&bull;</span>{" "}
           {assignmentTitle}

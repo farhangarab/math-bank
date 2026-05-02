@@ -7,29 +7,31 @@ type ClassCardProps = {
 
 function ClassCard({ id, name, code, onView }: ClassCardProps) {
   return (
-    <div className="flex items-center border border-brand-primary rounded px-4 py-3 mb-3">
+    <div className="mb-3 flex flex-col gap-3 rounded border border-brand-primary px-4 py-3 sm:flex-row sm:items-center">
       {/* name */}
-      <div className="w-1/3 text-lg font-semibold text-brand-primary">
+      <div className="min-w-0 text-lg font-semibold text-brand-primary sm:w-1/3">
         {name}
       </div>
 
       {/* class code */}
-      <div className="w-1/3 text-center text-m font-bold text-gray-600">
+      <div className="min-w-0 text-sm font-bold text-gray-600 sm:w-1/3 sm:text-center">
         {code && `Class code: ${code}`}
       </div>
 
       {/* button */}
-      <div className="w-1/3 flex justify-end">
+      <div className="flex sm:w-1/3 sm:justify-end">
         <button
           onClick={() => onView?.(id)}
           className="
             bg-brand-primary
             text-white
+            w-full
             px-4
             py-1
             rounded
             hover:bg-brand-primaryHover
             transition
+            sm:w-auto
           "
         >
           View

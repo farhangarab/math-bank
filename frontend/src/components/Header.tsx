@@ -38,9 +38,9 @@ function Header({
   const actionText = rightText ?? (user ? "Logout" : undefined);
 
   return (
-    <header className="h-16 flex items-center justify-between px-6 bg-brand-primary text-white">
+    <header className="flex min-h-16 flex-wrap items-center justify-between gap-3 bg-brand-primary px-4 py-3 text-white sm:flex-nowrap sm:px-6">
       {/* left */}
-      <div className="flex-1 flex justify-start">
+      <div className="flex flex-1 justify-start">
         {leftText && (
           <Button variant="outline" onClick={leftAction}>
             {leftText}
@@ -49,12 +49,12 @@ function Header({
       </div>
 
       {/* title */}
-      <div className="flex-1 text-center text-xl font-bold tracking-widest">
+      <div className="order-first w-full text-center text-xl font-bold tracking-widest sm:order-none sm:w-auto sm:flex-1">
         {title}
       </div>
 
       {/* right */}
-      <div className="flex-1 flex justify-end">
+      <div className="flex flex-1 justify-end">
         {actionText && (
           <Button variant="outline" onClick={handleRightAction}>
             {actionText}
