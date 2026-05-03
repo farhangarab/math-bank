@@ -35,127 +35,188 @@ function getStatusTooltip(status?: string) {
 }
 
 function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
-  const studentColumns = "2fr 2fr 1.2fr 1fr 120px";
-  const teacherColumns = "2fr 2fr 120px 120px";
+  const studentColumns = "2fr 2fr 1.2fr 1fr 120px 48px";
+  const teacherColumns = "2fr 2fr 120px 120px 48px";
 
   return (
-    <div className="w-full overflow-x-auto">
-      <div className={role === "STUDENT" ? "min-w-[720px]" : "min-w-[620px]"}>
-      {/* HEADER */}
-      <div
-        className="grid gap-3 border-b border-brand-primary pb-2 font-semibold text-brand-primary"
-        style={{
-          gridTemplateColumns:
-            role === "STUDENT" ? studentColumns : teacherColumns,
-        }}
-      >
-        <div>Name</div>
+    <>
+      <div className="space-y-3 min-[821px]:hidden">
+        {assignments.map((a) => (
+          <article
+            key={a.id}
+            className="relative rounded-md border border-brand-borderSoft bg-white p-4"
+          >
+            <button
+              type="button"
+              aria-label={`More actions for ${a.title}`}
+              className="absolute right-3 top-3 rounded-md px-2 py-1 text-xl font-bold leading-none text-brand-primary transition-colors hover:bg-brand-surface"
+            >
+              &#8942;
+            </button>
 
-        <div>Due</div>
+            <h3 className="truncate pr-8 text-base font-semibold text-brand-primary">
+              {a.title}
+            </h3>
 
-        {role === "STUDENT" && (
-          <>
-            <div>Status</div>
-            <div>Score</div>
-            <div>Action</div>
-          </>
-        )}
+            <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+              <div>
+                <dt className="font-semibold text-gray-500">Due</dt>
+                <dd className="text-gray-800">{formatDueDate(a.due_date)}</dd>
+              </div>
 
-        {role === "TEACHER" && (
-          <>
-            <div>Questions</div>
-            <div>Action</div>
-          </>
-        )}
+              {role === "STUDENT" ? (
+                <>
+                  <div>
+                    <dt className="font-semibold text-gray-500">Status</dt>
+                    <dd className="text-gray-800">
+                      <Tooltip text={getStatusTooltip(a.status)}>
+                        <span>{a.status ?? "NOT_STARTED"}</span>
+                      </Tooltip>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="font-semibold text-gray-500">Score</dt>
+                    <dd className="text-gray-800">{formatStudentScore(a)}</dd>
+                  </div>
+                </>
+              ) : null}
+            </dl>
+
+            {role === "STUDENT" ? (
+              <button
+                onClick={() => onOpen?.(a)}
+                className="mt-4 w-full rounded-md bg-brand-primary px-4 py-2 font-semibold text-white hover:bg-brand-primaryHover"
+              >
+                {getStudentActionLabel(a.status)}
+              </button>
+            ) : (
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <Tooltip text="Add or review questions." className="w-full">
+                  <button
+                    onClick={() => onEdit?.(a.id)}
+                    className="w-full rounded-md border border-brand-primary px-4 py-2 font-semibold text-brand-primary hover:bg-gray-100"
+                  >
+                    Add
+                  </button>
+                </Tooltip>
+                <button
+                  onClick={() => onOpen?.(a)}
+                  className="w-full rounded-md bg-brand-primary px-4 py-2 font-semibold text-white hover:bg-brand-primaryHover"
+                >
+                  Submissions
+                </button>
+              </div>
+            )}
+          </article>
+        ))}
       </div>
 
-      {/* ROWS */}
-      {assignments.map((a) => (
+      <div className="hidden overflow-hidden rounded-md border border-brand-borderSoft min-[821px]:block">
         <div
-          key={a.id}
-          className="grid items-center gap-3 border-b border-gray-300 py-3"
+          className="grid gap-3 bg-brand-surface px-4 py-3 font-semibold text-brand-primary"
           style={{
             gridTemplateColumns:
               role === "STUDENT" ? studentColumns : teacherColumns,
           }}
         >
-          {/* NAME */}
-          <div className="text-brand-primary">{a.title}</div>
+          <div>Name</div>
+          <div>Due</div>
 
-          {/* DUE */}
-          <div>{formatDueDate(a.due_date)}</div>
-
-          {/* STUDENT */}
           {role === "STUDENT" && (
             <>
-              <div>
-                <Tooltip text={getStatusTooltip(a.status)}>
-                  <span>{a.status ?? "NOT_STARTED"}</span>
-                </Tooltip>
-              </div>
-              <div>{formatStudentScore(a)}</div>
-
-              <div className="flex justify-start">
-                <button
-                  onClick={() => onOpen?.(a)}
-                  className="
-                    bg-brand-primary
-                    text-white
-                    w-[110px]
-                    py-1
-                    rounded
-                    hover:bg-brand-primaryHover
-                  "
-                >
-                  {getStudentActionLabel(a.status)}
-                </button>
-              </div>
+              <div>Status</div>
+              <div>Score</div>
+              <div>Action</div>
+              <div className="text-right">More</div>
             </>
           )}
 
-          {/* TEACHER */}
           {role === "TEACHER" && (
             <>
-              <div className="flex justify-start">
-                <Tooltip text="Add or review questions.">
-                  <button
-                    onClick={() => onEdit?.(a.id)}
-                    className="
-                      border
-                      border-brand-primary
-                      text-brand-primary
-                      w-[110px]
-                      py-1
-                      rounded
-                      hover:bg-gray-100
-                    "
-                  >
-                    Add
-                  </button>
-                </Tooltip>
-              </div>
-
-              <div className="flex justify-start">
-                <button
-                  onClick={() => onOpen?.(a)}
-                  className="
-                    bg-brand-primary
-                    text-white
-                    w-[110px]
-                    py-1
-                    rounded
-                    hover:bg-brand-primaryHover
-                  "
-                >
-                  Submissions
-                </button>
-              </div>
+              <div>Questions</div>
+              <div>Action</div>
+              <div className="text-right">More</div>
             </>
           )}
         </div>
-      ))}
+
+        {assignments.map((a) => (
+          <div
+            key={a.id}
+            className="grid items-center gap-3 border-t border-brand-borderSoft px-4 py-3"
+            style={{
+              gridTemplateColumns:
+                role === "STUDENT" ? studentColumns : teacherColumns,
+            }}
+          >
+            <div className="min-w-0 truncate text-brand-primary">{a.title}</div>
+            <div>{formatDueDate(a.due_date)}</div>
+
+            {role === "STUDENT" && (
+              <>
+                <div>
+                  <Tooltip text={getStatusTooltip(a.status)}>
+                    <span>{a.status ?? "NOT_STARTED"}</span>
+                  </Tooltip>
+                </div>
+                <div>{formatStudentScore(a)}</div>
+
+                <div className="flex justify-start">
+                  <button
+                    onClick={() => onOpen?.(a)}
+                    className="w-[110px] rounded bg-brand-primary py-1 text-white hover:bg-brand-primaryHover"
+                  >
+                    {getStudentActionLabel(a.status)}
+                  </button>
+                </div>
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    aria-label={`More actions for ${a.title}`}
+                    className="rounded-md px-2 py-2 text-xl font-bold leading-none text-brand-primary transition-colors hover:bg-brand-surface"
+                  >
+                    &#8942;
+                  </button>
+                </div>
+              </>
+            )}
+
+            {role === "TEACHER" && (
+              <>
+                <div className="flex justify-start">
+                  <Tooltip text="Add or review questions.">
+                    <button
+                      onClick={() => onEdit?.(a.id)}
+                      className="w-[110px] rounded border border-brand-primary py-1 text-brand-primary hover:bg-gray-100"
+                    >
+                      Add
+                    </button>
+                  </Tooltip>
+                </div>
+
+                <div className="flex justify-start">
+                  <button
+                    onClick={() => onOpen?.(a)}
+                    className="w-[110px] rounded bg-brand-primary py-1 text-white hover:bg-brand-primaryHover"
+                  >
+                    Submissions
+                  </button>
+                </div>
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    aria-label={`More actions for ${a.title}`}
+                    className="rounded-md px-2 py-2 text-xl font-bold leading-none text-brand-primary transition-colors hover:bg-brand-surface"
+                  >
+                    &#8942;
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        ))}
       </div>
-    </div>
+    </>
   );
 }
 

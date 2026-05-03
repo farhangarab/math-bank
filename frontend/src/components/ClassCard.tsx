@@ -9,7 +9,7 @@ function ClassCard({ id, name, code, onView }: ClassCardProps) {
   return (
     <div className="mb-3 flex flex-col gap-3 rounded border border-brand-primary px-4 py-3 sm:flex-row sm:items-center">
       {/* name */}
-      <div className="min-w-0 text-lg font-semibold text-brand-primary sm:w-1/3">
+      <div className="min-w-0 truncate text-lg font-semibold text-brand-primary sm:w-1/3">
         {name}
       </div>
 

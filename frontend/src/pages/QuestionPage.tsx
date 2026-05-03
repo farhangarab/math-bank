@@ -163,9 +163,12 @@ function QuestionPage() {
       <Header title="MATHBANK" leftText="Back" leftAction={handleBack} />
 
       <main
-        className={`w-full px-4 py-6 sm:px-6 lg:px-8 ${
-          showMathSymbols ? "pb-44" : "pb-10"
-        }`}
+        className="w-full px-4 py-6 sm:px-6 lg:px-8"
+        style={{
+          paddingBottom: showMathSymbols
+            ? "var(--math-toolbar-space, 22rem)"
+            : "7rem",
+        }}
       >
         <AssignmentEditorHeader
           classNameText={classInfo?.class_name ?? "Class"}

@@ -106,9 +106,10 @@ type Props = {
   expression: string;
   noBorder?: boolean;
   compact?: boolean;
+  singleLine?: boolean;
 };
 
-function MathPreview({ expression, noBorder, compact }: Props) {
+function MathPreview({ expression, noBorder, compact, singleLine }: Props) {
   if (!expression) {
     return <div className="text-gray-400">Nothing to preview</div>;
   }
@@ -118,7 +119,12 @@ function MathPreview({ expression, noBorder, compact }: Props) {
   return (
     <div
       className={`
-    min-w-0 overflow-x-auto bg-transparent text-brand-primary whitespace-pre-wrap break-words
+    min-w-0 bg-transparent text-brand-primary
+    ${
+      singleLine
+        ? "overflow-hidden text-ellipsis whitespace-nowrap"
+        : "overflow-x-auto whitespace-pre-wrap break-words"
+    }
     ${compact ? "min-h-0" : "pt-2 mt-1 min-h-[32px]"}
     ${noBorder ? "" : "border-t border-dashed border-gray-200"}
   `}

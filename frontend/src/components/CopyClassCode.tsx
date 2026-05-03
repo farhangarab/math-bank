@@ -23,15 +23,15 @@ function CopyClassCode({ code }: CopyClassCodeProps) {
   if (!code) return <span>-</span>;
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex min-w-0 flex-wrap items-center gap-2">
       <Tooltip text="Copy class code">
         <button
           type="button"
           onClick={handleCopy}
           aria-label={`Copy class code ${code}`}
-          className="flex cursor-copy items-center gap-2 font-bold text-gray-600 hover:text-brand-primary"
+          className="flex min-w-0 cursor-copy items-center gap-2 font-bold text-gray-600 hover:text-brand-primary"
         >
-          <span>{code}</span>
+          <span className="break-all">{code}</span>
           <CopyIcon />
         </button>
       </Tooltip>

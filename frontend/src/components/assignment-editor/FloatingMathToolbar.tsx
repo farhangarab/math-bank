@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import Button from "../Button";
 import MathToolbar from "../MathToolbar";
 import KeyboardIcon from "../icons/KeyboardIcon";
@@ -21,6 +22,37 @@ function FloatingMathToolbar({
   onShow,
   onHide,
 }: Props) {
+  const toolbarRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!showMathSymbols) {
+      document.documentElement.style.removeProperty("--math-toolbar-space");
+      return;
+    }
+
+    const toolbar = toolbarRef.current;
+    if (!toolbar) return;
+
+    const updateToolbarSpace = () => {
+      const height = Math.ceil(toolbar.getBoundingClientRect().height);
+      document.documentElement.style.setProperty(
+        "--math-toolbar-space",
+        `${height + 120}px`,
+      );
+    };
+
+    updateToolbarSpace();
+    const resizeObserver = new ResizeObserver(updateToolbarSpace);
+    resizeObserver.observe(toolbar);
+    window.addEventListener("resize", updateToolbarSpace);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", updateToolbarSpace);
+      document.documentElement.style.removeProperty("--math-toolbar-space");
+    };
+  }, [showMathSymbols]);
+
   if (!showMathSymbols) {
     return (
       <button
@@ -36,7 +68,10 @@ function FloatingMathToolbar({
   }
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-20 border-t border-brand-primary bg-brand-surface shadow-lg">
+    <div
+      ref={toolbarRef}
+      className="fixed inset-x-0 bottom-0 z-20 border-t border-brand-primary bg-brand-surface shadow-lg"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-3 sm:flex-nowrap sm:px-6 lg:px-8">
         <div className="text-sm font-semibold text-brand-primary">
           Insert Math Symbols

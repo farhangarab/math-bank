@@ -83,11 +83,46 @@ function TeacherSubmissionsPage() {
           <h1 className="text-xl font-bold text-brand-primary mb-4">Submissions</h1>
           <MessageSlot message={message} />
 
-          <div className="overflow-x-auto">
-            <div className="min-w-[640px]">
+          <div className="space-y-3 min-[721px]:hidden">
+            {attempts.map((a) => (
+              <article
+                key={a.attempt_id ?? `student-${a.student_id}`}
+                className="rounded-md border border-brand-borderSoft bg-white p-4"
+              >
+                <h2 className="break-words text-base font-semibold text-brand-primary">
+                  {a.student_name}
+                </h2>
+                <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                  <div>
+                    <dt className="font-semibold text-gray-500">Status</dt>
+                    <dd className="text-gray-800">{getStatusLabel(a.status)}</dd>
+                  </div>
+                  <div>
+                    <dt className="font-semibold text-gray-500">Score</dt>
+                    <dd className="text-gray-800">{formatScore(a)}</dd>
+                  </div>
+                </dl>
+
+                {canReviewAttempt(a) ? (
+                  <button
+                    onClick={() => handleView(a.attempt_id!)}
+                    className="mt-4 w-full rounded-md bg-brand-primary px-4 py-2 font-semibold text-white hover:bg-brand-primaryHover"
+                  >
+                    {getActionLabel(a)}
+                  </button>
+                ) : (
+                  <div className="mt-4 rounded-md bg-brand-surface px-4 py-2 text-center font-semibold text-gray-500">
+                    {a.status === "IN_PROGRESS" ? "Waiting" : "No submission"}
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+
+          <div className="hidden overflow-hidden rounded-md border border-brand-borderSoft min-[721px]:block">
           {/* TABLE HEADER */}
           <div
-            className="grid gap-3 border-b border-brand-primary pb-2 font-semibold text-brand-primary"
+            className="grid gap-3 bg-brand-surface px-4 py-3 font-semibold text-brand-primary"
             style={{ gridTemplateColumns: tableColumns }}
           >
             <div>Student</div>
@@ -100,7 +135,7 @@ function TeacherSubmissionsPage() {
           {attempts.map((a) => (
             <div
               key={a.attempt_id ?? `student-${a.student_id}`}
-              className="grid items-center gap-3 border-b border-gray-300 py-3"
+              className="grid items-center gap-3 border-t border-brand-borderSoft px-4 py-3"
               style={{ gridTemplateColumns: tableColumns }}
             >
               <div>{a.student_name}</div>
@@ -125,7 +160,6 @@ function TeacherSubmissionsPage() {
               </div>
             </div>
           ))}
-            </div>
           </div>
 
           {attempts.length === 0 && (

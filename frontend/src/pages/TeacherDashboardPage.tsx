@@ -76,8 +76,72 @@ function TeacherDashboardPage() {
           {classes.length === 0 ? (
             <p className="mt-6 text-gray-500">No classes yet.</p>
           ) : (
-            <div className="mt-6 overflow-x-auto rounded-md border border-brand-borderSoft">
-              <table className="w-full min-w-[760px] border-collapse text-left">
+            <>
+            <div className="mt-4 space-y-2 min-[821px]:hidden">
+              {classes.map((c) => (
+                <article
+                  key={c.id}
+                  className="relative rounded-md border border-brand-borderSoft bg-white p-3 sm:p-4"
+                >
+                  <button
+                    type="button"
+                    aria-label={`More actions for ${c.class_name}`}
+                    className="absolute right-3 top-3 rounded-md px-2 py-1 text-xl font-bold leading-none text-brand-primary transition-colors hover:bg-brand-surface"
+                  >
+                    &#8942;
+                  </button>
+
+                  <h3 className="truncate pr-8 text-sm font-semibold text-brand-primary sm:text-base">
+                    {c.class_name}
+                  </h3>
+                  <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs sm:gap-x-4 sm:text-sm">
+                    <div>
+                      <dt className="font-semibold text-gray-500">Class Code</dt>
+                      <dd className="text-gray-800">
+                        <CopyClassCode code={c.class_code} />
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold text-gray-500">Students</dt>
+                      <dd>
+                        <button
+                          type="button"
+                          onClick={() => handleViewStudents(c.id)}
+                          aria-label={`Open student list for ${c.class_name}`}
+                          className="font-semibold text-brand-primary underline"
+                        >
+                          {c.students_count ?? 0}
+                        </button>
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold text-gray-500">Assignments</dt>
+                      <dd className="text-gray-800">
+                        {c.assignments_count ?? 0}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold text-gray-500">Created</dt>
+                      <dd className="text-gray-800">
+                        {formatCreatedDate(c.created_at)}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  <div className="mt-3 sm:mt-4">
+                    <Button
+                      className="w-full px-3 py-1.5 text-sm sm:px-4 sm:py-2"
+                      onClick={() => handleView(c.id)}
+                    >
+                      View
+                    </Button>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <div className="mt-6 hidden rounded-md border border-brand-borderSoft min-[821px]:block">
+              <table className="w-full border-collapse text-left">
                 <thead className="bg-brand-surface text-sm text-brand-primary">
                   <tr>
                     <th className="px-4 py-3 font-bold">Class Name</th>
@@ -86,12 +150,15 @@ function TeacherDashboardPage() {
                     <th className="px-4 py-3 font-bold">Assignments</th>
                     <th className="px-4 py-3 font-bold">Created</th>
                     <th className="px-4 py-3 font-bold">Actions</th>
+                    <th className="px-4 py-3 text-right font-bold">
+                      More
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {classes.map((c) => (
                     <tr key={c.id} className="border-t border-brand-borderSoft">
-                      <td className="px-4 py-3 font-semibold text-brand-primary">
+                      <td className="max-w-[220px] truncate px-4 py-3 font-semibold text-brand-primary">
                         {c.class_name}
                       </td>
                       <td className="px-4 py-3 font-bold text-gray-600">
@@ -115,22 +182,28 @@ function TeacherDashboardPage() {
                         {formatCreatedDate(c.created_at)}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex w-full items-center justify-between gap-2">
-                          <Button onClick={() => handleView(c.id)}>View</Button>
-                          <button
-                            type="button"
-                            aria-label={`More actions for ${c.class_name}`}
-                            className="ml-auto rounded-md px-2 py-2 text-xl font-bold leading-none text-brand-primary transition-colors hover:bg-brand-surface"
-                          >
-                            &#8942;
-                          </button>
-                        </div>
+                        <Button
+                          className="px-4 py-1.5 text-sm"
+                          onClick={() => handleView(c.id)}
+                        >
+                          View
+                        </Button>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <button
+                          type="button"
+                          aria-label={`More actions for ${c.class_name}`}
+                          className="rounded-md px-2 py-2 text-xl font-bold leading-none text-brand-primary transition-colors hover:bg-brand-surface"
+                        >
+                          &#8942;
+                        </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
+            </>
           )}
         </Panel>
       </div>
