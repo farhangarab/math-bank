@@ -262,10 +262,10 @@ const StudentAssignmentPage = () => {
       >
         <section className="mb-5">
           <div className="min-w-0">
-            <h1 className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 text-2xl font-bold text-brand-primary">
+            <h1 className="flex min-w-0 items-center gap-2 text-2xl font-bold text-brand-primary">
               {classInfo || assignment ? (
                 <>
-                  <span className="min-w-0 truncate">
+                  <span className="min-w-0 max-w-[48%] truncate">
                     {classInfo?.class_name ?? "Class"}
                   </span>
                   {assignment?.title && (
@@ -273,7 +273,7 @@ const StudentAssignmentPage = () => {
                       <span className="font-medium text-gray-400">
                         &bull;
                       </span>
-                      <span className="min-w-0 truncate">
+                      <span className="min-w-0 max-w-[48%] truncate">
                         {assignment.title}
                       </span>
                     </>
@@ -285,47 +285,69 @@ const StudentAssignmentPage = () => {
             </h1>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]">
-            <div className="flex justify-end mr-2">
+          <div className="mt-3 flex flex-row items-center justify-between gap-2 sm:justify-end">
+            <Tooltip text="Show or hide your rendered answer.">
+              <span>
+                <Button
+                  variant="ghost"
+                  className="whitespace-nowrap px-3 py-1.5 text-sm sm:px-4 sm:py-2"
+                  onClick={() => setShowPreview((v) => !v)}
+                >
+                  {showPreview ? "Hide Preview" : "Show Preview"}
+                </Button>
+              </span>
+            </Tooltip>
+
               {!isReadOnly && currentQuestion && (
-                <Tooltip text="Turn in the assignment and lock your answers.">
-                  <span>
-                    <Button onClick={handleSubmitClick}>Submit</Button>
-                  </span>
-                </Tooltip>
+                <div className="lg:hidden">
+                  <Tooltip text="Turn in the assignment and lock your answers.">
+                    <span>
+                      <Button
+                        className="whitespace-nowrap px-3 py-1.5 text-sm sm:px-4 sm:py-2"
+                        onClick={handleSubmitClick}
+                      >
+                        Submit
+                      </Button>
+                    </span>
+                  </Tooltip>
+                </div>
               )}
             </div>
-
-            <div className="flex flex-wrap gap-2 lg:justify-end">
-              <Tooltip text="Show or hide your rendered answer.">
-                <span>
-                  <Button
-                    variant="ghost"
-                    onClick={() => setShowPreview((v) => !v)}
-                  >
-                    {showPreview ? "Hide Preview" : "Show Preview"}
-                  </Button>
-                </span>
-              </Tooltip>
-            </div>
-          </div>
-        </section>
+          </section>
 
         {currentQuestion && (
           <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]">
-            <Panel className="min-w-0">
-              <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="relative min-w-0">
+              {!isReadOnly && (
+                <div className="absolute right-0 top-0 hidden -translate-y-[calc(100%+1.25rem)] justify-end lg:flex">
+                  <Tooltip text="Turn in the assignment and lock your answers.">
+                    <span>
+                      <Button
+                        className="whitespace-nowrap px-4 py-1.5 text-sm"
+                        onClick={handleSubmitClick}
+                      >
+                        Submit
+                      </Button>
+                    </span>
+                  </Tooltip>
+                </div>
+              )}
+
+              <Panel className="min-w-0">
+              <div className="mb-4">
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-wide text-gray-500">
-                    Question {currentIndex + 1}/{questions.length}
-                  </p>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+                      Question {currentIndex + 1}/{questions.length}
+                    </p>
+                    <span className="w-fit shrink-0 rounded-md border border-brand-borderSoft bg-brand-surface px-3 py-1 text-sm font-semibold text-brand-primary">
+                      {currentQuestion.points} pts
+                    </span>
+                  </div>
                   <h2 className="mt-1 text-xl font-bold text-brand-primary">
                     Question {currentIndex + 1}
                   </h2>
                 </div>
-                <span className="w-fit rounded-md border border-brand-borderSoft bg-brand-surface px-3 py-1 text-sm font-semibold text-brand-primary">
-                  {currentQuestion.points} pts
-                </span>
               </div>
 
               <div className="mb-4 rounded-md border border-brand-borderSoft bg-white px-4 py-3 text-brand-primary">
@@ -445,7 +467,8 @@ const StudentAssignmentPage = () => {
                   </p>
                 </div>
               )}
-            </Panel>
+              </Panel>
+            </div>
 
             <aside className="min-w-0 space-y-4 lg:sticky lg:top-6 lg:h-fit">
               {showPreview && (
