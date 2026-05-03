@@ -261,15 +261,21 @@ const StudentAssignmentPage = () => {
         }`}
       >
         <section className="mb-5">
-          <div>
-            <h1 className="break-words text-2xl font-bold text-brand-primary">
+          <div className="min-w-0">
+            <h1 className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 text-2xl font-bold text-brand-primary">
               {classInfo || assignment ? (
                 <>
-                  {classInfo?.class_name ?? "Class"}{" "}
+                  <span className="min-w-0 truncate">
+                    {classInfo?.class_name ?? "Class"}
+                  </span>
                   {assignment?.title && (
                     <>
-                      <span className="font-medium text-gray-400">&bull;</span>{" "}
-                      {assignment.title}
+                      <span className="font-medium text-gray-400">
+                        &bull;
+                      </span>
+                      <span className="min-w-0 truncate">
+                        {assignment.title}
+                      </span>
                     </>
                   )}
                 </>

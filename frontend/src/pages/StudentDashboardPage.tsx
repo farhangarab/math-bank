@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import Header from "../components/Header";
 import { ROUTES } from "../router/routes";
-import ClassCard from "../components/ClassCard";
 import { useEffect, useState } from "react";
 import { getStudentClasses } from "../api/classes";
 import { useAuth } from "../context/AuthContext";
@@ -68,21 +67,99 @@ function StudentDashboardPage() {
             My Classes
           </h2>
 
-          {/* Classes list */}
-          <div className="flex flex-col gap-4 mt-6">
-            {classes.map((c) => (
-              <ClassCard
-                key={c.class_id ?? c.id}
-                id={c.class_id ?? c.id}
-                name={c.class_name}
-                onView={handleView}
-              />
-            ))}
+          {classes.length === 0 ? (
+            <p className="mt-6 text-gray-500">No classes yet.</p>
+          ) : (
+            <>
+              <div className="mt-4 space-y-2 min-[821px]:hidden">
+                {classes.map((c) => {
+                  const classId = c.class_id ?? c.id;
 
-            {classes.length === 0 && (
-              <p className="text-gray-500">No classes yet.</p>
-            )}
-          </div>
+                  return (
+                    <article
+                      key={classId}
+                      className="rounded-md border border-brand-borderSoft bg-white p-3 sm:p-4"
+                    >
+                      <h3 className="truncate text-sm font-semibold text-brand-primary sm:text-base">
+                        {c.class_name}
+                      </h3>
+
+                      <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs sm:text-sm">
+                        <div className="min-w-0">
+                          <dt className="font-semibold text-gray-500">
+                            Professor
+                          </dt>
+                          <dd className="truncate text-gray-800">
+                            {c.professor_name}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="font-semibold text-gray-500">
+                            Assignments
+                          </dt>
+                          <dd className="text-gray-800">
+                            {c.assignments_count ?? 0}
+                          </dd>
+                        </div>
+                      </dl>
+
+                      <div className="mt-3 sm:mt-4">
+                        <Button
+                          className="w-full px-3 py-1.5 text-sm sm:px-4 sm:py-2"
+                          onClick={() => handleView(classId)}
+                        >
+                          View
+                        </Button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+
+              <div className="mt-6 hidden overflow-hidden rounded-md border border-brand-borderSoft min-[821px]:block">
+                <table className="w-full border-collapse text-left">
+                  <thead className="bg-brand-surface text-sm text-brand-primary">
+                    <tr>
+                      <th className="px-4 py-3 font-bold">Class Name</th>
+                      <th className="px-4 py-3 font-bold">Professor</th>
+                      <th className="px-4 py-3 font-bold">Assignments</th>
+                      <th className="px-4 py-3 font-bold">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {classes.map((c) => {
+                      const classId = c.class_id ?? c.id;
+
+                      return (
+                        <tr
+                          key={classId}
+                          className="border-t border-brand-borderSoft"
+                        >
+                          <td className="max-w-[240px] truncate px-4 py-3 font-semibold text-brand-primary">
+                            {c.class_name}
+                          </td>
+                          <td className="max-w-[200px] truncate px-4 py-3 text-gray-700">
+                            {c.professor_name}
+                          </td>
+                          <td className="px-4 py-3 text-gray-700">
+                            {c.assignments_count ?? 0}
+                          </td>
+                          <td className="px-4 py-3">
+                            <Button
+                              className="px-4 py-1.5 text-sm"
+                              onClick={() => handleView(classId)}
+                            >
+                              View
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </Panel>
       </div>
     </div>
