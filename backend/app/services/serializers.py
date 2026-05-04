@@ -12,6 +12,13 @@ def serialize_due_date(due_date):
     return due_date.strftime("%Y-%m-%dT%H:%M")
 
 
+def serialize_datetime(date_time):
+    if not date_time:
+        return None
+
+    return date_time.strftime("%Y-%m-%dT%H:%M")
+
+
 def serialize_question(question, include_answer=True):
     question_data = {
         "id": question.id,
