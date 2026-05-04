@@ -3,7 +3,7 @@ export function toLatex(input: string): string {
 
   let out = input;
 
-  out = out.replace(/([a-zA-Z0-9\]\)])\^([0-9]+|[a-zA-Z])/g, "$1^{$2}");
+  out = out.replace(/([a-zA-Z0-9\]]|\))\^([0-9]+|[a-zA-Z])/g, "$1^{$2}");
   out = out.replace(/sqrt\((.*?)\)/g, "\\sqrt{$1}");
   out = out.replace(
     /integrate\((.+?)\s*,\s*([a-zA-Z])\)/g,

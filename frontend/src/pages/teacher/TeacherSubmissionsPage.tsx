@@ -1,12 +1,12 @@
-import Header from "../components/Header";
+import Header from "../../components/layout/Header";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getAssignmentAttempts } from "../api/assignments";
-import { useMessage } from "../hooks/useMessage";
-import MessageSlot from "../components/MessageSlot";
-import type { AttemptSummary } from "../types/attempt";
-import { formatNumber } from "../utils/format";
-import Panel from "../components/Panel";
+import { getAssignmentAttempts } from "../../api/assignments";
+import { useMessage } from "../../hooks/useMessage";
+import MessageSlot from "../../components/ui/MessageSlot";
+import type { AttemptSummary } from "../../types/attempt";
+import { formatNumber } from "../../utils/format";
+import Panel from "../../components/ui/Panel";
 
 function TeacherSubmissionsPage() {
   const tableColumns = "2fr 1.2fr 1fr 120px";
@@ -66,13 +66,13 @@ function TeacherSubmissionsPage() {
         clearAllMessages();
         const data = await getAssignmentAttempts(Number(id));
         setAttempts(data);
-      } catch (err: any) {
+      } catch (err) {
         showApiError(err, "Failed to load submissions.");
       }
     };
 
-    if (id) load();
-  }, [id]);
+    if (id) void load();
+  }, [clearAllMessages, id, showApiError]);
 
   return (
     <div className="min-h-screen bg-white">

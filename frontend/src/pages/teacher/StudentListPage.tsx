@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getClassStudents, removeClassStudent } from "../api/classes";
-import ConfirmModal from "../components/ConfirmModal";
-import Header from "../components/Header";
-import MessageSlot from "../components/MessageSlot";
-import Panel from "../components/Panel";
-import type { ClassStudent } from "../types/class";
-import { useMessage } from "../hooks/useMessage";
-import { formatCreatedDate } from "../utils/format";
+import { getClassStudents, removeClassStudent } from "../../api/classes";
+import ConfirmModal from "../../components/ui/ConfirmModal";
+import Header from "../../components/layout/Header";
+import MessageSlot from "../../components/ui/MessageSlot";
+import Panel from "../../components/ui/Panel";
+import type { ClassStudent } from "../../types/class";
+import { useMessage } from "../../hooks/useMessage";
+import { formatCreatedDate } from "../../utils/format";
 
 function StudentListPage() {
   const { classId } = useParams();
@@ -19,16 +19,16 @@ function StudentListPage() {
   );
   const { message, clearAllMessages, showApiError, showSuccess } = useMessage();
 
-  const loadStudents = async () => {
+  const loadStudents = useCallback(async () => {
     try {
-      clearAllMessages();
       const data = await getClassStudents(Number(classId));
+      clearAllMessages();
       setClassName(data.class_name);
       setStudents(data.students);
     } catch (err) {
       showApiError(err, "Failed to load students.");
     }
-  };
+  }, [classId, clearAllMessages, showApiError]);
 
   const handleRemove = async () => {
     if (!studentToRemove) return;
@@ -53,9 +53,11 @@ function StudentListPage() {
 
   useEffect(() => {
     if (classId) {
-      loadStudents();
+      queueMicrotask(() => {
+        void loadStudents();
+      });
     }
-  }, [classId]);
+  }, [classId, loadStudents]);
 
   return (
     <div className="min-h-screen bg-white">

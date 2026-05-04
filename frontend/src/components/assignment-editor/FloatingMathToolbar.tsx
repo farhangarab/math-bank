@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
-import Button from "../Button";
-import MathToolbar from "../MathToolbar";
+import Button from "../ui/Button";
+import MathToolbar from "../math/MathToolbar";
 import KeyboardIcon from "../icons/KeyboardIcon";
 
 type Props = {

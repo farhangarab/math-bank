@@ -1,7 +1,7 @@
-import type { Assignment } from "../types/assignment";
-import Tooltip from "./ui/Tooltip";
-import { formatDueDate, formatNumber } from "../utils/format";
-import MoreActionsMenu from "./MoreActionsMenu";
+import type { Assignment } from "../../types/assignment";
+import Tooltip from "../ui/Tooltip";
+import { formatDueDate, formatNumber } from "../../utils/format";
+import MoreActionsMenu from "../ui/MoreActionsMenu";
 
 type Props = {
   assignments: Assignment[];

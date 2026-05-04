@@ -1,8 +1,8 @@
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import Header from "../components/Header";
-import { ROUTES } from "../router/routes";
-import Button from "../components/Button";
-import { useAuth } from "../context/AuthContext";
+import Header from "../../components/layout/Header";
+import { ROUTES } from "../../router/routes";
+import Button from "../../components/ui/Button";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function WelcomePage() {
   const navigate = useNavigate();

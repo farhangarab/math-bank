@@ -1,20 +1,20 @@
-import Header from "../components/Header";
+import Header from "../../components/layout/Header";
 import { useNavigate, useParams } from "react-router-dom";
-import { ROUTES } from "../router/routes";
-import Button from "../components/Button";
+import { ROUTES } from "../../router/routes";
+import Button from "../../components/ui/Button";
 import { useEffect, useState } from "react";
-import { deleteAssignment, getAssignments } from "../api/assignments";
-import { getClassById } from "../api/classes";
-import AssignmentTable from "../components/AssignmentTable";
-import { startAttempt } from "../api/attempts";
-import type { Assignment } from "../types/assignment";
-import { useAuth } from "../context/AuthContext";
-import { useMessage } from "../hooks/useMessage";
-import MessageSlot from "../components/MessageSlot";
-import type { ClassInfo } from "../types/class";
-import Panel from "../components/Panel";
-import CopyClassCode from "../components/CopyClassCode";
-import ConfirmModal from "../components/ConfirmModal";
+import { deleteAssignment, getAssignments } from "../../api/assignments";
+import { getClassById } from "../../api/classes";
+import AssignmentTable from "../../components/assignment/AssignmentTable";
+import { startAttempt } from "../../api/attempts";
+import type { Assignment } from "../../types/assignment";
+import { useAuth } from "../../hooks/useAuth";
+import { useMessage } from "../../hooks/useMessage";
+import MessageSlot from "../../components/ui/MessageSlot";
+import type { ClassInfo } from "../../types/class";
+import Panel from "../../components/ui/Panel";
+import CopyClassCode from "../../components/class/CopyClassCode";
+import ConfirmModal from "../../components/ui/ConfirmModal";
 
 function ClassDetailsPage() {
   const { id } = useParams();
@@ -94,13 +94,13 @@ function ClassDetailsPage() {
         const assign = await getAssignments(Number(id));
 
         setAssignments(assign);
-      } catch (err: any) {
+      } catch (err) {
         showApiError(err, "Failed to load class details.");
       }
     };
 
-    if (id && user) load();
-  }, [id, user]);
+    if (id && user) void load();
+  }, [clearAllMessages, id, showApiError, user]);
 
   return (
     <div className="min-h-screen bg-white">

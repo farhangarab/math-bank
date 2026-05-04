@@ -1,14 +1,14 @@
-import Header from "../components/Header";
-import Input from "../components/Input";
-import Button from "../components/Button";
+import Header from "../../components/layout/Header";
+import Input from "../../components/ui/Input";
+import Button from "../../components/ui/Button";
 import { Link, useNavigate } from "react-router-dom";
-import { ROUTES } from "../router/routes";
+import { ROUTES } from "../../router/routes";
 import { useState } from "react";
-import { registerUser } from "../api/auth";
-import { useMessage } from "../hooks/useMessage";
-import { firstInvalid } from "../utils/validation";
-import MessageSlot from "../components/MessageSlot";
-import Tooltip from "../components/ui/Tooltip";
+import { registerUser } from "../../api/auth";
+import { useMessage } from "../../hooks/useMessage";
+import { firstInvalid } from "../../utils/validation";
+import MessageSlot from "../../components/ui/MessageSlot";
+import Tooltip from "../../components/ui/Tooltip";
 
 export default function TeacherRegisterPage() {
   const [username, setUsername] = useState("");
@@ -106,7 +106,7 @@ export default function TeacherRegisterPage() {
       setTimeout(() => {
         navigate(ROUTES.LOGIN);
       }, 1500);
-    } catch (err: any) {
+    } catch (err) {
       showApiError(err, "Registration failed.");
     }
   };

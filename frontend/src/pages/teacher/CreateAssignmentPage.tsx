@@ -5,13 +5,13 @@ import {
   createAssignment,
   getAssignmentById,
   updateAssignment,
-} from "../api/assignments";
-import Header from "../components/Header";
-import Input from "../components/Input";
-import Button from "../components/Button";
-import DueDateTimeFields from "../components/DueDateTimeFields";
-import { useMessage } from "../hooks/useMessage";
-import MessageSlot from "../components/MessageSlot";
+} from "../../api/assignments";
+import Header from "../../components/layout/Header";
+import Input from "../../components/ui/Input";
+import Button from "../../components/ui/Button";
+import DueDateTimeFields from "../../components/assignment/DueDateTimeFields";
+import { useMessage } from "../../hooks/useMessage";
+import MessageSlot from "../../components/ui/MessageSlot";
 import {
   getLocalDateTimeValue,
   getTimePartsFromDateTime,
@@ -20,7 +20,7 @@ import {
   isValidDateValue,
   isValidTimeValue,
   type TimePeriod,
-} from "../utils/dueDateTime";
+} from "../../utils/dueDateTime";
 
 export default function CreateAssignmentPage() {
   const { id, assignmentId } = useParams();
@@ -95,8 +95,8 @@ export default function CreateAssignmentPage() {
       }
     }
 
-    loadAssignmentForEdit();
-  }, [classId, editAssignmentId]);
+    void loadAssignmentForEdit();
+  }, [classId, clearAllMessages, editAssignmentId, showApiError]);
 
   const handleBack = () => {
     navigate(-1);
@@ -226,7 +226,7 @@ export default function CreateAssignmentPage() {
       setTimeout(() => {
         navigate(`/class/${classId}`);
       }, 1000);
-    } catch (err: any) {
+    } catch (err) {
       showApiError(
         err,
         isEditMode ? "Update assignment failed." : "Create assignment failed.",

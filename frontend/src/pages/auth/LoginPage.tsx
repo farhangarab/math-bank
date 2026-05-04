@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Header from "../components/Header";
-import Input from "../components/Input";
-import { ROUTES } from "../router/routes";
-import Button from "../components/Button";
-import { useAuth } from "../context/AuthContext";
-import { useMessage } from "../hooks/useMessage";
-import { firstInvalid } from "../utils/validation";
-import MessageSlot from "../components/MessageSlot";
+import Header from "../../components/layout/Header";
+import Input from "../../components/ui/Input";
+import { ROUTES } from "../../router/routes";
+import Button from "../../components/ui/Button";
+import { useAuth } from "../../hooks/useAuth";
+import { useMessage } from "../../hooks/useMessage";
+import { firstInvalid } from "../../utils/validation";
+import MessageSlot from "../../components/ui/MessageSlot";
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState("");
@@ -55,7 +55,7 @@ export default function LoginPage() {
       } else {
         navigate(ROUTES.TEACHER_DASHBOARD);
       }
-    } catch (error: any) {
+    } catch (error) {
       showApiError(error, "Login failed.");
     }
   };

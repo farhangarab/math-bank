@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { insertAtCursor } from "../utils/mathInsert";
-import { templates } from "../utils/mathTemplates";
+import { insertAtCursor } from "../../utils/mathInsert";
+import { templates } from "../../utils/mathTemplates";
 
 type Props = {
   activeInput: HTMLInputElement | HTMLTextAreaElement | null;

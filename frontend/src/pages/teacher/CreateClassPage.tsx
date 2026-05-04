@@ -1,13 +1,13 @@
-import Header from "../components/Header";
-import Button from "../components/Button";
-import Input from "../components/Input";
-import { ROUTES } from "../router/routes";
+import Header from "../../components/layout/Header";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import { ROUTES } from "../../router/routes";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { createClass, getClassById, updateClass } from "../api/classes";
-import { useMessage } from "../hooks/useMessage";
-import MessageSlot from "../components/MessageSlot";
-import Panel from "../components/Panel";
+import { createClass, getClassById, updateClass } from "../../api/classes";
+import { useMessage } from "../../hooks/useMessage";
+import MessageSlot from "../../components/ui/MessageSlot";
+import Panel from "../../components/ui/Panel";
 
 function CreateClassPage() {
   const { classId } = useParams();
@@ -47,8 +47,8 @@ function CreateClassPage() {
       }
     }
 
-    loadClassForEdit();
-  }, [editClassId]);
+    void loadClassForEdit();
+  }, [clearAllMessages, editClassId, showApiError]);
 
   const handleSubmit = async () => {
     clearAllMessages();
@@ -70,7 +70,7 @@ function CreateClassPage() {
       setTimeout(() => {
         navigate(ROUTES.TEACHER_DASHBOARD);
       }, 800);
-    } catch (err: any) {
+    } catch (err) {
       showApiError(err, isEditMode ? "Update class failed." : "Create class failed.");
     }
   };

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import type { AlertType } from "../components/Alert";
+import { useCallback, useEffect, useState } from "react";
+import type { AlertType } from "../components/ui/Alert";
 import type { ApiError, FieldErrors } from "../api/client";
 
 export type MessageState = {
@@ -20,12 +20,12 @@ export function useMessage() {
     return () => window.clearTimeout(timer);
   }, [message]);
 
-  const clearAllMessages = () => {
+  const clearAllMessages = useCallback(() => {
     setMessage(null);
     setFieldErrors({});
-  };
+  }, []);
 
-  const clearFieldError = (field: string) => {
+  const clearFieldError = useCallback((field: string) => {
     setMessage((current) => (current?.type === "error" ? null : current));
     setFieldErrors((current) => {
       if (!current[field]) return current;
@@ -34,27 +34,27 @@ export function useMessage() {
       delete next[field];
       return next;
     });
-  };
+  }, []);
 
-  const showFieldError = (field: string, text: string) => {
+  const showFieldError = useCallback((field: string, text: string) => {
     setFieldErrors({ [field]: text });
     setMessage(null);
-  };
+  }, []);
 
-  const showSuccess = (text: string) => {
+  const showSuccess = useCallback((text: string) => {
     setFieldErrors({});
     setMessage({ type: "success", text });
-  };
+  }, []);
 
-  const showInfo = (text: string) => {
+  const showInfo = useCallback((text: string) => {
     setMessage({ type: "info", text });
-  };
+  }, []);
 
-  const showWarning = (text: string) => {
+  const showWarning = useCallback((text: string) => {
     setMessage({ type: "warning", text });
-  };
+  }, []);
 
-  const showApiError = (error: unknown, fallback: string) => {
+  const showApiError = useCallback((error: unknown, fallback: string) => {
     const apiError = error as Partial<ApiError>;
     const text =
       typeof apiError.message === "string" && apiError.message
@@ -67,7 +67,7 @@ export function useMessage() {
 
     setFieldErrors(nextFieldErrors);
     setMessage(hasOnlyFieldErrors ? null : { type: "error", text });
-  };
+  }, []);
 
   return {
     message,

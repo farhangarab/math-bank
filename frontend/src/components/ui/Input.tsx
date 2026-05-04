@@ -1,6 +1,6 @@
 import { useState } from "react";
-import EyeIcon from "./icons/EyeIcon";
-import EyeOffIcon from "./icons/EyeOffIcon";
+import EyeIcon from "../icons/EyeIcon";
+import EyeOffIcon from "../icons/EyeOffIcon";
 
 type InputProps = {
   type?: string;

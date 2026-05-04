@@ -1,5 +1,5 @@
 import { InlineMath } from "react-katex";
-import { toLatex } from "../utils/toLatex";
+import { toLatex } from "../../utils/toLatex";
 
 type Part = { type: "text" | "math"; value: string };
 
