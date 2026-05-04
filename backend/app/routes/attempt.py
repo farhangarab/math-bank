@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_login import current_user, login_required
+from sqlalchemy.exc import IntegrityError
 from app import db
 from app.models.attempt import Attempt
 from app.models.class_member import ClassMember
@@ -67,8 +68,26 @@ def start_attempt():
         status=AttemptStatus.IN_PROGRESS.value,
     )
 
-    db.session.add(attempt)
-    db.session.commit()
+    try:
+        db.session.add(attempt)
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        existing_attempt = Attempt.query.filter_by(
+            assignment_id=assignment_id,
+            class_member_id=class_member.id,
+        ).first()
+
+        if existing_attempt:
+            return success_response(
+                "Existing attempt found.",
+                {
+                    "attempt_id": existing_attempt.id,
+                    "status": serialize_attempt_status(existing_attempt.status),
+                },
+            )
+
+        return error_response("Could not start this attempt. Please try again.", 500)
 
     return success_response(
         "Attempt started.",
@@ -169,7 +188,11 @@ def submit_attempt():
     attempt.total_score = total_score
     attempt.submitted_At = db.func.now()
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return error_response("Could not save answers. Please try again.", 500)
 
     return success_response(
         "Assignment submitted successfully.",
@@ -278,6 +301,10 @@ def save_attempt():
             )
             db.session.add(new_answer)
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return error_response("Could not save progress. Please try again.", 500)
 
     return success_response("Progress saved.")

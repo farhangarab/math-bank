@@ -4,6 +4,9 @@ from app import db
 class Assignment(db.Model):
 
     __tablename__ = "assignments"
+    __table_args__ = (
+        db.UniqueConstraint("class_id", "title", name="uq_assignment_class_title"),
+    )
 
     id = db.Column(db.Integer, primary_key=True)
 

@@ -38,10 +38,7 @@ function StudentListPage() {
 
     try {
       clearAllMessages();
-      await removeClassStudent(
-        Number(classId),
-        selectedStudent.student_id,
-      );
+      await removeClassStudent(Number(classId), selectedStudent.student_id);
       setStudents((current) =>
         current.filter(
           (student) =>
@@ -68,12 +65,12 @@ function StudentListPage() {
         leftAction={() => navigate(-1)}
       />
 
-      <div className="flex flex-col items-center mt-10">
-        <h1 className="text-3xl font-bold text-brand-primary">
+      <div className="mx-auto mt-6 flex w-full max-w-[960px] flex-col items-center px-4 sm:mt-12 sm:px-6 lg:mt-14">
+        <h1 className="line-clamp-2 max-w-full overflow-hidden text-center text-2xl font-bold leading-snug text-brand-primary sm:text-3xl">
           {className || "Class"}
         </h1>
 
-        <Panel className="mt-8 w-full max-w-[900px]">
+        <Panel className="mt-5 w-full max-w-[900px] sm:mt-10">
           <h2 className="text-xl font-bold mb-4 text-brand-primary">
             Student List
           </h2>
@@ -83,8 +80,49 @@ function StudentListPage() {
           {students.length === 0 ? (
             <p className="mt-6 text-gray-500">No students in this class yet.</p>
           ) : (
-            <div className="mt-6 overflow-x-auto rounded-md border border-brand-borderSoft">
-              <table className="w-full min-w-[760px] border-collapse text-left">
+            <>
+            <div className="mt-4 space-y-2 min-[821px]:hidden">
+              {students.map((student, index) => (
+                <article
+                  key={student.class_member_id}
+                  className="rounded-md border border-brand-borderSoft bg-white p-3 sm:p-4"
+                >
+                  <div className="grid gap-2 sm:grid-cols-[1fr_auto] sm:items-start sm:gap-3">
+                    <div className="flex min-w-0 items-start gap-2 sm:gap-3">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-brand-surface text-xs font-bold text-brand-primary sm:h-8 sm:w-8 sm:text-sm">
+                        {index + 1}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="break-words text-sm font-semibold text-brand-primary sm:text-base">
+                          {student.student_name}
+                        </h3>
+                        <p className="mt-0.5 break-words text-xs text-gray-700 sm:mt-1 sm:text-sm">
+                          {student.email}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="pl-9 text-xs sm:min-w-36 sm:pl-0 sm:text-right sm:text-sm">
+                      <div className="font-semibold text-gray-500">Joined On</div>
+                      <div className="text-gray-800">
+                        {formatCreatedDate(student.joined_on)}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setStudentToRemove(student)}
+                    className="mt-3 w-full rounded-md border border-status-errorText px-3 py-1.5 text-sm font-semibold text-status-errorText transition-colors duration-200 hover:bg-status-errorText hover:text-white sm:mt-4 sm:px-4 sm:py-2"
+                  >
+                    Remove
+                  </button>
+                </article>
+              ))}
+            </div>
+
+            <div className="mt-6 hidden rounded-md border border-brand-borderSoft min-[821px]:block">
+              <table className="w-full border-collapse text-left">
                 <thead className="bg-brand-surface text-sm text-brand-primary">
                   <tr>
                     <th className="px-4 py-3 font-bold">#</th>
@@ -114,7 +152,7 @@ function StudentListPage() {
                         <button
                           type="button"
                           onClick={() => setStudentToRemove(student)}
-                          className="rounded-md border border-status-errorBorder bg-status-errorBg px-6 py-2 font-semibold text-status-errorText transition-colors hover:bg-status-errorBorder"
+                          className="rounded-md border border-status-errorText px-6 py-2 font-semibold text-status-errorText transition-colors duration-200 hover:bg-status-errorText hover:text-white"
                         >
                           Remove
                         </button>
@@ -124,6 +162,7 @@ function StudentListPage() {
                 </tbody>
               </table>
             </div>
+            </>
           )}
         </Panel>
       </div>

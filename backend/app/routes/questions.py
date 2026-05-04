@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_login import current_user, login_required
+from sqlalchemy.exc import IntegrityError
 from app.models.question import Question, GradingType
 from app.models.assignment import Assignment
 from app import db
@@ -74,6 +75,17 @@ def create_question():
     if assignment.class_obj.teacher_id != current_user.id:
         return error_response("You do not have permission to add questions here.", 403)
 
+    existing_question = Question.query.filter_by(
+        assignment_id=assignment_id,
+        order_index=order_index,
+    ).first()
+
+    if existing_question:
+        return field_error(
+            "order_index",
+            "A question already exists at this position in the assignment.",
+        )
+
     try:
         grading_type_enum = GradingType(grading_type)
     except ValueError:
@@ -107,8 +119,15 @@ def create_question():
         require_simplified=require_simplified,
     )
 
-    db.session.add(q)
-    db.session.commit()
+    try:
+        db.session.add(q)
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return field_error(
+            "order_index",
+            "A question already exists at this position in the assignment.",
+        )
 
     return success_response(
         "Question created successfully.",

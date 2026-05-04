@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_login import current_user, login_required
+from sqlalchemy.exc import IntegrityError
 from app import db
 from app.models.class_model import Class
 from app.models.enums import UserRole
@@ -11,7 +12,7 @@ from app.models.user import User
 from app.auth_utils import role_required
 from app.response_utils import error_response, field_error, success_response
 
-from app.utils.code_generator import generate_class_code
+from app.utils.code_generator import generate_unique_class_code
 
 
 classes_bp = Blueprint("classes", __name__)
@@ -31,7 +32,10 @@ def create_class():
 
     class_name = class_name.strip()
 
-    class_code = generate_class_code()
+    try:
+        class_code = generate_unique_class_code()
+    except ValueError as error:
+        return error_response(str(error), 500)
 
     new_class = Class(
         class_name=class_name,
@@ -39,8 +43,15 @@ def create_class():
         teacher_id=current_user.id,
     )
 
-    db.session.add(new_class)
-    db.session.commit()
+    try:
+        db.session.add(new_class)
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return error_response(
+            "Could not create class with a unique class code. Please try again.",
+            500,
+        )
 
     return success_response(
         "Class created successfully.",

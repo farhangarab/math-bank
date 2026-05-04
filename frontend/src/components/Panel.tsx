@@ -5,7 +5,7 @@ type PanelProps = {
 
 export default function Panel({ children, className = "" }: PanelProps) {
   return (
-    <div className={`rounded border border-brand-primary p-6 ${className}`}>
+    <div className={`rounded border border-brand-primary p-4 sm:p-6 ${className}`}>
       {children}
     </div>
   );

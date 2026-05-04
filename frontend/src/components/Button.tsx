@@ -3,6 +3,7 @@ type ButtonProps = {
   type?: "button" | "submit";
   variant?: "primary" | "outline" | "ghost";
   full?: boolean;
+  className?: string;
   onClick?: () => void;
   disabled?: boolean;
 };
@@ -12,6 +13,7 @@ function Button({
   type = "button",
   variant = "primary",
   full = false,
+  className = "",
   onClick,
   disabled = false,
 }: ButtonProps) {
@@ -38,7 +40,12 @@ function Button({
         ? `${base} ${outline} ${width} ${disabled ? disabledStyle : ""}`
         : `${base} ${ghost} ${width} ${disabled ? disabledStyle : ""}`;
   return (
-    <button type={type} className={style} onClick={onClick} disabled={disabled}>
+    <button
+      type={type}
+      className={`${style} ${className}`}
+      onClick={onClick}
+      disabled={disabled}
+    >
       {children}
     </button>
   );

@@ -8,6 +8,7 @@ import { registerUser } from "../api/auth";
 import { useMessage } from "../hooks/useMessage";
 import { firstInvalid } from "../utils/validation";
 import MessageSlot from "../components/MessageSlot";
+import Tooltip from "../components/ui/Tooltip";
 
 export default function TeacherRegisterPage() {
   const [username, setUsername] = useState("");
@@ -114,13 +115,13 @@ export default function TeacherRegisterPage() {
     <div className="min-h-screen bg-white">
       <Header leftText="Back" leftAction={() => navigate(ROUTES.HOME)} />
 
-      <div className="flex flex-col items-center justify-center mt-16 gap-6">
-        <h1 className="text-3xl font-bold text-brand-primary">
+      <div className="mx-auto mt-16 flex w-full max-w-[460px] flex-col items-center justify-center gap-6 px-4 sm:px-6">
+        <h1 className="text-center text-3xl font-bold text-brand-primary">
           Teacher Registration
         </h1>
 
         {/* Input fields */}
-        <div className="w-full max-w-[400px]  text-center flex flex-col gap-4">
+        <div className="flex w-full max-w-[400px] flex-col gap-4 text-center">
           <Input
             placeholder="Full Name"
             value={fullName}
@@ -173,15 +174,20 @@ export default function TeacherRegisterPage() {
             }}
           />
 
-          <Input
-            placeholder="Teacher Access Code"
-            value={teacherCode}
-            error={fieldErrors.teacher_code}
-            onChange={(e) => {
-              setTeacherCode(e.target.value);
-              clearFieldError("teacher_code");
-            }}
-          />
+          <Tooltip
+            text="Ask your school or admin for this code."
+            className="w-full"
+          >
+            <Input
+              placeholder="Teacher Access Code"
+              value={teacherCode}
+              error={fieldErrors.teacher_code}
+              onChange={(e) => {
+                setTeacherCode(e.target.value);
+                clearFieldError("teacher_code");
+              }}
+            />
+          </Tooltip>
 
           <MessageSlot message={message} />
 

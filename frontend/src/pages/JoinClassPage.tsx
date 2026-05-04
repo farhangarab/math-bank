@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useMessage } from "../hooks/useMessage";
 import MessageSlot from "../components/MessageSlot";
 import Panel from "../components/Panel";
+import Tooltip from "../components/ui/Tooltip";
 
 function JoinClassPage() {
   const [classCode, setClassCode] = useState("");
@@ -51,27 +52,32 @@ function JoinClassPage() {
         leftAction={() => navigate(ROUTES.STUDENT_DASHBOARD)}
       />
 
-      <div className="flex flex-col items-center mt-10">
+      <div className="mx-auto mt-10 flex w-full max-w-[760px] flex-col items-center px-4 sm:px-6">
         {/* Title */}
-        <h1 className="text-3xl font-bold text-brand-primary">Join Class</h1>
+        <h1 className="text-center text-3xl font-bold text-brand-primary">Join Class</h1>
 
         <p className="mt-2 mb-6">Enter class code</p>
 
         {/* Form box */}
-        <Panel className="w-[700px]">
+        <Panel className="w-full">
           {/* Label */}
           <p className="mb-2 font-semibold text-brand-primary">Class Code</p>
 
           <div className="mb-4">
-            <Input
-              placeholder="Enter class code"
-              value={classCode}
-              error={fieldErrors.class_code}
-              onChange={(e) => {
-                setClassCode(e.target.value);
-                clearFieldError("class_code");
-              }}
-            />
+            <Tooltip
+              text="Your teacher gives you this code."
+              className="w-full"
+            >
+              <Input
+                placeholder="Enter class code"
+                value={classCode}
+                error={fieldErrors.class_code}
+                onChange={(e) => {
+                  setClassCode(e.target.value);
+                  clearFieldError("class_code");
+                }}
+              />
+            </Tooltip>
           </div>
 
           <MessageSlot message={message} />

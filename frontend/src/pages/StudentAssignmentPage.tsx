@@ -5,12 +5,14 @@ import { getAssignmentById } from "../api/assignments";
 import { getAttempt, saveAttempt, submitAttempt } from "../api/attempts";
 import { getClassById } from "../api/classes";
 import FloatingMathToolbar from "../components/assignment-editor/FloatingMathToolbar";
+import NumericWarning from "../components/assignment-editor/NumericWarning";
 import Button from "../components/Button";
 import ConfirmModal from "../components/ConfirmModal";
 import Header from "../components/Header";
 import MathPreview from "../components/MathPreview";
 import MessageSlot from "../components/MessageSlot";
 import Panel from "../components/Panel";
+import Tooltip from "../components/ui/Tooltip";
 import { useAuth } from "../context/AuthContext";
 import { useMessage } from "../hooks/useMessage";
 import type { Assignment } from "../types/assignment";
@@ -22,7 +24,7 @@ import type {
 import type { ClassInfo } from "../types/class";
 import type { Question } from "../types/question";
 import { formatDueDate, formatNumber } from "../utils/format";
-import { getStudentGuidance } from "../utils/grading";
+import { answerLooksNumeric, getStudentGuidance } from "../utils/grading";
 
 const StudentAssignmentPage = () => {
   const { attemptId } = useParams();
@@ -38,7 +40,7 @@ const StudentAssignmentPage = () => {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [savedAnswers, setSavedAnswers] = useState<Record<number, string>>({});
   const [showPreview, setShowPreview] = useState(true);
-  const [showMathSymbols, setShowMathSymbols] = useState(false);
+  const [showMathSymbols, setShowMathSymbols] = useState(true);
   const [activeInput, setActiveInput] = useState<HTMLTextAreaElement | null>(
     null,
   );
@@ -53,15 +55,21 @@ const StudentAssignmentPage = () => {
   const isReviewMode =
     searchParams.get("mode") === "review" || user?.role === "TEACHER";
   const isReadOnly = isReviewMode || isSubmitted;
+  const showEditableTools = !isReadOnly;
 
   const { message, clearAllMessages, showApiError, showSuccess } = useMessage();
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showBackConfirm, setShowBackConfirm] = useState(false);
   const [showUnansweredWarning, setShowUnansweredWarning] = useState(false);
 
   const currentQuestion = questions[currentIndex];
   const currentAnswer = currentQuestion
     ? answers[currentQuestion.id] || ""
     : "";
+  const numericWarning =
+    currentQuestion?.grading_type === "numeric" &&
+    currentAnswer.trim() &&
+    !answerLooksNumeric(currentAnswer);
   const currentResult = result?.results?.find(
     (r) => r.question_id === currentQuestion?.id,
   );
@@ -100,6 +108,15 @@ const StudentAssignmentPage = () => {
 
   const isChanged = () => {
     return JSON.stringify(answers) !== JSON.stringify(savedAnswers);
+  };
+
+  const handleBack = () => {
+    if (!isReadOnly && isChanged()) {
+      setShowBackConfirm(true);
+      return;
+    }
+
+    navigate(-1);
   };
 
   const getQuestionButtonClass = (question: Question, index: number) => {
@@ -232,30 +249,37 @@ const StudentAssignmentPage = () => {
   }, [attemptId]);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen overflow-x-hidden bg-white">
       <Header
         title="MATHBANK"
         leftText="Back"
-        leftAction={() => navigate(-1)}
+        leftAction={handleBack}
       />
 
       <main
-        className={`w-full px-4 py-4 sm:px-6 lg:px-8 ${
-          showMathSymbols ? "pb-44" : "pb-10"
-        }`}
+        className="w-full max-w-full overflow-x-hidden px-4 py-4 sm:px-6 lg:px-8"
+        style={{
+          paddingBottom: showEditableTools && showMathSymbols
+            ? "var(--math-toolbar-space, 22rem)"
+            : "7rem",
+        }}
       >
         <section className="mb-5">
-          <div>
-            <h1 className="text-2xl font-bold text-brand-primary">
+          <div className="min-w-0">
+            <h1 className="flex min-w-0 items-center gap-2 text-2xl font-bold text-brand-primary">
               {classInfo || assignment ? (
                 <>
-                  {classInfo?.class_name ?? "Class"}{" "}
+                  <span className="min-w-0 max-w-[48%] truncate">
+                    {classInfo?.class_name ?? "Class"}
+                  </span>
                   {assignment?.title && (
                     <>
                       <span className="font-medium text-gray-400">
                         &bull;
-                      </span>{" "}
-                      {assignment.title}
+                      </span>
+                      <span className="min-w-0 max-w-[48%] truncate">
+                        {assignment.title}
+                      </span>
                     </>
                   )}
                 </>
@@ -265,42 +289,71 @@ const StudentAssignmentPage = () => {
             </h1>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]">
-            <div className="flex justify-end mr-2">
-              {!isReadOnly && currentQuestion && (
-                <Button onClick={handleSubmitClick}>Submit</Button>
+          {showEditableTools && (
+            <div className="mt-3 flex flex-row items-center justify-between gap-2 lg:justify-end">
+              <Tooltip text="Show or hide your rendered answer.">
+                <span>
+                  <Button
+                    variant="ghost"
+                    className="whitespace-nowrap px-3 py-1.5 text-sm sm:px-4 sm:py-2"
+                    onClick={() => setShowPreview((v) => !v)}
+                  >
+                    {showPreview ? "Hide Preview" : "Show Preview"}
+                  </Button>
+                </span>
+              </Tooltip>
+
+              {currentQuestion && (
+                <div className="lg:hidden">
+                  <Tooltip text="Turn in the assignment and lock your answers.">
+                    <span>
+                      <Button
+                        className="whitespace-nowrap px-3 py-1.5 text-sm sm:px-4 sm:py-2"
+                        onClick={handleSubmitClick}
+                      >
+                        Submit
+                      </Button>
+                    </span>
+                  </Tooltip>
+                </div>
               )}
             </div>
-
-            <div className="flex flex-wrap gap-2 lg:justify-end">
-              <Button variant="ghost" onClick={() => setShowPreview((v) => !v)}>
-                {showPreview ? "Hide Preview" : "Show Preview"}
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => setShowMathSymbols((v) => !v)}
-              >
-                {showMathSymbols ? "Hide Math Symbols" : "Show Math Symbols"}
-              </Button>
-            </div>
-          </div>
-        </section>
+          )}
+          </section>
 
         {currentQuestion && (
-          <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]">
-            <Panel className="min-w-0">
-              <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <section className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]">
+            <div className="relative min-w-0">
+              {!isReadOnly && (
+                <div className="absolute right-0 top-0 hidden -translate-y-[calc(100%+1.25rem)] justify-end lg:flex">
+                  <Tooltip text="Turn in the assignment and lock your answers.">
+                    <span>
+                      <Button
+                        className="whitespace-nowrap px-4 py-1.5 text-sm"
+                        onClick={handleSubmitClick}
+                      >
+                        Submit
+                      </Button>
+                    </span>
+                  </Tooltip>
+                </div>
+              )}
+
+              <Panel className="min-w-0 max-w-full overflow-hidden">
+              <div className="mb-4">
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-wide text-gray-500">
-                    Question {currentIndex + 1}/{questions.length}
-                  </p>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+                      Question {currentIndex + 1}/{questions.length}
+                    </p>
+                    <span className="w-fit shrink-0 rounded-md border border-brand-borderSoft bg-brand-surface px-3 py-1 text-sm font-semibold text-brand-primary">
+                      {currentQuestion.points} pts
+                    </span>
+                  </div>
                   <h2 className="mt-1 text-xl font-bold text-brand-primary">
                     Question {currentIndex + 1}
                   </h2>
                 </div>
-                <span className="w-fit rounded-md border border-brand-borderSoft bg-brand-surface px-3 py-1 text-sm font-semibold text-brand-primary">
-                  {currentQuestion.points} pts
-                </span>
               </div>
 
               <div className="mb-4 rounded-md border border-brand-borderSoft bg-white px-4 py-3 text-brand-primary">
@@ -333,13 +386,18 @@ const StudentAssignmentPage = () => {
                 }
                 disabled={isReadOnly}
                 rows={7}
-                className="w-full resize-y rounded-md border border-brand-primary bg-white px-3 py-2 text-brand-primary outline-none focus:ring-2 focus:ring-brand-borderSoft disabled:bg-white"
+                className="w-full max-w-full resize-y rounded-md border border-brand-primary bg-white px-3 py-2 text-brand-primary outline-none focus:ring-2 focus:ring-brand-borderSoft disabled:bg-white"
                 placeholder={
                   isReadOnly
                     ? "Answer is read-only in review mode"
                     : "Enter your answer"
                 }
               />
+              {numericWarning && (
+                <div className="mt-3">
+                  <NumericWarning message="Enter a numeric value only, such as 8, 2/3, or 0.25." />
+                </div>
+              )}
 
               <MessageSlot message={message} />
 
@@ -352,13 +410,23 @@ const StudentAssignmentPage = () => {
                 </Button>
 
                 {!isReadOnly ? (
-                  <Button
-                    onClick={handleSave}
-                    disabled={!isChanged()}
-                    variant="ghost"
+                  <Tooltip
+                    text={
+                      isChanged()
+                        ? "Save your answers without submitting."
+                        : "No answer changes to save yet."
+                    }
                   >
-                    Save Progress
-                  </Button>
+                    <span>
+                      <Button
+                        onClick={handleSave}
+                        disabled={!isChanged()}
+                        variant="ghost"
+                      >
+                        Save Progress
+                      </Button>
+                    </span>
+                  </Tooltip>
                 ) : (
                   <div className="text-sm text-gray-500">
                     {isSubmitted ? "Submitted" : "Review mode"}
@@ -401,16 +469,15 @@ const StudentAssignmentPage = () => {
 
                   <p className="mt-2">
                     <strong>Result:</strong>{" "}
-                    {currentResult?.is_correct
-                      ? "✅ Correct"
-                      : "❌ Incorrect"}
+                    {currentResult?.is_correct ? "✅ Correct" : "❌ Incorrect"}
                   </p>
                 </div>
               )}
-            </Panel>
+              </Panel>
+            </div>
 
-            <aside className="min-w-0 space-y-4 lg:sticky lg:top-6 lg:h-fit">
-              {showPreview && (
+            <aside className="min-w-0 max-w-full space-y-4 lg:sticky lg:top-6 lg:h-fit">
+              {showEditableTools && showPreview && (
                 <Panel className="bg-white p-4">
                   <div className="mb-3">
                     <div>
@@ -437,7 +504,7 @@ const StudentAssignmentPage = () => {
                 <h2 className="mb-3 text-lg font-bold text-brand-primary">
                   Questions
                 </h2>
-                <div className="grid max-h-[154px] grid-cols-8 gap-2 overflow-y-auto pr-1">
+                <div className="grid max-h-[154px] grid-cols-5 gap-2 overflow-y-auto pr-1 sm:grid-cols-8">
                   {questions.map((question, index) => (
                     <button
                       key={question.id}
@@ -482,7 +549,7 @@ const StudentAssignmentPage = () => {
                 <dl className="space-y-3 text-sm">
                   <div className="flex items-center justify-between gap-4">
                     <dt className="text-gray-500">Due Date</dt>
-                    <dd className="text-right font-semibold text-brand-primary">
+                    <dd className="min-w-0 break-words text-right font-semibold text-brand-primary">
                       {assignment?.due_date
                         ? formatDueDate(assignment.due_date)
                         : "No due date"}
@@ -497,7 +564,7 @@ const StudentAssignmentPage = () => {
                   {submittedAt && (
                     <div className="flex items-center justify-between gap-4">
                       <dt className="text-gray-500">Submitted Date</dt>
-                      <dd className="text-right font-semibold text-brand-primary">
+                      <dd className="min-w-0 break-words text-right font-semibold text-brand-primary">
                         {formatDueDate(submittedAt)}
                       </dd>
                     </div>
@@ -526,15 +593,25 @@ const StudentAssignmentPage = () => {
         onConfirm={handleConfirm}
       />
 
-      <FloatingMathToolbar
-        showMathSymbols={showMathSymbols}
-        activeInput={activeInput}
-        activeField="answer"
-        onQuestionChange={() => {}}
-        onAnswerChange={handleToolbarAnswerChange}
-        onShow={() => setShowMathSymbols(true)}
-        onHide={() => setShowMathSymbols(false)}
+      <ConfirmModal
+        open={showBackConfirm}
+        title="Leave without saving?"
+        message="Your latest answer changes have not been saved."
+        onCancel={() => setShowBackConfirm(false)}
+        onConfirm={() => navigate(-1)}
       />
+
+      {showEditableTools && (
+        <FloatingMathToolbar
+          showMathSymbols={showMathSymbols}
+          activeInput={activeInput}
+          activeField="answer"
+          onQuestionChange={() => {}}
+          onAnswerChange={handleToolbarAnswerChange}
+          onShow={() => setShowMathSymbols(true)}
+          onHide={() => setShowMathSymbols(false)}
+        />
+      )}
     </div>
   );
 };

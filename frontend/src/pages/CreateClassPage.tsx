@@ -50,14 +50,14 @@ function CreateClassPage() {
         leftAction={() => navigate(ROUTES.TEACHER_DASHBOARD)}
       />
 
-      <div className="flex flex-col items-center mt-10">
+      <div className="mx-auto mt-10 flex w-full max-w-[760px] flex-col items-center px-4 sm:px-6">
         {/* Title */}
-        <h1 className="text-3xl font-bold text-brand-primary">Create Class</h1>
+        <h1 className="text-center text-3xl font-bold text-brand-primary">Create Class</h1>
 
         <p className="mt-2 mb-6">Enter class name</p>
 
         {/* Form box */}
-        <Panel className="w-[700px]">
+        <Panel className="w-full">
           {/* Label */}
           <p className="mb-2 font-semibold text-brand-primary">Class Name</p>
           <div className="mb-4">

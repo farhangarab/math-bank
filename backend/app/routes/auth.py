@@ -1,5 +1,6 @@
-from flask import Blueprint, request
+from flask import Blueprint, current_app, request
 from flask_login import current_user, login_required, login_user, logout_user
+from sqlalchemy.exc import IntegrityError
 from app import db
 from app.models.user import User
 from app.models.enums import UserRole
@@ -9,9 +10,6 @@ from app.response_utils import error_response, field_error, success_response
 from app.validation_utils import first_required_error
 
 auth_bp = Blueprint("auth", __name__)
-
-# Mock code
-TEACHER_CODE = "ABC123"
 
 
 def normalize_full_name(value):
@@ -55,7 +53,7 @@ def register():
         if not teacher_code or not teacher_code.strip():
             return field_error("teacher_code", "Teacher access code is required.")
 
-        if teacher_code != TEACHER_CODE:
+        if teacher_code != current_app.config["TEACHER_ACCESS_CODE"]:
             return field_error("teacher_code", "Teacher access code is invalid.")
 
     # valid email
@@ -85,8 +83,16 @@ def register():
         role=UserRole(role),
     )
 
-    db.session.add(user)
-    db.session.commit()
+    try:
+        db.session.add(user)
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return error_response(
+            "Username or email is already registered.",
+            400,
+            {"general": "Username or email is already registered."},
+        )
 
     return success_response(
         "Account created successfully.",
