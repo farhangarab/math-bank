@@ -55,6 +55,8 @@ const StudentAssignmentPage = () => {
   const isReviewMode =
     searchParams.get("mode") === "review" || user?.role === "TEACHER";
   const isReadOnly = isReviewMode || isSubmitted;
+  const answerReviewLabel =
+    user?.role === "TEACHER" ? "Student answer" : "Your answer";
   const showEditableTools = !isReadOnly;
 
   const { message, clearAllMessages, showApiError, showSuccess } = useMessage();
@@ -98,6 +100,9 @@ const StudentAssignmentPage = () => {
   const confirmMessage = showUnansweredWarning
     ? "Some questions are unanswered. Are you sure you want to submit? Once you submit, there is no way back."
     : "Once you submit, your answers will be locked and cannot be changed.";
+  const confirmTitle = showUnansweredWarning
+    ? "Submit with unanswered questions?"
+    : "Submit Assignment?";
 
   const formatAnswers = (): AttemptAnswer[] => {
     return Object.entries(answers).map(([questionId, value]) => ({
@@ -444,7 +449,9 @@ const StudentAssignmentPage = () => {
               {showReviewDetails && (
                 <div className="mt-6 rounded-md border border-brand-borderSoft bg-brand-surface p-4 text-sm text-brand-primary">
                   <div>
-                    <div className="mb-2 font-semibold">Your answer</div>
+                    <div className="mb-2 font-semibold">
+                      {answerReviewLabel}
+                    </div>
                     <div className="rounded-md border border-brand-borderSoft bg-white p-3">
                       <MathPreview
                         expression={currentAnswer}
@@ -587,7 +594,7 @@ const StudentAssignmentPage = () => {
 
       <ConfirmModal
         open={showConfirm}
-        title="Submit Assignment?"
+        title={confirmTitle}
         message={confirmMessage}
         onCancel={() => setShowConfirm(false)}
         onConfirm={handleConfirm}
