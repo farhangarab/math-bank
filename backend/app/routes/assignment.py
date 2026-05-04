@@ -3,6 +3,7 @@ from flask_login import current_user, login_required
 from sqlalchemy.exc import IntegrityError
 from app.models.assignment import Assignment
 from app.models.attempt import Attempt
+from app.models.attempt_answer import AttemptAnswer
 from app.models.class_member import ClassMember
 from app.models.class_model import Class
 from app.models.enums import AttemptStatus, UserRole
@@ -16,6 +17,30 @@ from app.services.serializers import serialize_attempt_status, serialize_due_dat
 
 
 assignments_bp = Blueprint("assignments", __name__)
+
+
+def parse_assignment_due_date(due_date_str):
+    if not due_date_str:
+        return None, None
+
+    try:
+        return datetime.strptime(due_date_str, "%Y-%m-%dT%H:%M"), None
+    except ValueError:
+        return None, field_error("due_date", "Due date must use YYYY-MM-DDTHH:MM format.")
+
+
+def validate_assignment_data(data):
+    title = data.get("title")
+    due_date_str = data.get("due_date")
+
+    if not title or not title.strip():
+        return None, field_error("title", "Title is required.")
+
+    due_date, error = parse_assignment_due_date(due_date_str)
+    if error:
+        return None, error
+
+    return {"title": title.strip(), "due_date": due_date}, None
 
 
 # Get all assignment
@@ -110,14 +135,7 @@ def create_assignment():
 
     data = request.get_json() or {}
 
-    title = data.get("title")
     class_id = data.get("class_id")
-    due_date_str = data.get("due_date")
-
-    if not title or not title.strip():
-        return field_error("title", "Title is required.")
-
-    title = title.strip()
 
     if not class_id:
         return field_error("class_id", "Class ID is required.")
@@ -128,6 +146,12 @@ def create_assignment():
 
     if class_obj.teacher_id != current_user.id:
         return error_response("You do not have permission to create assignments here.", 403)
+
+    cleaned_data, error = validate_assignment_data(data)
+    if error:
+        return error
+
+    title = cleaned_data["title"]
 
     duplicate_assignment = Assignment.query.filter(
         Assignment.class_id == class_id,
@@ -140,18 +164,10 @@ def create_assignment():
             "An assignment with this title already exists in this class.",
         )
 
-    due_date = None
-
-    if due_date_str:
-        try:
-            due_date = datetime.strptime(due_date_str, "%Y-%m-%dT%H:%M")
-        except ValueError:
-            return field_error("due_date", "Due date must use YYYY-MM-DDTHH:MM format.")
-
     assignment = Assignment(
         title=title,
         class_id=class_id,
-        due_date=due_date,
+        due_date=cleaned_data["due_date"],
     )
 
     try:
@@ -169,6 +185,87 @@ def create_assignment():
         {"assignment_id": assignment.id},
         201,
     )
+
+
+@assignments_bp.route("/<int:assignment_id>", methods=["PUT"])
+@login_required
+@role_required(UserRole.TEACHER)
+def update_assignment(assignment_id):
+    assignment = db.session.get(Assignment, assignment_id)
+
+    if not assignment:
+        return error_response("Assignment was not found.", 404)
+
+    if assignment.class_obj.teacher_id != current_user.id:
+        return error_response("You do not have permission to update this assignment.", 403)
+
+    data = request.get_json() or {}
+    cleaned_data, error = validate_assignment_data(data)
+    if error:
+        return error
+
+    duplicate_assignment = Assignment.query.filter(
+        Assignment.class_id == assignment.class_id,
+        Assignment.id != assignment.id,
+        db.func.lower(Assignment.title) == cleaned_data["title"].lower(),
+    ).first()
+
+    if duplicate_assignment:
+        return field_error(
+            "title",
+            "An assignment with this title already exists in this class.",
+        )
+
+    assignment.title = cleaned_data["title"]
+    assignment.due_date = cleaned_data["due_date"]
+
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return field_error(
+            "title",
+            "An assignment with this title already exists in this class.",
+        )
+
+    return success_response("Assignment updated successfully.")
+
+
+@assignments_bp.route("/<int:assignment_id>", methods=["DELETE"])
+@login_required
+@role_required(UserRole.TEACHER)
+def delete_assignment(assignment_id):
+    assignment = db.session.get(Assignment, assignment_id)
+
+    if not assignment:
+        return error_response("Assignment was not found.", 404)
+
+    if assignment.class_obj.teacher_id != current_user.id:
+        return error_response("You do not have permission to delete this assignment.", 403)
+
+    try:
+        questions = Question.query.filter_by(assignment_id=assignment.id).all()
+        attempts = Attempt.query.filter_by(assignment_id=assignment.id).all()
+
+        for attempt in attempts:
+            AttemptAnswer.query.filter_by(attempt_id=attempt.id).delete()
+
+        for question in questions:
+            AttemptAnswer.query.filter_by(question_id=question.id).delete()
+
+        for attempt in attempts:
+            db.session.delete(attempt)
+
+        for question in questions:
+            db.session.delete(question)
+
+        db.session.delete(assignment)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return error_response("Failed to delete assignment.", 500)
+
+    return success_response("Assignment deleted successfully.")
 
 
 # Get assignment by id

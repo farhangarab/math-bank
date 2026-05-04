@@ -447,6 +447,7 @@ function QuestionPage() {
         onCancel={() => setQuestionToDelete(null)}
         onConfirm={handleConfirmDeleteQuestion}
         confirmText="Delete"
+        confirmVariant="danger"
       />
     </div>
   );

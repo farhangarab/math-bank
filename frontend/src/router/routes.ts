@@ -15,6 +15,7 @@ export const ROUTES = {
   CLASS_DETAILS: "class/:id",
 
   CREATE_ASSIGNMENT: "/class/:id/create-assignment",
+  EDIT_ASSIGNMENT: "/class/:id/assignments/:assignmentId/edit",
 
   ASSIGNMENT_QUESTIONS: "/assignment/:id/questions",
 

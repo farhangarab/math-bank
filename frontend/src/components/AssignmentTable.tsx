@@ -8,6 +8,8 @@ type Props = {
   role: "STUDENT" | "TEACHER";
   onOpen?: (assignment: Assignment) => void;
   onEdit?: (id: number) => void;
+  onMoreEdit?: (assignment: Assignment) => void;
+  onDelete?: (assignment: Assignment) => void;
 };
 
 function getStudentActionLabel(status?: string) {
@@ -35,7 +37,14 @@ function getStatusTooltip(status?: string) {
   return "You have not started this assignment yet.";
 }
 
-function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
+function AssignmentTable({
+  assignments,
+  role,
+  onOpen,
+  onEdit,
+  onMoreEdit,
+  onDelete,
+}: Props) {
   const studentColumns = "2fr 2fr 1.2fr 1fr 120px";
   const teacherColumns = "2fr 2fr 120px 120px 48px";
 
@@ -49,7 +58,11 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
           >
             {role === "TEACHER" && (
               <div className="absolute right-3 top-3">
-                <MoreActionsMenu label={`More actions for ${a.title}`} />
+                <MoreActionsMenu
+                  label={`More actions for ${a.title}`}
+                  onEdit={() => onMoreEdit?.(a)}
+                  onDelete={() => onDelete?.(a)}
+                />
               </div>
             )}
 
@@ -196,7 +209,11 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
                   </button>
                 </div>
                 <div className="flex justify-end">
-                  <MoreActionsMenu label={`More actions for ${a.title}`} />
+                  <MoreActionsMenu
+                    label={`More actions for ${a.title}`}
+                    onEdit={() => onMoreEdit?.(a)}
+                    onDelete={() => onDelete?.(a)}
+                  />
                 </div>
               </>
             )}

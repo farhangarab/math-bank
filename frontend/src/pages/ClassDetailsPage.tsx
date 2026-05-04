@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ROUTES } from "../router/routes";
 import Button from "../components/Button";
 import { useEffect, useState } from "react";
-import { getAssignments } from "../api/assignments";
+import { deleteAssignment, getAssignments } from "../api/assignments";
 import { getClassById } from "../api/classes";
 import AssignmentTable from "../components/AssignmentTable";
 import { startAttempt } from "../api/attempts";
@@ -14,13 +14,16 @@ import MessageSlot from "../components/MessageSlot";
 import type { ClassInfo } from "../types/class";
 import Panel from "../components/Panel";
 import CopyClassCode from "../components/CopyClassCode";
+import ConfirmModal from "../components/ConfirmModal";
 
 function ClassDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [classInfo, setClassInfo] = useState<ClassInfo | null>(null);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const { message, clearAllMessages, showApiError } = useMessage();
+  const [assignmentToDelete, setAssignmentToDelete] =
+    useState<Assignment | null>(null);
+  const { message, clearAllMessages, showApiError, showSuccess } = useMessage();
   const { user } = useAuth();
 
   const handleBack = () => {
@@ -39,6 +42,10 @@ function ClassDetailsPage() {
     navigate(`/assignment/${assignmentId}/questions`);
   };
 
+  const handleMoreEditAssignment = (assignment: Assignment) => {
+    navigate(`/class/${assignment.class_id}/assignments/${assignment.id}/edit`);
+  };
+
   const handleOpenAssignment = (assignment: Assignment) => {
     navigate(`/assignment/${assignment.id}/submissions`);
   };
@@ -55,6 +62,25 @@ function ClassDetailsPage() {
       navigate(`/attempt/${res.attempt_id}`);
     } catch (err) {
       showApiError(err, "Failed to open assignment.");
+    }
+  };
+
+  const handleConfirmDeleteAssignment = async () => {
+    if (!assignmentToDelete) return;
+
+    try {
+      clearAllMessages();
+      await deleteAssignment(assignmentToDelete.id);
+      setAssignments((currentAssignments) =>
+        currentAssignments.filter(
+          (assignment) => assignment.id !== assignmentToDelete.id,
+        ),
+      );
+      setAssignmentToDelete(null);
+      showSuccess("Assignment deleted successfully.");
+    } catch (err) {
+      setAssignmentToDelete(null);
+      showApiError(err, "Failed to delete assignment.");
     }
   };
 
@@ -95,8 +121,10 @@ function ClassDetailsPage() {
             )}
 
             {user?.role === "TEACHER" && (
-              <div className="mt-4 mb-6">
-                <MessageSlot message={message} />
+              <div className="mt-4 mb-6 flex w-full max-w-md flex-col items-center">
+                <div className="w-full">
+                  <MessageSlot message={message} />
+                </div>
                 <Button onClick={handleCreateAssignment}>
                   Create Assignment
                 </Button>
@@ -113,6 +141,8 @@ function ClassDetailsPage() {
               assignments={assignments}
               role={user?.role ?? "STUDENT"}
               onEdit={handleEditAssignment}
+              onMoreEdit={handleMoreEditAssignment}
+              onDelete={setAssignmentToDelete}
               onOpen={
                 user?.role === "STUDENT" ? handleStart : handleOpenAssignment
               }
@@ -126,6 +156,16 @@ function ClassDetailsPage() {
           </div>
         </Panel>
       </div>
+
+      <ConfirmModal
+        open={Boolean(assignmentToDelete)}
+        title="Delete assignment?"
+        message="Are you sure you want to delete this assignment? This action cannot be undone."
+        onCancel={() => setAssignmentToDelete(null)}
+        onConfirm={handleConfirmDeleteAssignment}
+        confirmText="Delete"
+        confirmVariant="danger"
+      />
     </div>
   );
 }

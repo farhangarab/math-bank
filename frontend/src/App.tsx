@@ -54,6 +54,10 @@ function App() {
             path={ROUTES.CREATE_ASSIGNMENT}
             element={<CreateAssignmentPage />}
           />
+          <Route
+            path={ROUTES.EDIT_ASSIGNMENT}
+            element={<CreateAssignmentPage />}
+          />
           <Route path={ROUTES.ASSIGNMENT_QUESTIONS} element={<QuestionPage />} />
           <Route
             path={ROUTES.TEACHER_SUBMISSIONS_PAGE}
