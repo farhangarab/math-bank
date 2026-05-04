@@ -30,6 +30,29 @@ export function formatDueDate(dateStr?: string) {
 
   return `${date} by ${time}`;
 }
+
+export function formatSubmittedDate(dateStr?: string | null) {
+  if (!dateStr) return "-";
+
+  const d = new Date(dateStr);
+
+  if (Number.isNaN(d.getTime())) return "-";
+
+  const date = d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+  const time = d
+    .toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    })
+    .toLowerCase()
+    .replace(" ", "");
+
+  return `${date} at ${time}`;
+}
 // format class created date
 export function formatCreatedDate(dateText?: string | null) {
   if (!dateText) return "-";

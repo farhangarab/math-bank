@@ -23,7 +23,7 @@ import type {
 } from "../types/attempt";
 import type { ClassInfo } from "../types/class";
 import type { Question } from "../types/question";
-import { formatDueDate, formatNumber } from "../utils/format";
+import { formatDueDate, formatNumber, formatSubmittedDate } from "../utils/format";
 import { answerLooksNumeric, getStudentGuidance } from "../utils/grading";
 
 const StudentAssignmentPage = () => {
@@ -565,7 +565,7 @@ const StudentAssignmentPage = () => {
                     <div className="flex items-center justify-between gap-4">
                       <dt className="text-gray-500">Submitted Date</dt>
                       <dd className="min-w-0 break-words text-right font-semibold text-brand-primary">
-                        {formatDueDate(submittedAt)}
+                        {formatSubmittedDate(submittedAt)}
                       </dd>
                     </div>
                   )}

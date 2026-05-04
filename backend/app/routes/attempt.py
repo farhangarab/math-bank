@@ -13,6 +13,7 @@ from app.response_utils import error_response, field_error, success_response
 from app.services.grading import grade_answer
 from app.services.serializers import (
     can_reveal_attempt_answers,
+    serialize_datetime,
     serialize_attempt_question,
     serialize_attempt_status,
 )
@@ -253,7 +254,7 @@ def get_attempt(attempt_id):
         "assignment_id": attempt.assignment_id,
         "status": serialize_attempt_status(attempt.status),
         "total_score": attempt.total_score,
-        "submitted_at": attempt.submitted_At,
+        "submitted_at": serialize_datetime(attempt.submitted_At),
         "questions": question_list,
         "answers": answer_list,
     }
