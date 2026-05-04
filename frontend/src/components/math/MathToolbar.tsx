@@ -9,7 +9,14 @@ type Props = {
   onAnswerChange: (value: string) => void;
 };
 
-const TABS = ["Basic", "Functions", "Trig", "Calculus"] as const;
+const TABS = [
+  "Basic",
+  "Functions",
+  "Trig",
+  "Calculus",
+  "Relations",
+  "Greek",
+] as const;
 type Tab = (typeof TABS)[number];
 
 function MathToolbar({
@@ -54,22 +61,21 @@ function MathToolbar({
   }
 
   return (
-    <div className="px-4 pt-3 pb-4">
-      {/* Tab strip */}
-      <div className="flex gap-1 mb-3">
+    <div className="px-4 pb-4 pt-3">
+      <div className="mb-3 flex flex-wrap gap-1">
         {TABS.map((tab) => (
           <button
             key={tab}
-            onMouseDown={(e) => {
-              e.preventDefault();
+            onMouseDown={(event) => {
+              event.preventDefault();
               setActiveTab(tab);
             }}
             className={`
-              text-xs font-medium px-3 py-1 rounded-full border transition-colors
+              rounded-full border px-3 py-1 text-xs font-medium transition-colors
               ${
-            activeTab === tab
-                  ? "bg-brand-primary text-white border-brand-primary"
-                  : "bg-transparent text-brand-primary border-brand-primary hover:bg-brand-primary hover:text-white"
+                activeTab === tab
+                  ? "border-brand-primary bg-brand-primary text-white"
+                  : "border-brand-primary bg-transparent text-brand-primary hover:bg-brand-primary hover:text-white"
               }
             `}
           >
@@ -78,43 +84,69 @@ function MathToolbar({
         ))}
       </div>
 
-      {/* Button row — only active tab shown, fixed single row height */}
+      {/* Buttons insert plain text only. Preview converts that text for display. */}
       <div className="flex flex-wrap gap-2">
         {activeTab === "Basic" && (
           <>
             <Btn label="+" onPress={() => insert("+", 1)} />
-            <Btn label="−" onPress={() => insert("-", 1)} />
+            <Btn label="-" onPress={() => insert("-", 1)} />
             <Btn label="×" onPress={() => insert("*", 1)} />
             <Btn label="÷" onPress={() => insert("/", 1)} />
-            <Btn label="( )" onPress={() => insertSmartParens()} />
+            <Btn label="( )" onPress={insertSmartParens} />
             <Btn label="a/b" onPress={() => insertTemplate("fraction")} />
             <Btn label="π" onPress={() => insert("pi", 2)} />
-            <Btn label="x²" onPress={() => insert("^2", 2)} />
-            <Btn label="xⁿ" onPress={() => insert("^", 1)} />
+            <Btn label="e" onPress={() => insert("e", 1)} />
+            <Btn label="x²" onPress={() => insertTemplate("power2")} />
+            <Btn label="xⁿ" onPress={() => insertTemplate("powern")} />
           </>
         )}
 
         {activeTab === "Functions" && (
           <>
+            <Btn label="sqrt()" onPress={() => insertTemplate("sqrt")} />
+            <Btn label="ln()" onPress={() => insertTemplate("ln")} />
             <Btn label="log()" onPress={() => insertTemplate("log")} />
-            <Btn label="ln()" onPress={() => insert("ln()", 3)} />
-            <Btn label="√" onPress={() => insert("sqrt()", 5)} />
+            <Btn label="exp()" onPress={() => insertTemplate("exp")} />
+            <Btn label="abs()" onPress={() => insertTemplate("abs")} />
           </>
         )}
 
         {activeTab === "Trig" && (
           <>
             <Btn label="sin()" onPress={() => insertTemplate("sin")} />
-            <Btn label="cos()" onPress={() => insert("cos()", 4)} />
-            <Btn label="tan()" onPress={() => insert("tan()", 4)} />
+            <Btn label="cos()" onPress={() => insertTemplate("cos")} />
+            <Btn label="tan()" onPress={() => insertTemplate("tan")} />
+            <Btn label="sec()" onPress={() => insertTemplate("sec")} />
+            <Btn label="csc()" onPress={() => insertTemplate("csc")} />
+            <Btn label="cot()" onPress={() => insertTemplate("cot")} />
           </>
         )}
 
         {activeTab === "Calculus" && (
           <>
             <Btn label="∫ dx" onPress={() => insertTemplate("integral")} />
+            <Btn label="d/dx" onPress={() => insertTemplate("derivative")} />
             <Btn label="lim" onPress={() => insertTemplate("limit")} />
-            <Btn label="Σ" onPress={() => insert("sum( , (n,1,10))", 5)} />
+            <Btn label="Σ" onPress={() => insertTemplate("sum")} />
+          </>
+        )}
+
+        {activeTab === "Relations" && (
+          <>
+            <Btn label="=" onPress={() => insert("=", 1)} />
+            <Btn label="≠" onPress={() => insert("!=", 2)} />
+            <Btn label="<" onPress={() => insert("<", 1)} />
+            <Btn label=">" onPress={() => insert(">", 1)} />
+            <Btn label="≤" onPress={() => insert("<=", 2)} />
+            <Btn label="≥" onPress={() => insert(">=", 2)} />
+          </>
+        )}
+
+        {activeTab === "Greek" && (
+          <>
+            <Btn label="θ" onPress={() => insert("theta", 5)} />
+            <Btn label="α" onPress={() => insert("alpha", 5)} />
+            <Btn label="β" onPress={() => insert("beta", 4)} />
           </>
         )}
       </div>
@@ -122,22 +154,16 @@ function MathToolbar({
   );
 }
 
-function Btn({
-  label,
-  onPress,
-}: {
-  label: string;
-  onPress: () => void;
-}) {
+function Btn({ label, onPress }: { label: string; onPress: () => void }) {
   return (
     <button
-      onMouseDown={(e) => {
-        e.preventDefault();
+      onMouseDown={(event) => {
+        event.preventDefault();
         onPress();
       }}
       className={`
-        h-9 px-3 rounded-lg border text-sm transition-all active:scale-95
-        bg-white text-brand-primary border-brand-primary hover:bg-brand-primary hover:text-white
+        h-9 rounded-lg border px-3 text-sm transition-all active:scale-95
+        border-brand-primary bg-white text-brand-primary hover:bg-brand-primary hover:text-white
       `}
     >
       {label}
