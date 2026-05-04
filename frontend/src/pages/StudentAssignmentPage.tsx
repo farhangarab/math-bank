@@ -40,7 +40,7 @@ const StudentAssignmentPage = () => {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [savedAnswers, setSavedAnswers] = useState<Record<number, string>>({});
   const [showPreview, setShowPreview] = useState(true);
-  const [showMathSymbols, setShowMathSymbols] = useState(false);
+  const [showMathSymbols, setShowMathSymbols] = useState(true);
   const [activeInput, setActiveInput] = useState<HTMLTextAreaElement | null>(
     null,
   );
@@ -248,7 +248,7 @@ const StudentAssignmentPage = () => {
   }, [attemptId]);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen overflow-x-hidden bg-white">
       <Header
         title="MATHBANK"
         leftText="Back"
@@ -256,9 +256,12 @@ const StudentAssignmentPage = () => {
       />
 
       <main
-        className={`w-full px-4 py-4 sm:px-6 lg:px-8 ${
-          showMathSymbols ? "pb-44" : "pb-10"
-        }`}
+        className="w-full max-w-full overflow-x-hidden px-4 py-4 sm:px-6 lg:px-8"
+        style={{
+          paddingBottom: showMathSymbols
+            ? "var(--math-toolbar-space, 22rem)"
+            : "7rem",
+        }}
       >
         <section className="mb-5">
           <div className="min-w-0">
@@ -285,7 +288,7 @@ const StudentAssignmentPage = () => {
             </h1>
           </div>
 
-          <div className="mt-3 flex flex-row items-center justify-between gap-2 sm:justify-end">
+          <div className="mt-3 flex flex-row items-center justify-between gap-2 lg:justify-end">
             <Tooltip text="Show or hide your rendered answer.">
               <span>
                 <Button
@@ -316,7 +319,7 @@ const StudentAssignmentPage = () => {
           </section>
 
         {currentQuestion && (
-          <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]">
+          <section className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]">
             <div className="relative min-w-0">
               {!isReadOnly && (
                 <div className="absolute right-0 top-0 hidden -translate-y-[calc(100%+1.25rem)] justify-end lg:flex">
@@ -333,7 +336,7 @@ const StudentAssignmentPage = () => {
                 </div>
               )}
 
-              <Panel className="min-w-0">
+              <Panel className="min-w-0 max-w-full overflow-hidden">
               <div className="mb-4">
                 <div>
                   <div className="flex items-center justify-between gap-3">
@@ -380,7 +383,7 @@ const StudentAssignmentPage = () => {
                 }
                 disabled={isReadOnly}
                 rows={7}
-                className="w-full resize-y rounded-md border border-brand-primary bg-white px-3 py-2 text-brand-primary outline-none focus:ring-2 focus:ring-brand-borderSoft disabled:bg-white"
+                className="w-full max-w-full resize-y rounded-md border border-brand-primary bg-white px-3 py-2 text-brand-primary outline-none focus:ring-2 focus:ring-brand-borderSoft disabled:bg-white"
                 placeholder={
                   isReadOnly
                     ? "Answer is read-only in review mode"
@@ -470,7 +473,7 @@ const StudentAssignmentPage = () => {
               </Panel>
             </div>
 
-            <aside className="min-w-0 space-y-4 lg:sticky lg:top-6 lg:h-fit">
+            <aside className="min-w-0 max-w-full space-y-4 lg:sticky lg:top-6 lg:h-fit">
               {showPreview && (
                 <Panel className="bg-white p-4">
                   <div className="mb-3">
