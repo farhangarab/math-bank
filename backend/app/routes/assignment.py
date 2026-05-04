@@ -75,19 +75,27 @@ def get_assignments():
 
     assignment_ids = [a.id for a in assignments]
     max_scores = {}
+    question_counts = {}
 
     if assignment_ids:
-        max_scores = {
-            assignment_id: float(max_score or 0)
-            for assignment_id, max_score in (
+        question_totals = (
                 db.session.query(
                     Question.assignment_id,
                     db.func.coalesce(db.func.sum(Question.points), 0),
+                    db.func.count(Question.id),
                 )
                 .filter(Question.assignment_id.in_(assignment_ids))
                 .group_by(Question.assignment_id)
                 .all()
             )
+
+        max_scores = {
+            assignment_id: float(max_score or 0)
+            for assignment_id, max_score, question_count in question_totals
+        }
+        question_counts = {
+            assignment_id: int(question_count or 0)
+            for assignment_id, max_score, question_count in question_totals
         }
 
     for a in assignments:
@@ -97,6 +105,7 @@ def get_assignments():
             "class_id": a.class_id,
             "due_date": serialize_due_date(a.due_date),
             "max_score": max_scores.get(a.id, 0),
+            "questions_count": question_counts.get(a.id, 0),
         }
 
         if class_member:

@@ -8,6 +8,7 @@ from app.models.class_member import ClassMember
 from app.models.assignment import Assignment
 from app.models.attempt import Attempt
 from app.models.attempt_answer import AttemptAnswer
+from app.models.question import Question
 from app.models.user import User
 from app.auth_utils import role_required
 from app.response_utils import error_response, field_error, success_response
@@ -18,6 +19,15 @@ from app.utils.code_generator import generate_unique_class_code
 classes_bp = Blueprint("classes", __name__)
 
 
+def validate_class_name(data):
+    class_name = data.get("class_name")
+
+    if not class_name or not class_name.strip():
+        return None, field_error("class_name", "Class name is required.")
+
+    return class_name.strip(), None
+
+
 # create class
 @classes_bp.route("/create", methods=["POST"])
 @login_required
@@ -26,11 +36,9 @@ def create_class():
 
     data = request.get_json() or {}
 
-    class_name = data.get("class_name")
-    if not class_name or not class_name.strip():
-        return field_error("class_name", "Class name is required.")
-
-    class_name = class_name.strip()
+    class_name, error = validate_class_name(data)
+    if error:
+        return error
 
     try:
         class_code = generate_unique_class_code()
@@ -82,6 +90,97 @@ def get_my_classes():
         )
 
     return jsonify(result), 200
+
+
+@classes_bp.route("/<int:class_id>", methods=["PUT"])
+@login_required
+@role_required(UserRole.TEACHER)
+def update_class(class_id):
+    class_obj = db.session.get(Class, class_id)
+
+    if not class_obj:
+        return error_response("Class was not found.", 404)
+
+    if class_obj.teacher_id != current_user.id:
+        return error_response("You do not have permission to update this class.", 403)
+
+    data = request.get_json() or {}
+    class_name, error = validate_class_name(data)
+    if error:
+        return error
+
+    class_obj.class_name = class_name
+    db.session.commit()
+
+    return success_response("Class updated successfully.")
+
+
+@classes_bp.route("/<int:class_id>", methods=["DELETE"])
+@login_required
+@role_required(UserRole.TEACHER)
+def delete_class(class_id):
+    class_obj = db.session.get(Class, class_id)
+
+    if not class_obj:
+        return error_response("Class was not found.", 404)
+
+    if class_obj.teacher_id != current_user.id:
+        return error_response("You do not have permission to delete this class.", 403)
+
+    try:
+        assignments = Assignment.query.filter_by(class_id=class_obj.id).all()
+        class_members = ClassMember.query.filter_by(class_id=class_obj.id).all()
+
+        assignment_ids = [assignment.id for assignment in assignments]
+        member_ids = [member.id for member in class_members]
+
+        questions = []
+        attempts = []
+
+        if assignment_ids:
+            questions = Question.query.filter(
+                Question.assignment_id.in_(assignment_ids)
+            ).all()
+            attempts = Attempt.query.filter(
+                Attempt.assignment_id.in_(assignment_ids)
+            ).all()
+
+        if member_ids:
+            member_attempts = Attempt.query.filter(
+                Attempt.class_member_id.in_(member_ids)
+            ).all()
+            existing_attempt_ids = {attempt.id for attempt in attempts}
+            attempts.extend(
+                attempt
+                for attempt in member_attempts
+                if attempt.id not in existing_attempt_ids
+            )
+
+        for attempt in attempts:
+            AttemptAnswer.query.filter_by(attempt_id=attempt.id).delete()
+
+        for question in questions:
+            AttemptAnswer.query.filter_by(question_id=question.id).delete()
+
+        for attempt in attempts:
+            db.session.delete(attempt)
+
+        for question in questions:
+            db.session.delete(question)
+
+        for assignment in assignments:
+            db.session.delete(assignment)
+
+        for member in class_members:
+            db.session.delete(member)
+
+        db.session.delete(class_obj)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return error_response("Failed to delete class.", 500)
+
+    return success_response("Class deleted successfully.")
 
 
 # get students in one teacher class

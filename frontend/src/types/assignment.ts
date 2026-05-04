@@ -7,6 +7,7 @@ export type Assignment = {
   due_date?: string;
   score?: number | null;
   max_score?: number | string;
+  questions_count?: number;
   status?: AttemptStatus;
   attempt_id?: number | null;
 };

@@ -46,6 +46,7 @@ function App() {
             element={<TeacherDashboardPage />}
           />
           <Route path={ROUTES.CREATE_CLASS} element={<CreateClassPage />} />
+          <Route path={ROUTES.EDIT_CLASS} element={<CreateClassPage />} />
           <Route
             path={ROUTES.STUDENT_LIST}
             element={<StudentListPage />}

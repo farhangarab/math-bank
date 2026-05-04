@@ -37,6 +37,14 @@ function getStatusTooltip(status?: string) {
   return "You have not started this assignment yet.";
 }
 
+function QuestionCountBadge({ count = 0 }: { count?: number }) {
+  return (
+    <span className="inline-flex min-w-8 items-center justify-center rounded-full bg-brand-surface px-3 py-1 text-sm font-bold text-brand-primary ring-1 ring-brand-borderSoft">
+      {count}
+    </span>
+  );
+}
+
 function AssignmentTable({
   assignments,
   role,
@@ -79,6 +87,15 @@ function AssignmentTable({
                 <dt className="font-semibold text-gray-500">Due</dt>
                 <dd className="text-gray-800">{formatDueDate(a.due_date)}</dd>
               </div>
+
+              {role === "TEACHER" && (
+                <div>
+                  <dt className="font-semibold text-gray-500">Questions</dt>
+                  <dd className="mt-1">
+                    <QuestionCountBadge count={a.questions_count} />
+                  </dd>
+                </div>
+              )}
 
               {role === "STUDENT" ? (
                 <>
