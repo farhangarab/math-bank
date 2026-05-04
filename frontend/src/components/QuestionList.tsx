@@ -5,9 +5,11 @@ import type { Question } from "../types/question";
 
 type Props = {
   questions: Question[];
+  onEditQuestion: (question: Question) => void;
+  onDeleteQuestion: (question: Question) => void;
 };
 
-function QuestionList({ questions }: Props) {
+function QuestionList({ questions, onEditQuestion, onDeleteQuestion }: Props) {
   if (questions.length === 0) {
     return (
       <div className="rounded-md border border-brand-borderSoft bg-brand-surface px-4 py-6 text-center text-sm text-gray-500">
@@ -26,7 +28,7 @@ function QuestionList({ questions }: Props) {
           >
             <div className="flex items-start gap-3">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-brand-surface text-sm font-bold text-brand-primary">
-                {q.order_index ?? index + 1}
+                {index + 1}
               </span>
               <div className="min-w-0 flex-1 text-brand-primary">
                 <MathPreview
@@ -59,16 +61,18 @@ function QuestionList({ questions }: Props) {
             <div className="mt-4 flex justify-end gap-2">
               <button
                 type="button"
+                onClick={() => onEditQuestion(q)}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white"
-                aria-label={`Edit question ${q.order_index ?? index + 1}`}
+                aria-label={`Edit question ${index + 1}`}
                 title="Edit"
               >
                 <PencilIcon />
               </button>
               <button
                 type="button"
+                onClick={() => onDeleteQuestion(q)}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-status-errorText text-status-errorText hover:bg-status-errorBg"
-                aria-label={`Delete question ${q.order_index ?? index + 1}`}
+                aria-label={`Delete question ${index + 1}`}
                 title="Delete"
               >
                 <TrashIcon />
@@ -98,7 +102,7 @@ function QuestionList({ questions }: Props) {
                 className="border-t border-brand-borderSoft"
               >
                 <td className="px-3 py-4 align-top font-semibold text-brand-primary">
-                  {q.order_index ?? index + 1}
+                  {index + 1}
                 </td>
                 <td className="px-3 py-4 align-top text-brand-primary">
                   <div className="max-w-[420px] overflow-hidden">
@@ -127,16 +131,18 @@ function QuestionList({ questions }: Props) {
                   <div className="flex justify-end gap-2">
                     <button
                       type="button"
+                      onClick={() => onEditQuestion(q)}
                       className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white"
-                      aria-label={`Edit question ${q.order_index ?? index + 1}`}
+                      aria-label={`Edit question ${index + 1}`}
                       title="Edit"
                     >
                       <PencilIcon />
                     </button>
                     <button
                       type="button"
+                      onClick={() => onDeleteQuestion(q)}
                       className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-status-errorText text-status-errorText hover:bg-status-errorBg"
-                      aria-label={`Delete question ${q.order_index ?? index + 1}`}
+                      aria-label={`Delete question ${index + 1}`}
                       title="Delete"
                     >
                       <TrashIcon />

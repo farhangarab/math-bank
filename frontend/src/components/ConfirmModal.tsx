@@ -6,6 +6,7 @@ type ConfirmModalProps = {
   message: string;
   onCancel: () => void;
   onConfirm: () => void;
+  confirmText?: string;
 };
 
 function ConfirmModal({
@@ -14,6 +15,7 @@ function ConfirmModal({
   message,
   onCancel,
   onConfirm,
+  confirmText = "Confirm",
 }: ConfirmModalProps) {
   if (!open) return null;
 
@@ -29,7 +31,7 @@ function ConfirmModal({
             Cancel
           </Button>
 
-          <Button onClick={onConfirm}>Confirm</Button>
+          <Button onClick={onConfirm}>{confirmText}</Button>
         </div>
       </div>
     </div>
