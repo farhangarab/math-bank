@@ -36,7 +36,7 @@ function getStatusTooltip(status?: string) {
 }
 
 function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
-  const studentColumns = "2fr 2fr 1.2fr 1fr 120px 48px";
+  const studentColumns = "2fr 2fr 1.2fr 1fr 120px";
   const teacherColumns = "2fr 2fr 120px 120px 48px";
 
   return (
@@ -47,11 +47,17 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
             key={a.id}
             className="relative rounded-md border border-brand-borderSoft bg-white p-4"
           >
-            <div className="absolute right-3 top-3">
-              <MoreActionsMenu label={`More actions for ${a.title}`} />
-            </div>
+            {role === "TEACHER" && (
+              <div className="absolute right-3 top-3">
+                <MoreActionsMenu label={`More actions for ${a.title}`} />
+              </div>
+            )}
 
-            <h3 className="truncate pr-8 text-base font-semibold text-brand-primary">
+            <h3
+              className={`truncate text-base font-semibold text-brand-primary ${
+                role === "TEACHER" ? "pr-8" : ""
+              }`}
+            >
               {a.title}
             </h3>
 
@@ -108,7 +114,7 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
         ))}
       </div>
 
-      <div className="hidden overflow-hidden rounded-md border border-brand-borderSoft min-[821px]:block">
+      <div className="hidden overflow-visible rounded-md border border-brand-borderSoft min-[821px]:block">
         <div
           className="grid gap-3 bg-brand-surface px-4 py-3 font-semibold text-brand-primary"
           style={{
@@ -124,7 +130,6 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
               <div>Status</div>
               <div>Score</div>
               <div>Action</div>
-              <div className="text-right">More</div>
             </>
           )}
 
@@ -165,9 +170,6 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
                   >
                     {getStudentActionLabel(a.status)}
                   </button>
-                </div>
-                <div className="flex justify-end">
-                  <MoreActionsMenu label={`More actions for ${a.title}`} />
                 </div>
               </>
             )}
