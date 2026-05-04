@@ -55,6 +55,7 @@ const StudentAssignmentPage = () => {
   const isReviewMode =
     searchParams.get("mode") === "review" || user?.role === "TEACHER";
   const isReadOnly = isReviewMode || isSubmitted;
+  const showEditableTools = !isReadOnly;
 
   const { message, clearAllMessages, showApiError, showSuccess } = useMessage();
   const [showConfirm, setShowConfirm] = useState(false);
@@ -258,7 +259,7 @@ const StudentAssignmentPage = () => {
       <main
         className="w-full max-w-full overflow-x-hidden px-4 py-4 sm:px-6 lg:px-8"
         style={{
-          paddingBottom: showMathSymbols
+          paddingBottom: showEditableTools && showMathSymbols
             ? "var(--math-toolbar-space, 22rem)"
             : "7rem",
         }}
@@ -288,20 +289,21 @@ const StudentAssignmentPage = () => {
             </h1>
           </div>
 
-          <div className="mt-3 flex flex-row items-center justify-between gap-2 lg:justify-end">
-            <Tooltip text="Show or hide your rendered answer.">
-              <span>
-                <Button
-                  variant="ghost"
-                  className="whitespace-nowrap px-3 py-1.5 text-sm sm:px-4 sm:py-2"
-                  onClick={() => setShowPreview((v) => !v)}
-                >
-                  {showPreview ? "Hide Preview" : "Show Preview"}
-                </Button>
-              </span>
-            </Tooltip>
+          {showEditableTools && (
+            <div className="mt-3 flex flex-row items-center justify-between gap-2 lg:justify-end">
+              <Tooltip text="Show or hide your rendered answer.">
+                <span>
+                  <Button
+                    variant="ghost"
+                    className="whitespace-nowrap px-3 py-1.5 text-sm sm:px-4 sm:py-2"
+                    onClick={() => setShowPreview((v) => !v)}
+                  >
+                    {showPreview ? "Hide Preview" : "Show Preview"}
+                  </Button>
+                </span>
+              </Tooltip>
 
-              {!isReadOnly && currentQuestion && (
+              {currentQuestion && (
                 <div className="lg:hidden">
                   <Tooltip text="Turn in the assignment and lock your answers.">
                     <span>
@@ -316,6 +318,7 @@ const StudentAssignmentPage = () => {
                 </div>
               )}
             </div>
+          )}
           </section>
 
         {currentQuestion && (
@@ -474,7 +477,7 @@ const StudentAssignmentPage = () => {
             </div>
 
             <aside className="min-w-0 max-w-full space-y-4 lg:sticky lg:top-6 lg:h-fit">
-              {showPreview && (
+              {showEditableTools && showPreview && (
                 <Panel className="bg-white p-4">
                   <div className="mb-3">
                     <div>
@@ -598,15 +601,17 @@ const StudentAssignmentPage = () => {
         onConfirm={() => navigate(-1)}
       />
 
-      <FloatingMathToolbar
-        showMathSymbols={showMathSymbols}
-        activeInput={activeInput}
-        activeField="answer"
-        onQuestionChange={() => {}}
-        onAnswerChange={handleToolbarAnswerChange}
-        onShow={() => setShowMathSymbols(true)}
-        onHide={() => setShowMathSymbols(false)}
-      />
+      {showEditableTools && (
+        <FloatingMathToolbar
+          showMathSymbols={showMathSymbols}
+          activeInput={activeInput}
+          activeField="answer"
+          onQuestionChange={() => {}}
+          onAnswerChange={handleToolbarAnswerChange}
+          onShow={() => setShowMathSymbols(true)}
+          onHide={() => setShowMathSymbols(false)}
+        />
+      )}
     </div>
   );
 };

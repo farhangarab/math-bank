@@ -23,10 +23,10 @@ function AssignmentEditorHeader({
   return (
     <section className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
       <div className="min-w-0 md:flex-1">
-        <h1 className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 text-2xl font-bold text-brand-primary">
-          <span className="min-w-0 truncate">{classNameText}</span>
+        <h1 className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-2xl font-bold text-brand-primary">
+          <span className="min-w-0 max-w-full truncate">{classNameText}</span>
           <span className="font-medium text-gray-400">&bull;</span>
-          <span className="min-w-0 truncate">{assignmentTitle}</span>
+          <span className="min-w-0 max-w-full truncate">{assignmentTitle}</span>
         </h1>
         <div className="mt-2 text-sm text-gray-500">
           Total questions: {questionCount}
