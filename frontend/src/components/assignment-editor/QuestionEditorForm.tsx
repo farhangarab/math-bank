@@ -27,8 +27,11 @@ type Props = {
   ) => void;
   onClearFieldError: (field: string) => void;
   onClearAllMessages: () => void;
-  onCancel: () => void;
+  onReset: () => void;
+  onCancelEdit: () => void;
   onSave: () => void;
+  isEditing: boolean;
+  hasEditChanges: boolean;
 };
 
 function QuestionEditorForm({
@@ -49,9 +52,15 @@ function QuestionEditorForm({
   onActiveFieldChange,
   onClearFieldError,
   onClearAllMessages,
-  onCancel,
+  onReset,
+  onCancelEdit,
   onSave,
+  isEditing,
+  hasEditChanges,
 }: Props) {
+  const saveButtonDisabled = isEditing && !hasEditChanges;
+  const saveButtonText = isEditing ? "Update" : "Save Question";
+
   return (
     <Panel className="flex min-w-0 flex-col p-0">
       <div className="px-4 pb-4 pt-1 sm:px-5 sm:pb-5 sm:pt-2">
@@ -213,12 +222,25 @@ function QuestionEditorForm({
           <div className="flex flex-wrap justify-end gap-3">
             <button
               type="button"
-              onClick={onCancel}
+              onClick={onReset}
               className="rounded-md border border-status-errorText px-6 py-2 font-semibold text-status-errorText transition-colors duration-200 hover:bg-status-errorText hover:text-white"
             >
               Reset
             </button>
-            <Button onClick={onSave}>Save Question</Button>
+            {isEditing && (
+              <Button variant="ghost" onClick={onCancelEdit}>
+                Cancel
+              </Button>
+            )}
+            <span
+              title={
+                saveButtonDisabled ? "Make a change before updating." : undefined
+              }
+            >
+              <Button onClick={onSave} disabled={saveButtonDisabled}>
+                {saveButtonText}
+              </Button>
+            </span>
           </div>
         </div>
       </div>

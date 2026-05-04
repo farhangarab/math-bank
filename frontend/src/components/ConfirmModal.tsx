@@ -6,6 +6,8 @@ type ConfirmModalProps = {
   message: string;
   onCancel: () => void;
   onConfirm: () => void;
+  confirmText?: string;
+  confirmVariant?: "primary" | "danger";
 };
 
 function ConfirmModal({
@@ -14,6 +16,8 @@ function ConfirmModal({
   message,
   onCancel,
   onConfirm,
+  confirmText = "Confirm",
+  confirmVariant = "primary",
 }: ConfirmModalProps) {
   if (!open) return null;
 
@@ -29,7 +33,17 @@ function ConfirmModal({
             Cancel
           </Button>
 
-          <Button onClick={onConfirm}>Confirm</Button>
+          {confirmVariant === "danger" ? (
+            <button
+              type="button"
+              onClick={onConfirm}
+              className="rounded-md bg-status-errorText px-6 py-2 font-semibold text-white transition-colors duration-200 hover:bg-red-700"
+            >
+              {confirmText}
+            </button>
+          ) : (
+            <Button onClick={onConfirm}>{confirmText}</Button>
+          )}
         </div>
       </div>
     </div>

@@ -35,6 +35,42 @@ export async function createAssignment(
   return data;
 }
 
+export async function updateAssignment(
+  assignmentId: number,
+  title: string,
+  dueDate?: string,
+) {
+  const res = await apiFetch(`/assignments/${assignmentId}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      title,
+      due_date: dueDate,
+    }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throwApiError(data, "Update assignment failed");
+  }
+
+  return data;
+}
+
+export async function deleteAssignment(assignmentId: number) {
+  const res = await apiFetch(`/assignments/${assignmentId}`, {
+    method: "DELETE",
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throwApiError(data, "Delete assignment failed");
+  }
+
+  return data;
+}
+
 export async function getAssignmentById(id: number): Promise<Assignment> {
   const res = await apiFetch(`/assignments/one?id=${id}`);
   const data = await res.json();

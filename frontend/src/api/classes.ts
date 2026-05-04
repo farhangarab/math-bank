@@ -29,6 +29,37 @@ export async function createClass(className: string) {
   return data;
 }
 
+export async function updateClass(classId: number, className: string) {
+  const res = await apiFetch(`/classes/${classId}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      class_name: className,
+    }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throwApiError(data, "Update class failed");
+  }
+
+  return data;
+}
+
+export async function deleteClass(classId: number) {
+  const res = await apiFetch(`/classes/${classId}`, {
+    method: "DELETE",
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throwApiError(data, "Delete class failed");
+  }
+
+  return data;
+}
+
 export async function joinClass(classCode: string) {
   const res = await apiFetch("/student/join-class", {
     method: "POST",

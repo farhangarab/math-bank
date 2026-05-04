@@ -47,3 +47,43 @@ export async function createQuestion(
 
   return data.data?.question ?? data.question;
 }
+
+export async function updateQuestion(
+  questionId: number,
+  questionText: string,
+  correctAnswer: string,
+  points: number,
+  gradingType: GradingType,
+  requireSimplified: boolean
+): Promise<Question> {
+  const res = await apiFetch(`/questions/${questionId}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      question_text: questionText,
+      correct_answer: correctAnswer,
+      points,
+      grading_type: gradingType,
+      require_simplified: requireSimplified
+    }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throwApiError(data, "Update question failed");
+  }
+
+  return data.data?.question ?? data.question;
+}
+
+export async function deleteQuestion(questionId: number): Promise<void> {
+  const res = await apiFetch(`/questions/${questionId}`, {
+    method: "DELETE",
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throwApiError(data, "Delete question failed");
+  }
+}

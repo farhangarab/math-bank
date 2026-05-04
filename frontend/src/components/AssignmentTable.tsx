@@ -1,12 +1,15 @@
 import type { Assignment } from "../types/assignment";
 import Tooltip from "./ui/Tooltip";
 import { formatDueDate, formatNumber } from "../utils/format";
+import MoreActionsMenu from "./MoreActionsMenu";
 
 type Props = {
   assignments: Assignment[];
   role: "STUDENT" | "TEACHER";
   onOpen?: (assignment: Assignment) => void;
   onEdit?: (id: number) => void;
+  onMoreEdit?: (assignment: Assignment) => void;
+  onDelete?: (assignment: Assignment) => void;
 };
 
 function getStudentActionLabel(status?: string) {
@@ -34,8 +37,23 @@ function getStatusTooltip(status?: string) {
   return "You have not started this assignment yet.";
 }
 
-function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
-  const studentColumns = "2fr 2fr 1.2fr 1fr 120px 48px";
+function QuestionCountBadge({ count = 0 }: { count?: number }) {
+  return (
+    <span className="inline-flex min-w-8 items-center justify-center rounded-full bg-brand-surface px-3 py-1 text-sm font-bold text-brand-primary ring-1 ring-brand-borderSoft">
+      {count}
+    </span>
+  );
+}
+
+function AssignmentTable({
+  assignments,
+  role,
+  onOpen,
+  onEdit,
+  onMoreEdit,
+  onDelete,
+}: Props) {
+  const studentColumns = "2fr 2fr 1.2fr 1fr 120px";
   const teacherColumns = "2fr 2fr 120px 120px 48px";
 
   return (
@@ -46,15 +64,21 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
             key={a.id}
             className="relative rounded-md border border-brand-borderSoft bg-white p-4"
           >
-            <button
-              type="button"
-              aria-label={`More actions for ${a.title}`}
-              className="absolute right-3 top-3 rounded-md px-2 py-1 text-xl font-bold leading-none text-brand-primary transition-colors hover:bg-brand-surface"
-            >
-              &#8942;
-            </button>
+            {role === "TEACHER" && (
+              <div className="absolute right-3 top-3">
+                <MoreActionsMenu
+                  label={`More actions for ${a.title}`}
+                  onEdit={() => onMoreEdit?.(a)}
+                  onDelete={() => onDelete?.(a)}
+                />
+              </div>
+            )}
 
-            <h3 className="truncate pr-8 text-base font-semibold text-brand-primary">
+            <h3
+              className={`truncate text-base font-semibold text-brand-primary ${
+                role === "TEACHER" ? "pr-8" : ""
+              }`}
+            >
               {a.title}
             </h3>
 
@@ -63,6 +87,15 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
                 <dt className="font-semibold text-gray-500">Due</dt>
                 <dd className="text-gray-800">{formatDueDate(a.due_date)}</dd>
               </div>
+
+              {role === "TEACHER" && (
+                <div>
+                  <dt className="font-semibold text-gray-500">Questions</dt>
+                  <dd className="mt-1">
+                    <QuestionCountBadge count={a.questions_count} />
+                  </dd>
+                </div>
+              )}
 
               {role === "STUDENT" ? (
                 <>
@@ -111,7 +144,7 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
         ))}
       </div>
 
-      <div className="hidden overflow-hidden rounded-md border border-brand-borderSoft min-[821px]:block">
+      <div className="hidden overflow-visible rounded-md border border-brand-borderSoft min-[821px]:block">
         <div
           className="grid gap-3 bg-brand-surface px-4 py-3 font-semibold text-brand-primary"
           style={{
@@ -127,7 +160,6 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
               <div>Status</div>
               <div>Score</div>
               <div>Action</div>
-              <div className="text-right">More</div>
             </>
           )}
 
@@ -169,15 +201,6 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
                     {getStudentActionLabel(a.status)}
                   </button>
                 </div>
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    aria-label={`More actions for ${a.title}`}
-                    className="rounded-md px-2 py-2 text-xl font-bold leading-none text-brand-primary transition-colors hover:bg-brand-surface"
-                  >
-                    &#8942;
-                  </button>
-                </div>
               </>
             )}
 
@@ -203,13 +226,11 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
                   </button>
                 </div>
                 <div className="flex justify-end">
-                  <button
-                    type="button"
-                    aria-label={`More actions for ${a.title}`}
-                    className="rounded-md px-2 py-2 text-xl font-bold leading-none text-brand-primary transition-colors hover:bg-brand-surface"
-                  >
-                    &#8942;
-                  </button>
+                  <MoreActionsMenu
+                    label={`More actions for ${a.title}`}
+                    onEdit={() => onMoreEdit?.(a)}
+                    onDelete={() => onDelete?.(a)}
+                  />
                 </div>
               </>
             )}

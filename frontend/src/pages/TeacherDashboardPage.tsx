@@ -3,7 +3,7 @@ import Button from "../components/Button";
 import Header from "../components/Header";
 import { ROUTES } from "../router/routes";
 import { useEffect, useState } from "react";
-import { getTeacherClasses } from "../api/classes";
+import { deleteClass, getTeacherClasses } from "../api/classes";
 import { useAuth } from "../context/AuthContext";
 import { useMessage } from "../hooks/useMessage";
 import MessageSlot from "../components/MessageSlot";
@@ -11,10 +11,13 @@ import type { ClassInfo } from "../types/class";
 import Panel from "../components/Panel";
 import { formatCreatedDate, getFirstName } from "../utils/format";
 import CopyClassCode from "../components/CopyClassCode";
+import MoreActionsMenu from "../components/MoreActionsMenu";
+import ConfirmModal from "../components/ConfirmModal";
 
 function TeacherDashboardPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [classToDelete, setClassToDelete] = useState<ClassInfo | null>(null);
 
   const handleView = (id: number) => {
     navigate(`/class/${id}`);
@@ -25,7 +28,28 @@ function TeacherDashboardPage() {
   };
 
   const [classes, setClasses] = useState<ClassInfo[]>([]);
-  const { message, clearAllMessages, showApiError } = useMessage();
+  const { message, clearAllMessages, showApiError, showSuccess } = useMessage();
+
+  const handleEditClass = (classId: number) => {
+    navigate(`/teacher/classes/${classId}/edit`);
+  };
+
+  const handleConfirmDeleteClass = async () => {
+    if (!classToDelete) return;
+
+    try {
+      clearAllMessages();
+      await deleteClass(classToDelete.id);
+      setClasses((currentClasses) =>
+        currentClasses.filter((classInfo) => classInfo.id !== classToDelete.id),
+      );
+      setClassToDelete(null);
+      showSuccess("Class deleted successfully.");
+    } catch (err) {
+      setClassToDelete(null);
+      showApiError(err, "Failed to delete class.");
+    }
+  };
 
   useEffect(() => {
     const loadClasses = async () => {
@@ -60,8 +84,10 @@ function TeacherDashboardPage() {
         </p>
 
         {/* Create class button */}
-        <div className="mb-8">
-          <MessageSlot message={message} />
+        <div className="mb-8 flex w-full max-w-md flex-col items-center">
+          <div className="w-full">
+            <MessageSlot message={message} />
+          </div>
           <Button onClick={() => navigate(ROUTES.CREATE_CLASS)}>
             Create Class
           </Button>
@@ -83,13 +109,13 @@ function TeacherDashboardPage() {
                   key={c.id}
                   className="relative rounded-md border border-brand-borderSoft bg-white p-3 sm:p-4"
                 >
-                  <button
-                    type="button"
-                    aria-label={`More actions for ${c.class_name}`}
-                    className="absolute right-3 top-3 rounded-md px-2 py-1 text-xl font-bold leading-none text-brand-primary transition-colors hover:bg-brand-surface"
-                  >
-                    &#8942;
-                  </button>
+                  <div className="absolute right-3 top-3">
+                    <MoreActionsMenu
+                      label={`More actions for ${c.class_name}`}
+                      onEdit={() => handleEditClass(c.id)}
+                      onDelete={() => setClassToDelete(c)}
+                    />
+                  </div>
 
                   <h3 className="truncate pr-8 text-sm font-semibold text-brand-primary sm:text-base">
                     {c.class_name}
@@ -190,13 +216,11 @@ function TeacherDashboardPage() {
                         </Button>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <button
-                          type="button"
-                          aria-label={`More actions for ${c.class_name}`}
-                          className="rounded-md px-2 py-2 text-xl font-bold leading-none text-brand-primary transition-colors hover:bg-brand-surface"
-                        >
-                          &#8942;
-                        </button>
+                        <MoreActionsMenu
+                          label={`More actions for ${c.class_name}`}
+                          onEdit={() => handleEditClass(c.id)}
+                          onDelete={() => setClassToDelete(c)}
+                        />
                       </td>
                     </tr>
                   ))}
@@ -207,6 +231,16 @@ function TeacherDashboardPage() {
           )}
         </Panel>
       </div>
+
+      <ConfirmModal
+        open={Boolean(classToDelete)}
+        title="Delete class?"
+        message="Are you sure you want to delete this class? This action cannot be undone."
+        onCancel={() => setClassToDelete(null)}
+        onConfirm={handleConfirmDeleteClass}
+        confirmText="Delete"
+        confirmVariant="danger"
+      />
     </div>
   );
 }
