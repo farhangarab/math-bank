@@ -1,6 +1,7 @@
 import type { Assignment } from "../types/assignment";
 import Tooltip from "./ui/Tooltip";
 import { formatDueDate, formatNumber } from "../utils/format";
+import MoreActionsMenu from "./MoreActionsMenu";
 
 type Props = {
   assignments: Assignment[];
@@ -46,13 +47,9 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
             key={a.id}
             className="relative rounded-md border border-brand-borderSoft bg-white p-4"
           >
-            <button
-              type="button"
-              aria-label={`More actions for ${a.title}`}
-              className="absolute right-3 top-3 rounded-md px-2 py-1 text-xl font-bold leading-none text-brand-primary transition-colors hover:bg-brand-surface"
-            >
-              &#8942;
-            </button>
+            <div className="absolute right-3 top-3">
+              <MoreActionsMenu label={`More actions for ${a.title}`} />
+            </div>
 
             <h3 className="truncate pr-8 text-base font-semibold text-brand-primary">
               {a.title}
@@ -170,13 +167,7 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
                   </button>
                 </div>
                 <div className="flex justify-end">
-                  <button
-                    type="button"
-                    aria-label={`More actions for ${a.title}`}
-                    className="rounded-md px-2 py-2 text-xl font-bold leading-none text-brand-primary transition-colors hover:bg-brand-surface"
-                  >
-                    &#8942;
-                  </button>
+                  <MoreActionsMenu label={`More actions for ${a.title}`} />
                 </div>
               </>
             )}
@@ -203,13 +194,7 @@ function AssignmentTable({ assignments, role, onOpen, onEdit }: Props) {
                   </button>
                 </div>
                 <div className="flex justify-end">
-                  <button
-                    type="button"
-                    aria-label={`More actions for ${a.title}`}
-                    className="rounded-md px-2 py-2 text-xl font-bold leading-none text-brand-primary transition-colors hover:bg-brand-surface"
-                  >
-                    &#8942;
-                  </button>
+                  <MoreActionsMenu label={`More actions for ${a.title}`} />
                 </div>
               </>
             )}

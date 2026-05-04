@@ -11,6 +11,7 @@ import type { ClassInfo } from "../types/class";
 import Panel from "../components/Panel";
 import { formatCreatedDate, getFirstName } from "../utils/format";
 import CopyClassCode from "../components/CopyClassCode";
+import MoreActionsMenu from "../components/MoreActionsMenu";
 
 function TeacherDashboardPage() {
   const navigate = useNavigate();
@@ -83,13 +84,9 @@ function TeacherDashboardPage() {
                   key={c.id}
                   className="relative rounded-md border border-brand-borderSoft bg-white p-3 sm:p-4"
                 >
-                  <button
-                    type="button"
-                    aria-label={`More actions for ${c.class_name}`}
-                    className="absolute right-3 top-3 rounded-md px-2 py-1 text-xl font-bold leading-none text-brand-primary transition-colors hover:bg-brand-surface"
-                  >
-                    &#8942;
-                  </button>
+                  <div className="absolute right-3 top-3">
+                    <MoreActionsMenu label={`More actions for ${c.class_name}`} />
+                  </div>
 
                   <h3 className="truncate pr-8 text-sm font-semibold text-brand-primary sm:text-base">
                     {c.class_name}
@@ -190,13 +187,7 @@ function TeacherDashboardPage() {
                         </Button>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <button
-                          type="button"
-                          aria-label={`More actions for ${c.class_name}`}
-                          className="rounded-md px-2 py-2 text-xl font-bold leading-none text-brand-primary transition-colors hover:bg-brand-surface"
-                        >
-                          &#8942;
-                        </button>
+                        <MoreActionsMenu label={`More actions for ${c.class_name}`} />
                       </td>
                     </tr>
                   ))}
