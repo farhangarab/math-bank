@@ -1,15 +1,15 @@
 import { useNavigate } from "react-router-dom";
-import Button from "../components/Button";
-import Header from "../components/Header";
-import { ROUTES } from "../router/routes";
+import Button from "../../components/ui/Button";
+import Header from "../../components/layout/Header";
+import { ROUTES } from "../../router/routes";
 import { useEffect, useState } from "react";
-import { getStudentClasses } from "../api/classes";
-import { useAuth } from "../context/AuthContext";
-import { useMessage } from "../hooks/useMessage";
-import MessageSlot from "../components/MessageSlot";
-import type { ClassInfo } from "../types/class";
-import Panel from "../components/Panel";
-import { getFirstName } from "../utils/format";
+import { getStudentClasses } from "../../api/classes";
+import { useAuth } from "../../hooks/useAuth";
+import { useMessage } from "../../hooks/useMessage";
+import MessageSlot from "../../components/ui/MessageSlot";
+import type { ClassInfo } from "../../types/class";
+import Panel from "../../components/ui/Panel";
+import { getFirstName } from "../../utils/format";
 
 function StudentDashboardPage() {
   const navigate = useNavigate();
@@ -28,15 +28,15 @@ function StudentDashboardPage() {
         const data = await getStudentClasses();
 
         setClasses(data);
-      } catch (err: any) {
+      } catch (err) {
         showApiError(err, "Failed to load classes.");
       }
     };
 
     if (user) {
-      loadClasses();
+      void loadClasses();
     }
-  }, [user]);
+  }, [clearAllMessages, showApiError, user]);
 
   return (
     <div className="min-h-screen bg-white">

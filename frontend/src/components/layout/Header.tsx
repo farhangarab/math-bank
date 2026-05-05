@@ -1,9 +1,9 @@
 import { useState } from "react";
-import Button from "./Button";
-import ConfirmModal from "./ConfirmModal";
-import { useAuth } from "../context/AuthContext";
+import Button from "../ui/Button";
+import ConfirmModal from "../ui/ConfirmModal";
+import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { ROUTES } from "../router/routes";
+import { ROUTES } from "../../router/routes";
 
 type HeaderProps = {
   title?: string;

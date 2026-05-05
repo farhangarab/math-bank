@@ -1,6 +1,6 @@
 import { useState } from "react";
-import CopyIcon from "./icons/CopyIcon";
-import Tooltip from "./ui/Tooltip";
+import CopyIcon from "../icons/CopyIcon";
+import Tooltip from "../ui/Tooltip";
 
 type CopyClassCodeProps = {
   code?: string;

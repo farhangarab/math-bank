@@ -16,6 +16,26 @@ export class ApiError extends Error {
   }
 }
 
+type ApiResponseData = {
+  message?: unknown;
+  error?: unknown;
+  errors?: unknown;
+};
+
+function asApiResponseData(data: unknown): ApiResponseData {
+  return data && typeof data === "object" ? data : {};
+}
+
+function getFieldErrors(errors: unknown): FieldErrors {
+  if (!errors || typeof errors !== "object") return {};
+
+  return Object.fromEntries(
+    Object.entries(errors).filter(
+      (entry): entry is [string, string] => typeof entry[1] === "string",
+    ),
+  );
+}
+
 export async function apiFetch(path: string, options: ApiFetchOptions = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     credentials: "include",
@@ -29,15 +49,24 @@ export async function apiFetch(path: string, options: ApiFetchOptions = {}) {
   return response;
 }
 
-export function getBestApiMessage(data: any, fallback: string) {
-  if (typeof data?.message === "string" && data.message) return data.message;
-  if (typeof data?.error === "string" && data.error) return data.error;
+export function getBestApiMessage(data: unknown, fallback: string) {
+  const apiData = asApiResponseData(data);
+
+  if (typeof apiData.message === "string" && apiData.message) {
+    return apiData.message;
+  }
+
+  if (typeof apiData.error === "string" && apiData.error) {
+    return apiData.error;
+  }
 
   return fallback;
 }
 
-export function throwApiError(data: any, fallback: string): never {
-  throw new ApiError(getBestApiMessage(data, fallback), data?.errors ?? {});
+export function throwApiError(data: unknown, fallback: string): never {
+  const apiData = asApiResponseData(data);
+
+  throw new ApiError(getBestApiMessage(apiData, fallback), getFieldErrors(apiData.errors));
 }
 
 export { API_BASE_URL };

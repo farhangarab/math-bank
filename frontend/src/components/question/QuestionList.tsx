@@ -1,7 +1,7 @@
-import MathPreview from "./MathPreview";
-import PencilIcon from "./icons/PencilIcon";
-import TrashIcon from "./icons/TrashIcon";
-import type { Question } from "../types/question";
+import MathPreview from "../math/MathPreview";
+import PencilIcon from "../icons/PencilIcon";
+import TrashIcon from "../icons/TrashIcon";
+import type { Question } from "../../types/question";
 
 type Props = {
   questions: Question[];

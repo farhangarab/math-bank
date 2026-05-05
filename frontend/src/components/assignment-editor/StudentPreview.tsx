@@ -1,5 +1,5 @@
-import MathPreview from "../MathPreview";
-import Panel from "../Panel";
+import MathPreview from "../math/MathPreview";
+import Panel from "../ui/Panel";
 import type { GradingType } from "../../types/question";
 import { getStudentGuidance } from "../../utils/grading";
 

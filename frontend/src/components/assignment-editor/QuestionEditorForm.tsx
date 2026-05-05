@@ -1,6 +1,6 @@
-import Button from "../Button";
-import MessageSlot from "../MessageSlot";
-import Panel from "../Panel";
+import Button from "../ui/Button";
+import MessageSlot from "../ui/MessageSlot";
+import Panel from "../ui/Panel";
 import NumericWarning from "./NumericWarning";
 import Tooltip from "../ui/Tooltip";
 import type { GradingType } from "../../types/question";

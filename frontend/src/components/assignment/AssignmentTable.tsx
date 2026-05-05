@@ -1,7 +1,7 @@
-import type { Assignment } from "../types/assignment";
-import Tooltip from "./ui/Tooltip";
-import { formatDueDate, formatNumber } from "../utils/format";
-import MoreActionsMenu from "./MoreActionsMenu";
+import type { Assignment } from "../../types/assignment";
+import Tooltip from "../ui/Tooltip";
+import { formatDueDate, formatNumber } from "../../utils/format";
+import MoreActionsMenu from "../ui/MoreActionsMenu";
 
 type Props = {
   assignments: Assignment[];
@@ -55,10 +55,6 @@ function AssignmentTable({
 }: Props) {
   const studentColumns = "2fr 2fr 1.2fr 1fr 120px";
   const teacherColumns = "2fr 2fr 120px 120px 48px";
-  const totalQuestionCount = assignments.reduce(
-    (total, assignment) => total + (assignment.questions_count ?? 0),
-    0,
-  );
 
   return (
     <>
@@ -169,7 +165,7 @@ function AssignmentTable({
 
           {role === "TEACHER" && (
             <>
-              <div>Questions ({totalQuestionCount})</div>
+              <div>Questions</div>
               <div>Action</div>
               <div className="text-right">More</div>
             </>

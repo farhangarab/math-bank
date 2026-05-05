@@ -1,7 +1,7 @@
 import { useRef } from "react";
 
-import { hours, minutes, type TimePeriod } from "../utils/dueDateTime";
-import Tooltip from "./ui/Tooltip";
+import { hours, minutes, type TimePeriod } from "../../utils/dueDateTime";
+import Tooltip from "../ui/Tooltip";
 
 type Props = {
   date: string;

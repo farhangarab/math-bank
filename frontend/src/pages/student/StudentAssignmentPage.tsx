@@ -1,30 +1,30 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
-import { getAssignmentById } from "../api/assignments";
-import { getAttempt, saveAttempt, submitAttempt } from "../api/attempts";
-import { getClassById } from "../api/classes";
-import FloatingMathToolbar from "../components/assignment-editor/FloatingMathToolbar";
-import NumericWarning from "../components/assignment-editor/NumericWarning";
-import Button from "../components/Button";
-import ConfirmModal from "../components/ConfirmModal";
-import Header from "../components/Header";
-import MathPreview from "../components/MathPreview";
-import MessageSlot from "../components/MessageSlot";
-import Panel from "../components/Panel";
-import Tooltip from "../components/ui/Tooltip";
-import { useAuth } from "../context/AuthContext";
-import { useMessage } from "../hooks/useMessage";
-import type { Assignment } from "../types/assignment";
+import { getAssignmentById } from "../../api/assignments";
+import { getAttempt, saveAttempt, submitAttempt } from "../../api/attempts";
+import { getClassById } from "../../api/classes";
+import FloatingMathToolbar from "../../components/assignment-editor/FloatingMathToolbar";
+import NumericWarning from "../../components/assignment-editor/NumericWarning";
+import Button from "../../components/ui/Button";
+import ConfirmModal from "../../components/ui/ConfirmModal";
+import Header from "../../components/layout/Header";
+import MathPreview from "../../components/math/MathPreview";
+import MessageSlot from "../../components/ui/MessageSlot";
+import Panel from "../../components/ui/Panel";
+import Tooltip from "../../components/ui/Tooltip";
+import { useAuth } from "../../hooks/useAuth";
+import { useMessage } from "../../hooks/useMessage";
+import type { Assignment } from "../../types/assignment";
 import type {
   AttemptAnswer,
   AttemptResult,
   AttemptStatus,
-} from "../types/attempt";
-import type { ClassInfo } from "../types/class";
-import type { Question } from "../types/question";
-import { formatDueDate, formatNumber, formatSubmittedDate } from "../utils/format";
-import { answerLooksNumeric, getStudentGuidance } from "../utils/grading";
+} from "../../types/attempt";
+import type { ClassInfo } from "../../types/class";
+import type { Question } from "../../types/question";
+import { formatDueDate, formatNumber, formatSubmittedDate } from "../../utils/format";
+import { answerLooksNumeric, getStudentGuidance } from "../../utils/grading";
 
 const StudentAssignmentPage = () => {
   const { attemptId } = useParams();
@@ -192,22 +192,22 @@ const StudentAssignmentPage = () => {
     if (isReadOnly) return;
     clearAllMessages();
 
-    setAnswers((prev) => ({
-      ...prev,
+    const nextAnswers = {
+      ...answers,
       [questionId]: value,
-    }));
+    };
+
+    setAnswers(nextAnswers);
+
+    if (questions.every((question) => nextAnswers[question.id]?.trim())) {
+      setShowUnansweredWarning(false);
+    }
   };
 
   const handleToolbarAnswerChange = (value: string) => {
     if (!currentQuestion) return;
     handleAnswerChange(currentQuestion.id, value);
   };
-
-  useEffect(() => {
-    if (!hasUnansweredQuestions) {
-      setShowUnansweredWarning(false);
-    }
-  }, [hasUnansweredQuestions]);
 
   useEffect(() => {
     const load = async () => {

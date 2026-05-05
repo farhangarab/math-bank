@@ -1,29 +1,29 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { getAssignmentById } from "../api/assignments";
-import { getClassById } from "../api/classes";
+import { getAssignmentById } from "../../api/assignments";
+import { getClassById } from "../../api/classes";
 import {
   createQuestion,
   deleteQuestion,
   getQuestions,
   updateQuestion,
-} from "../api/question";
-import AssignmentEditorHeader from "../components/assignment-editor/AssignmentEditorHeader";
-import FloatingMathToolbar from "../components/assignment-editor/FloatingMathToolbar";
-import QuestionEditorForm from "../components/assignment-editor/QuestionEditorForm";
-import StudentPreview from "../components/assignment-editor/StudentPreview";
-import ConfirmModal from "../components/ConfirmModal";
-import Header from "../components/Header";
-import MessageSlot from "../components/MessageSlot";
-import Panel from "../components/Panel";
-import QuestionList from "../components/QuestionList";
-import { useMessage } from "../hooks/useMessage";
-import type { Assignment } from "../types/assignment";
-import type { ClassInfo } from "../types/class";
-import type { GradingType, Question } from "../types/question";
-import { answerLooksNumeric } from "../utils/grading";
-import { firstInvalid } from "../utils/validation";
+} from "../../api/questions";
+import AssignmentEditorHeader from "../../components/assignment-editor/AssignmentEditorHeader";
+import FloatingMathToolbar from "../../components/assignment-editor/FloatingMathToolbar";
+import QuestionEditorForm from "../../components/assignment-editor/QuestionEditorForm";
+import StudentPreview from "../../components/assignment-editor/StudentPreview";
+import ConfirmModal from "../../components/ui/ConfirmModal";
+import Header from "../../components/layout/Header";
+import MessageSlot from "../../components/ui/MessageSlot";
+import Panel from "../../components/ui/Panel";
+import QuestionList from "../../components/question/QuestionList";
+import { useMessage } from "../../hooks/useMessage";
+import type { Assignment } from "../../types/assignment";
+import type { ClassInfo } from "../../types/class";
+import type { GradingType, Question } from "../../types/question";
+import { answerLooksNumeric } from "../../utils/grading";
+import { firstInvalid } from "../../utils/validation";
 
 function QuestionPage() {
   const { id } = useParams();

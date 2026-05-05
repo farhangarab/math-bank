@@ -1,18 +1,18 @@
 import { useNavigate } from "react-router-dom";
-import Button from "../components/Button";
-import Header from "../components/Header";
-import { ROUTES } from "../router/routes";
+import Button from "../../components/ui/Button";
+import Header from "../../components/layout/Header";
+import { ROUTES } from "../../router/routes";
 import { useEffect, useState } from "react";
-import { deleteClass, getTeacherClasses } from "../api/classes";
-import { useAuth } from "../context/AuthContext";
-import { useMessage } from "../hooks/useMessage";
-import MessageSlot from "../components/MessageSlot";
-import type { ClassInfo } from "../types/class";
-import Panel from "../components/Panel";
-import { formatCreatedDate, getFirstName } from "../utils/format";
-import CopyClassCode from "../components/CopyClassCode";
-import MoreActionsMenu from "../components/MoreActionsMenu";
-import ConfirmModal from "../components/ConfirmModal";
+import { deleteClass, getTeacherClasses } from "../../api/classes";
+import { useAuth } from "../../hooks/useAuth";
+import { useMessage } from "../../hooks/useMessage";
+import MessageSlot from "../../components/ui/MessageSlot";
+import type { ClassInfo } from "../../types/class";
+import Panel from "../../components/ui/Panel";
+import { formatCreatedDate, getFirstName } from "../../utils/format";
+import CopyClassCode from "../../components/class/CopyClassCode";
+import MoreActionsMenu from "../../components/ui/MoreActionsMenu";
+import ConfirmModal from "../../components/ui/ConfirmModal";
 
 function TeacherDashboardPage() {
   const navigate = useNavigate();
@@ -58,15 +58,15 @@ function TeacherDashboardPage() {
         const data = await getTeacherClasses();
 
         setClasses(data);
-      } catch (err: any) {
+      } catch (err) {
         showApiError(err, "Failed to load classes.");
       }
     };
 
     if (user) {
-      loadClasses();
+      void loadClasses();
     }
-  }, [user]);
+  }, [clearAllMessages, showApiError, user]);
 
   return (
     <div className="min-h-screen bg-white">

@@ -1,20 +1,20 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import WelcomePage from "./pages/WelcomePage";
-import LoginPage from "./pages/LoginPage";
+import WelcomePage from "./pages/shared/WelcomePage";
+import LoginPage from "./pages/auth/LoginPage";
 import { ROUTES } from "./router/routes";
-import StudentRegisterPage from "./pages/StudentRegisterPage";
-import TeacherRegisterPage from "./pages/TeacherRegisterPage";
-import StudentDashboardPage from "./pages/StudentDashboardPage";
-import TeacherDashboardPage from "./pages/TeacherDashboardPage";
-import CreateClassPage from "./pages/CreateClassPage";
-import JoinClassPage from "./pages/JoinClassPage";
-import ClassDetailsPage from "./pages/ClassDetailsPage";
-import CreateAssignmentPage from "./pages/CreateAssignmentPage";
-import QuestionPage from "./pages/QuestionPage";
-import StudentAssignmentPage from "./pages/StudentAssignmentPage";
-import TeacherSubmissionsPage from "./pages/TeacherSubmissionsPage";
-import StudentListPage from "./pages/StudentListPage";
-import ProtectedRoute from "./components/ProtectedRoute";
+import StudentRegisterPage from "./pages/auth/StudentRegisterPage";
+import TeacherRegisterPage from "./pages/auth/TeacherRegisterPage";
+import StudentDashboardPage from "./pages/student/StudentDashboardPage";
+import TeacherDashboardPage from "./pages/teacher/TeacherDashboardPage";
+import CreateClassPage from "./pages/teacher/CreateClassPage";
+import JoinClassPage from "./pages/student/JoinClassPage";
+import ClassDetailsPage from "./pages/shared/ClassDetailsPage";
+import CreateAssignmentPage from "./pages/teacher/CreateAssignmentPage";
+import QuestionPage from "./pages/teacher/QuestionPage";
+import StudentAssignmentPage from "./pages/student/StudentAssignmentPage";
+import TeacherSubmissionsPage from "./pages/teacher/TeacherSubmissionsPage";
+import StudentListPage from "./pages/teacher/StudentListPage";
+import ProtectedRoute from "./components/layout/ProtectedRoute";
 
 function App() {
   return (
