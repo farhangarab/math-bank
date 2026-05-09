@@ -1,4 +1,6 @@
-from flask import Flask
+from urllib.parse import urlparse
+
+from flask import Flask, request
 from flask_cors import CORS
 from .config import Config
 from app.extensions import db, bcrypt, login_manager
@@ -25,6 +27,27 @@ def create_app():
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"
     login_manager.session_protection = "basic"
+
+    @app.before_request
+    def reject_untrusted_write_origin():
+        if request.method in {"GET", "HEAD", "OPTIONS"}:
+            return None
+
+        origin = request.headers.get("Origin")
+        if not origin:
+            referer = request.headers.get("Referer")
+            if referer:
+                parsed_referer = urlparse(referer)
+                origin = f"{parsed_referer.scheme}://{parsed_referer.netloc}"
+
+        if origin and origin.rstrip("/") not in app.config["FRONTEND_ORIGINS"]:
+            return {
+                "success": False,
+                "message": "Request origin is not allowed.",
+                "errors": {"general": "Request origin is not allowed."},
+            }, 403
+
+        return None
 
     @login_manager.user_loader
     def load_user(user_id):

@@ -22,6 +22,55 @@ from app.services.serializers import (
 attempt_bp = Blueprint("attempts", __name__)
 
 
+def get_assignment_questions(assignment_id):
+    return (
+        Question.query.filter_by(assignment_id=assignment_id)
+        .order_by(Question.order_index)
+        .all()
+    )
+
+
+def normalize_answer_payload(answers):
+    if not isinstance(answers, list):
+        return None, field_error("answers", "Answers must be a list.")
+
+    normalized_answers = {}
+
+    for index, ans in enumerate(answers):
+        if not isinstance(ans, dict):
+            return None, field_error("answers", "Each answer must be an object.")
+
+        question_id = ans.get("question_id")
+        if question_id is None:
+            return None, field_error(
+                "answers",
+                f"Answer {index + 1} is missing a question ID.",
+            )
+
+        try:
+            question_id = int(question_id)
+        except (TypeError, ValueError):
+            return None, field_error("answers", "Question IDs must be numbers.")
+
+        normalized_answers[question_id] = (ans.get("answer_text") or "").strip()
+
+    return normalized_answers, None
+
+
+def validate_attempt_question_ids(attempt, submitted_question_ids):
+    valid_questions = get_assignment_questions(attempt.assignment_id)
+    valid_question_ids = {question.id for question in valid_questions}
+    invalid_question_ids = sorted(set(submitted_question_ids) - valid_question_ids)
+
+    if invalid_question_ids:
+        return None, field_error(
+            "answers",
+            "Answers include questions that do not belong to this assignment.",
+        )
+
+    return valid_questions, None
+
+
 # start the assignment
 @attempt_bp.route("/start", methods=["POST"])
 @login_required
@@ -132,18 +181,21 @@ def submit_attempt():
     if attempt.status == AttemptStatus.SUBMITTED.value:
         return error_response("Assignment is already submitted.")
 
+    submitted_answers, error = normalize_answer_payload(answers)
+    if error:
+        return error
+
+    questions, error = validate_attempt_question_ids(attempt, submitted_answers.keys())
+    if error:
+        return error
+
     total_score = 0
-    max_score = 0
+    max_score = sum(question.points for question in questions)
     results = []
 
-    for ans in answers:
-        question_id = ans.get("question_id")
-        student_answer = (ans.get("answer_text") or "").strip()
-
-        question = Question.query.get(question_id)
-        if not question:
-            continue
-
+    for question in questions:
+        question_id = question.id
+        student_answer = submitted_answers.get(question_id, "")
         points = question.points
 
         is_correct = False
@@ -179,7 +231,6 @@ def submit_attempt():
             db.session.add(new_answer)
 
         total_score += score
-        max_score += points
 
         results.append(
             {"question_id": question_id, "is_correct": is_correct, "score": score}
@@ -286,9 +337,15 @@ def save_attempt():
     if not answers:
         return field_error("answers", "At least one answer is required.")
 
-    for ans in answers:
-        question_id = ans.get("question_id")
-        answer_text = ans.get("answer_text")
+    submitted_answers, error = normalize_answer_payload(answers)
+    if error:
+        return error
+
+    _, error = validate_attempt_question_ids(attempt, submitted_answers.keys())
+    if error:
+        return error
+
+    for question_id, answer_text in submitted_answers.items():
 
         existing = AttemptAnswer.query.filter_by(
             attempt_id=attempt_id, question_id=question_id
