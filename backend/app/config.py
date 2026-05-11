@@ -9,7 +9,7 @@ if env_path.exists():
 
 
 class Config:
-    SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-me")
+    SECRET_KEY = os.getenv("SECRET_KEY", "abcd12345")
     SQLALCHEMY_DATABASE_URI = os.getenv(
         "DATABASE_URL",
         "mysql+pymysql://root:password@localhost:3306/mathbank",

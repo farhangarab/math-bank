@@ -6,6 +6,7 @@ type ApiFetchOptions = RequestInit & {
 
 export type FieldErrors = Record<string, string>;
 
+// Custom error type for API errors
 export class ApiError extends Error {
   errors: FieldErrors;
 
@@ -22,10 +23,12 @@ type ApiResponseData = {
   errors?: unknown;
 };
 
+//converts the APIs responses that are unknown into an object we can read
 function asApiResponseData(data: unknown): ApiResponseData {
   return data && typeof data === "object" ? data : {};
 }
 
+// extract errors from api response and only keep the string
 function getFieldErrors(errors: unknown): FieldErrors {
   if (!errors || typeof errors !== "object") return {};
 
@@ -35,7 +38,7 @@ function getFieldErrors(errors: unknown): FieldErrors {
     ),
   );
 }
-
+// sends cookies and setes json header
 export async function apiFetch(path: string, options: ApiFetchOptions = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     credentials: "include",

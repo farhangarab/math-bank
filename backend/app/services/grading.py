@@ -3,7 +3,7 @@ from sympy import simplify
 from app.models.enums import GradingType
 from app.utils.math_parser import normalize_math_text, parse_math_expression
 
-
+# these are from PrairieLearn github repository with some changes
 NUMERIC_TOLERANCE = 1e-9
 
 

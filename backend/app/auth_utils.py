@@ -15,6 +15,7 @@ def serialize_user(user):
     }
 
 
+# this one allow access only to specific user roles
 def role_required(*roles):
     allowed_roles = set()
 
